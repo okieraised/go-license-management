@@ -1,0 +1,1 @@
+# go-license-management
