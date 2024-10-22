@@ -4,6 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/spf13/viper"
+	"go-license-management/internal/logging"
+	_ "go-license-management/internal/logging"
+	"go-license-management/server"
+	"go-license-management/server/models"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -24,9 +28,34 @@ func init() {
 	viper.SetEnvKeyReplacer(replacer)
 }
 
+func newDataSource() (*models.DataSource, error) {
+	dataSource := &models.DataSource{}
+	return dataSource, nil
+}
+
+func NewAppService(ds *models.DataSource) *models.AppService {
+	appSvc := &models.AppService{}
+	return appSvc
+}
+
 func main() {
 	quit := make(chan os.Signal)
+	serverQuit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGKILL)
+
+	dataSources, err := newDataSource()
+	if err != nil {
+		logging.GetInstance().Error(err.Error())
+		return
+	}
+	appSvc := NewAppService(dataSources)
+
+	go func() {
+		server.StartServer(appSvc, serverQuit)
+	}()
+
+	<-quit
+	serverQuit <- syscall.SIGKILL
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

@@ -1,12 +1,16 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
+	"go-license-management/internal/logging"
 	"go-license-management/internal/middlewares"
 	"go-license-management/server/models"
 	"net/http"
@@ -14,10 +18,10 @@ import (
 	"time"
 )
 
-func StartAPIServer(appService *models.AppService, quit chan os.Signal) {
+func StartServer(appService *models.AppService, quit chan os.Signal) {
+	gin.SetMode(viper.GetString(config.SERVER__MODE))
 	router := gin.New()
 	router.Use(gin.Recovery())
-	gin.SetMode("release")
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{constants.AllowAllOrigins},
@@ -30,7 +34,7 @@ func StartAPIServer(appService *models.AppService, quit chan os.Signal) {
 
 	router.Use(middlewares.RequestIDMW(), middlewares.Recovery(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression))
 
-	serverAddr := "0.0.0.0:" + viper.GetString(comconstants.SERVER__HTTP_PORT)
+	serverAddr := "0.0.0.0:" + viper.GetString(config.SERVER__HTTP_PORT)
 
 	srv := &http.Server{
 		Addr:    serverAddr,
@@ -40,23 +44,21 @@ func StartAPIServer(appService *models.AppService, quit chan os.Signal) {
 	go func() {
 		err := srv.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logging.GetInstance().GetLogger().Fatal(err.Error())
+			logging.GetInstance().Error(err.Error())
 		}
 	}()
-	logging.GetInstance().GetLogger().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
+	logging.GetInstance().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
 
 	<-quit
-	logging.GetInstance().GetLogger().Info("shutting down server in 5 seconds")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		logging.GetInstance().GetLogger().Fatal(fmt.Sprintf("error shutting down server: %s", err.Error()))
+		logging.GetInstance().Error(fmt.Sprintf("error shutting down server: %s", err.Error()))
 	}
 
 	select {
 	case <-ctx.Done():
-		logging.GetInstance().GetLogger().Info("server shutdown completed")
+		logging.GetInstance().Info("server shutdown completed")
 	}
-
 }
