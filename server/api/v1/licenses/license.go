@@ -1,4 +1,4 @@
-package license
+package licenses
 
 import (
 	"github.com/gin-gonic/gin"
