@@ -1,4 +1,4 @@
-package role
+package constants
 
 const (
 	RoleSuperAdmin = iota

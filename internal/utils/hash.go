@@ -67,33 +67,17 @@ func equal(h1, h2 []byte) bool {
 	return diff == 0
 }
 
-// Hash password
-
-func hashPassword(password string) (string, error) {
-
-	// Convert password string to byte slice
-
-	var passwordBytes = []byte(password)
-
-	// Hash password with Bcrypt's min cost
-
-	hashedPasswordBytes, err := bcrypt.
-		GenerateFromPassword(passwordBytes, bcrypt.MinCost)
-
-	return string(hashedPasswordBytes), err
+func HashPassword(password string) (string, error) {
+	bPassword := []byte(password)
+	hashedPassword, err := bcrypt.GenerateFromPassword(bPassword, bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
 
 }
 
-// Check if two passwords match using Bcrypt's CompareHashAndPassword
-
-// which return nil on success and an error on failure.
-
-func doPasswordsMatch(hashedPassword, currPassword string) bool {
-
-	err := bcrypt.CompareHashAndPassword(
-
-		[]byte(hashedPassword), []byte(currPassword))
-
+func Compare(hashedPassword, currPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(currPassword))
 	return err == nil
-
 }
