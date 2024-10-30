@@ -42,6 +42,12 @@ const (
 	XRequestIDHeader                = "X-Request-ID"
 	XRequestedWithHeader            = "X-Requested-With"
 	XAPIKeyHeader                   = "X-API-Key"
+	XRateLimitWindowHeader          = "X-RateLimit-Window" // The current rate limiting window that is closest to being reached, percentage-wise.
+	XRateLimitCountHeader           = "X-RateLimit-Count"  // The number of requests that have been performed within the current rate limit window.
+	XRateLimitLimitHeader           = "X-RateLimit-Limit"  // 	The maximum number of requests that the IP is permitted to make for the current window.
+	RetryAfterHeader                = "Retry-After"
+	XRateLimitRemainingHeader       = "X-RateLimit-Remaining" //	The number of requests remaining in the current rate limit window.
+	XRateLimitResetHeader           = "X-RateLimit-Reset"     //	The time at which the current rate limit window resets in UTC epoch seconds.
 )
 
 const (
