@@ -17,12 +17,11 @@ func NewPolicyRouter() *PolicyRouter {
 func (r *PolicyRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
-		routes = routes.Group("/groups")
+		routes = routes.Group("/policies")
 		routes.POST("", r.create)
 		routes.GET("", r.list)
 		routes.GET("/:policy_id", r.retrieve)
 		routes.PATCH("/:policy_id", r.update)
-		routes.DELETE("/:policy_id", r.delete)
 		routes.DELETE("/:policy_id", r.delete)
 		routes.POST("/:policy_id/entitlements", r.attach)
 		routes.DELETE("/:policy_id/entitlements", r.detach)
