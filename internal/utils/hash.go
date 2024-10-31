@@ -38,19 +38,17 @@ func Verify(raw, hash string) (bool, error) {
 
 	itr, err := strconv.Atoi(hparts[0])
 	if err != nil {
-		fmt.Printf("wrong hash %v", hash)
-		return false, errors.New("wrong hash, iteration is invalid")
+		return false, err
 	}
 	salt, err := base64.StdEncoding.DecodeString(hparts[1])
 	if err != nil {
-		fmt.Print("wrong hash, salt error:", err)
-		return false, errors.New("wrong hash, salt error:" + err.Error())
+
+		return false, err
 	}
 
 	hsh, err := base64.StdEncoding.DecodeString(hparts[2])
 	if err != nil {
-		fmt.Print("wrong hash, hash error:", err)
-		return false, errors.New("wrong hash, hash error:" + err.Error())
+		return false, err
 	}
 
 	rhash := pbkdf2.Key([]byte(raw), salt, itr, len(hsh), sha1.New)

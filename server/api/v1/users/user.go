@@ -6,6 +6,7 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
+	"go-license-management/internal/server/v1/users/service"
 	"go-license-management/server/models/v1/users"
 	"go.opentelemetry.io/otel/trace"
 	"log/slog"
@@ -17,14 +18,17 @@ const (
 )
 
 type UserRouter struct {
+	svc    *service.UserService
 	logger *slog.Logger
 	tracer trace.Tracer
 }
 
-func NewAccountRouter() *UserRouter {
+// NewAccountRouter initializes new user router.
+func NewAccountRouter(svc *service.UserService) *UserRouter {
 	tr := tracer.GetInstance().Tracer(userGroup)
 	logger := logging.GetInstance().With(slog.Group(userGroup))
 	return &UserRouter{
+		svc:    svc,
 		logger: logger,
 		tracer: tr,
 	}
@@ -73,6 +77,17 @@ func (r *UserRouter) create(ctx *gin.Context) {
 		cSpan.End()
 		r.logger.Error(err.Error())
 		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	_, err = r.svc.Create(ctx, req.ToUserRegistrationInput(rootCtx, r.tracer))
+	if err != nil {
+		cSpan.End()
+		r.logger.Error(err.Error())
+		ctx.JSON(http.StatusInternalServerError, resp)
 		return
 	}
 	cSpan.End()

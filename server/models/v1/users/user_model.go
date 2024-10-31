@@ -1,6 +1,11 @@
 package users
 
-import "errors"
+import (
+	"context"
+	"errors"
+	"go-license-management/internal/server/v1/users/models"
+	"go.opentelemetry.io/otel/trace"
+)
 
 type UserRegistrationRequest struct {
 	Username *string `json:"username,omitempty" validate:"required" example:"test"`
@@ -27,4 +32,15 @@ func (req *UserRegistrationRequest) Validate() error {
 	}
 
 	return nil
+}
+
+func (req *UserRegistrationRequest) ToUserRegistrationInput(ctx context.Context, tracer trace.Tracer) *models.UserRegistrationInput {
+	return &models.UserRegistrationInput{
+		TracerCtx: ctx,
+		Tracer:    tracer,
+		Username:  req.Username,
+		Password:  req.Password,
+		Email:     req.Email,
+		Role:      req.Role,
+	}
 }
