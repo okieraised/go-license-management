@@ -17,13 +17,13 @@ const (
 	defaultMaxOpenConn  int = 100
 )
 
-var postgresClient *bun.DB
-
-func GetInstance() *bun.DB {
-	return postgresClient
+type PostgreSQLClient struct {
+	db *bun.DB
 }
 
-func NewPostgresClient(host, dbname, userName, password string) (*bun.DB, error) {
+var postgresClient *PostgreSQLClient
+
+func NewPostgresClient(host, dbname, userName, password string) (*PostgreSQLClient, error) {
 
 	if host == "" || userName == "" || password == "" || dbname == "" {
 		return nil, errors.New("one or more required connection parameters are empty")
@@ -46,7 +46,22 @@ func NewPostgresClient(host, dbname, userName, password string) (*bun.DB, error)
 	postgresDB.SetConnMaxIdleTime(30 * time.Minute)
 	postgresDB.SetConnMaxLifetime(60 * time.Minute)
 
-	postgresClient = bun.NewDB(postgresDB, pgdialect.New())
+	postgresClient = &PostgreSQLClient{
+		db: bun.NewDB(postgresDB, pgdialect.New()),
+	}
 
 	return postgresClient, nil
+}
+
+func GetInstance() *PostgreSQLClient {
+	return postgresClient
+}
+
+func (c *PostgreSQLClient) getClient() *bun.DB {
+	return c.db
+}
+
+func (c *PostgreSQLClient) Bootstrap() error {
+
+	return nil
 }

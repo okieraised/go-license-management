@@ -60,8 +60,8 @@ func NewLicenseKeyWithEd25519(signingKey string, data any) (string, error) {
 
 	// Sign the data with the private key
 	signature := ed25519.Sign(privateKey, bData)
-	encodedSignature := base64.StdEncoding.EncodeToString(signature)
-	encodedData := base64.StdEncoding.EncodeToString(bData)
+	encodedSignature := base64.URLEncoding.EncodeToString(signature)
+	encodedData := base64.URLEncoding.EncodeToString(bData)
 
 	// Combine the encoded data and signature to create the license key
 	licenseKey := fmt.Sprintf("%s.%s", encodedData, encodedSignature)
@@ -78,12 +78,12 @@ func VerifyLicenseKeyWithEd25519(verifyKey string, licenseKey string) (bool, []b
 	encodedData := parts[0]
 	encodedSignature := parts[1]
 
-	data, err := base64.StdEncoding.DecodeString(encodedData)
+	data, err := base64.URLEncoding.DecodeString(encodedData)
 	if err != nil {
 		return false, nil, err
 	}
 
-	signature, err := base64.StdEncoding.DecodeString(encodedSignature)
+	signature, err := base64.URLEncoding.DecodeString(encodedSignature)
 	if err != nil {
 		return false, nil, err
 	}

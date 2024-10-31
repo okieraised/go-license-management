@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
-	"go-license-management/internal/logging"
+	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/middlewares"
 	"go-license-management/server/models"
 	"net/http"

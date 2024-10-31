@@ -9,7 +9,7 @@ type TokenRouter struct {
 	tracer trace.Tracer
 }
 
-func NewPolicyRouter() *TokenRouter {
+func NewTokenRouter() *TokenRouter {
 
 	return &TokenRouter{}
 }

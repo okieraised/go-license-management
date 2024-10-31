@@ -2,16 +2,32 @@ package users
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/response"
+	"go-license-management/server/models/v1/users"
 	"go.opentelemetry.io/otel/trace"
+	"log/slog"
+	"net/http"
+)
+
+const (
+	userGroup = "user_group"
 )
 
 type UserRouter struct {
+	logger *slog.Logger
 	tracer trace.Tracer
 }
 
 func NewAccountRouter() *UserRouter {
-
-	return &UserRouter{}
+	tr := tracer.GetInstance().Tracer(userGroup)
+	logger := logging.GetInstance().With(slog.Group(userGroup))
+	return &UserRouter{
+		logger: logger,
+		tracer: tr,
+	}
 }
 
 func (r *UserRouter) Routes(engine *gin.RouterGroup, path string) {
@@ -32,7 +48,36 @@ func (r *UserRouter) Routes(engine *gin.RouterGroup, path string) {
 // if needed, using the password reset flow. This is particularly great for custom license recovery flows,
 // where you may need to email a user their lost license keys.
 func (r *UserRouter) create(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
 
+	resp := response.NewResponse(ctx)
+	r.logger.InfoContext(ctx, "received new user creation request", slog.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	// serializer
+	var req users.UserRegistrationRequest
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.BindJSON(&req)
+	if err != nil {
+		cSpan.End()
+		r.logger.Error(err.Error())
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = req.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.Error(err.Error())
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // retrieve retrieves the details of an existing user.

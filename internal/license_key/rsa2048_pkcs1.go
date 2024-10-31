@@ -4,7 +4,7 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -17,8 +17,8 @@ import (
 const RSAPrivateKeyStr = "RSA PRIVATE KEY"
 const RSAPublicKeyStr = "RSA PUBLIC KEY"
 
-// NewRSA2048KeyPair generates the private key and the public key pair using RSA2048 algorithm
-func NewRSA2048KeyPair() (string, string, error) {
+// NewRSA2048PKCS1KeyPair generates the private key and the public key pair using RSA2048 algorithm
+func NewRSA2048PKCS1KeyPair() (string, string, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return "", "", err
@@ -39,8 +39,8 @@ func NewRSA2048KeyPair() (string, string, error) {
 	return string(privateKeyPEM), string(publicKeyPEM), nil
 }
 
-// NewLicenseKeyWithRSA2048 generates new license key using RSA2048 algorithm
-func NewLicenseKeyWithRSA2048(signingKey string, data any) (string, error) {
+// NewLicenseKeyWithRSA2048PKCS1 generates new license key using RSA2048 algorithm
+func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) {
 	bData, err := json.Marshal(data)
 	if err != nil {
 		return "", err
@@ -50,7 +50,7 @@ func NewLicenseKeyWithRSA2048(signingKey string, data any) (string, error) {
 	encodedData := base64.StdEncoding.EncodeToString(bData)
 
 	// Sign the data using the private key with SHA-256 hashing
-	hash := sha256.New()
+	hash := sha512.New()
 	hash.Write(bData)
 	hashed := hash.Sum(nil)
 
@@ -66,7 +66,7 @@ func NewLicenseKeyWithRSA2048(signingKey string, data any) (string, error) {
 		return "", err
 	}
 
-	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed)
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA512, hashed)
 	if err != nil {
 		return "", err
 	}
@@ -80,8 +80,8 @@ func NewLicenseKeyWithRSA2048(signingKey string, data any) (string, error) {
 	return licenseKey, nil
 }
 
-// VerifyLicenseKeyWithRSA2048 verifies a license key against the provided public key using Ed25519 algorithm
-func VerifyLicenseKeyWithRSA2048(verifyKey string, licenseKey string) (bool, []byte, error) {
+// VerifyLicenseKeyWithRSA2048PKCS1 verifies a license key against the provided public key using Ed25519 algorithm
+func VerifyLicenseKeyWithRSA2048PKCS1(verifyKey string, licenseKey string) (bool, []byte, error) {
 	parts := strings.Split(licenseKey, ".")
 	if len(parts) != 2 {
 		return false, nil, errors.New("invalid license key format")
@@ -113,8 +113,8 @@ func VerifyLicenseKeyWithRSA2048(verifyKey string, licenseKey string) (bool, []b
 	}
 
 	// Check sum of data
-	hashed := sha256.Sum256(data)
-	err = rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], signature)
+	hashed := sha512.Sum512(data)
+	err = rsa.VerifyPKCS1v15(publicKey, crypto.SHA512, hashed[:], signature)
 	if err != nil {
 		return false, nil, err
 	}

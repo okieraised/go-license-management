@@ -2,19 +2,14 @@ package accounts
 
 import "errors"
 
-type UserRegistrationRequest struct {
-	Username *string `json:"username,omitempty"`
-	Password *string `json:"password,omitempty"`
-	Email    *string `json:"email,omitempty"`
+type AccountCreateModelRequest struct {
+	Name        *string `json:"name" validate:"required" example:"test"`
+	Description *string `json:"description"  validate:"optional" example:"test"`
 }
 
-func (req *UserRegistrationRequest) Validate() error {
-	if req.Username == nil {
-		return errors.New("username is empty")
-	}
-
-	if req.Password == nil {
-		return errors.New("password is empty")
+func (req *AccountCreateModelRequest) Validate() error {
+	if req.Name == nil {
+		return errors.New("account name is empty")
 	}
 
 	return nil
