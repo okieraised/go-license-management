@@ -12,6 +12,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/middlewares"
+	"go-license-management/server/api"
 	"go-license-management/server/models"
 	"net/http"
 	"os"
@@ -33,9 +34,10 @@ func StartServer(appService *models.AppService, quit chan os.Signal) {
 	}))
 
 	router.Use(middlewares.RequestIDMW(), middlewares.Recovery(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression))
+	rootRouter := api.New(appService)
+	rootRouter.InitRouters(router)
 
 	serverAddr := "0.0.0.0:" + viper.GetString(config.SERVER__HTTP_PORT)
-
 	srv := &http.Server{
 		Addr:    serverAddr,
 		Handler: router,

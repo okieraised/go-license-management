@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/casbin/casbin/v2"
 	"github.com/spf13/viper"
 	"go-license-management/internal/infrastructure/logging"
 	_ "go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/tracer"
+	accountSvc "go-license-management/internal/server/v1/accounts/service"
 	"go-license-management/server"
 	"go-license-management/server/models"
 	"log/slog"
@@ -31,11 +32,28 @@ func init() {
 
 func newDataSource() (*models.DataSource, error) {
 	dataSource := &models.DataSource{}
+
+	// tracer
+	err := tracer.NewTracerProvider(
+		viper.GetString(""),
+		viper.GetString(""),
+		"",
+	)
+	if err != nil {
+		return dataSource, err
+	}
+
 	return dataSource, nil
 }
 
 func NewAppService(ds *models.DataSource) *models.AppService {
 	appSvc := &models.AppService{}
+
+	// register v1
+	v1 := &models.V1AppService{}
+	v1.SetAccount(accountSvc.NewAccountService())
+
+	appSvc.SetV1Svc(v1)
 	return appSvc
 }
 
@@ -64,29 +82,5 @@ func main() {
 	select {
 	case <-ctx.Done():
 		slog.Info("app shutdown completed")
-	}
-}
-
-func test() {
-	e, err := casbin.NewEnforcer("conf/rbac_model.conf", "conf/rbac_policy.csv")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	subject := "superadmin" // the user who wants to access the resource
-	domain := ""            // the domain in which access is requested
-	object := "data1"       // the resource to access
-	action := "write"       // the action the user wants to perform
-
-	// Check if the subject has permission
-	ok, err := e.Enforce(subject, domain, object, action)
-	if err != nil {
-		fmt.Printf("Error checking permission: %v\n", err)
-		return
-	}
-	if ok {
-		fmt.Printf("Access granted for %s to %s %s in %s\n", subject, action, object, domain)
-	} else {
-		fmt.Printf("Access denied for %s to %s %s in %s\n", subject, action, object, domain)
 	}
 }
