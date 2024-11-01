@@ -7,7 +7,7 @@ import (
 )
 
 type Group struct {
-	bun.BaseModel `bun:"table:groups,alias:g"`
+	bun.BaseModel `bun:"table:groups,alias:g" swaggerignore:"true"`
 
 	ID            uuid.UUID              `bun:"id,pk,type:uuid"`
 	AccountID     uuid.UUID              `bun:"account_id,type:uuid,notnull"`
@@ -22,7 +22,7 @@ type Group struct {
 }
 
 type GroupOwner struct {
-	bun.BaseModel `bun:"table:group_owners,alias:go"`
+	bun.BaseModel `bun:"table:group_owners,alias:go" swaggerignore:"true"`
 
 	ID            uuid.UUID `bun:",pk,type:uuid,default:uuid_generate_v4()"`
 	AccountID     uuid.UUID `bun:"account_id,type:uuid,notnull"`
