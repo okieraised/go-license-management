@@ -20,7 +20,7 @@ import (
 )
 
 func StartServer(appService *models.AppService, quit chan os.Signal) {
-	gin.SetMode(viper.GetString(config.SERVER__MODE))
+	gin.SetMode(viper.GetString(config.ServerMode))
 	router := gin.New()
 	router.Use(gin.Recovery())
 
@@ -37,7 +37,7 @@ func StartServer(appService *models.AppService, quit chan os.Signal) {
 	rootRouter := api.New(appService)
 	rootRouter.InitRouters(router)
 
-	serverAddr := "0.0.0.0:" + viper.GetString(config.SERVER__HTTP_PORT)
+	serverAddr := "0.0.0.0:" + viper.GetString(config.ServerHttpPort)
 	srv := &http.Server{
 		Addr:    serverAddr,
 		Handler: router,

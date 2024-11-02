@@ -10,6 +10,8 @@ import (
 type AccountCreateModelRequest struct {
 	Name        *string `json:"name" validate:"required" example:"test"`
 	Description *string `json:"description"  validate:"optional" example:"test"`
+	Slug        *string `json:"slug"`
+	Protected   *bool   `json:"protected,default:true"`
 }
 
 func (req *AccountCreateModelRequest) Validate() error {

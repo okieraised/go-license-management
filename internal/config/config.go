@@ -1,6 +1,15 @@
 package config
 
 const (
-	SERVER__MODE      = "server.mode"
-	SERVER__HTTP_PORT = "server.http_port"
+	ServerMode     = "server.mode"
+	ServerHttpPort = "server.http_port"
+)
+
+const (
+	SuperAdminUsername = "superadmin.username"
+	SuperAdminPassword = "superadmin.password"
+)
+
+const (
+	TracerURI = "tracer.uri"
 )
