@@ -20,7 +20,7 @@ const (
 	// The license key must be a valid JWT claims payload (i.e. a JSON encoded string).
 	// The JWT will be signed using your account's 2048-bit RSA private key and
 	// can be verified using your account's public key. The resulting key will be a full JSON Web Token.
-	// We do not modify your claims payload.
+	// We do not modify your claim payload.
 	PolicySchemeRSA2048JWTRS256 = "RSA2048JWTRS256"
 )
 
@@ -93,3 +93,13 @@ const (
 	// PolicyAuthenticationStrategyNone - Disable the ability for licenses to authenticate with the API.
 	PolicyAuthenticationStrategyNone = "auth_none"
 )
+
+const (
+	// PolicyHeartbeatBasisFromCreation - Machine heartbeat is started immediately upon creation.
+	PolicyHeartbeatBasisFromCreation = "from_creation"
+
+	// PolicyHeartbeatBasisFromFirstPing - Machine heartbeat is started after their first heartbeat ping event.
+	PolicyHeartbeatBasisFromFirstPing = "from_first_ping"
+)
+
+const ()
