@@ -11,7 +11,7 @@ type Tenant struct {
 	ID                uuid.UUID `bun:"id,pk,type:uuid"`
 	Name              string    `bun:"name,type:varchar(256),nullzero"`
 	Slug              string    `bun:"slug,type:varchar(256),nullzero"`
-	Protected         bool      `bun:"protected,default:false"`
+	Protected         bool      `bun:"protected,default:true"`
 	PublicKey         string    `bun:"public_key,nullzero"`
 	PrivateKey        string    `bun:"private_key,nullzero"`
 	SecretKey         string    `bun:"secret_key,nullzero"`

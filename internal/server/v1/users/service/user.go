@@ -19,15 +19,15 @@ type UserService struct {
 }
 
 func NewUserService(options ...func(*UserService)) *UserService {
-	ekycSvc := &UserService{}
+	svc := &UserService{}
 
 	for _, opt := range options {
-		opt(ekycSvc)
+		opt(svc)
 	}
 	logger := logging.GetInstance().With(slog.Group(userGroup))
-	ekycSvc.logger = logger
+	svc.logger = logger
 
-	return ekycSvc
+	return svc
 }
 
 func WithRepository(repo repository.IUser) func(*UserService) {

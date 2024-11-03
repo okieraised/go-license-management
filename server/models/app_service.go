@@ -1,6 +1,9 @@
 package models
 
-import accountSvc "go-license-management/internal/server/v1/accounts/service"
+import (
+	accountSvc "go-license-management/internal/server/v1/accounts/service"
+	tenantSvc "go-license-management/internal/server/v1/tenants/service"
+)
 
 type AppService struct {
 	v1 *V1AppService
@@ -16,6 +19,7 @@ func (svc *AppService) SetV1Svc(v1Svc *V1AppService) {
 
 type V1AppService struct {
 	account *accountSvc.AccountService
+	tenant  *tenantSvc.TenantService
 }
 
 func (v1 *V1AppService) GetAccount() *accountSvc.AccountService {
@@ -24,4 +28,12 @@ func (v1 *V1AppService) GetAccount() *accountSvc.AccountService {
 
 func (v1 *V1AppService) SetAccount(svc *accountSvc.AccountService) {
 	v1.account = svc
+}
+
+func (v1 *V1AppService) GetTenant() *tenantSvc.TenantService {
+	return v1.tenant
+}
+
+func (v1 *V1AppService) SetTenant(svc *tenantSvc.TenantService) {
+	v1.tenant = svc
 }
