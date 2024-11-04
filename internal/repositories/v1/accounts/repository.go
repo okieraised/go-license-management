@@ -62,6 +62,18 @@ func (repo *AccountRepository) SelectAccountByPK(ctx context.Context, tenantID u
 	return account, nil
 }
 
+func (repo *AccountRepository) UpdateAccountByPK(ctx context.Context, account *entities.Account) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	_, err := repo.database.NewUpdate().Model(account).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repo *AccountRepository) CheckAccountExistByPK(ctx context.Context, tenantID uuid.UUID, username string) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient

@@ -159,7 +159,65 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 // update updates the specified account resource by setting the values of the parameters passed.
 // Any parameters not provided will be left unchanged.
 func (r *AccountRouter) update(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
 
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts deletion request")
+
+	// serializer
+	tenantName := ctx.Param("tenant_name")
+	if tenantName == "" {
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	username := ctx.Param("account_name")
+	if username == "" {
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var req accounts.AccountUpdateRequest
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = req.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.Update(ctx, req.ToAccountUpdateInput(rootCtx, r.tracer, tenantName, username))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		ctx.JSON(http.StatusInternalServerError, resp)
+		return
+	}
+	cSpan.End()
+
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	ctx.JSON(http.StatusNoContent, resp)
 }
 
 // delete permanently deletes an account. It cannot be undone.

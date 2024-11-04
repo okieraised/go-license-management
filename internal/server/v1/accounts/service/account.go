@@ -287,6 +287,89 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 }
 
 func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
 
-	return &response.BaseOutput{}, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	// Query tenant
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	// Query account
+	_, cSpan = input.Tracer.Start(rootCtx, "query-account")
+	account, err := svc.repo.SelectAccountByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	// Update account
+	if input.Password != nil {
+		_, cSpan = input.Tracer.Start(rootCtx, "query-account")
+		hashed, err := utils.HashPassword(utils.DerefPointer(input.Password))
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		cSpan.End()
+		account.PasswordDigest = hashed
+	}
+
+	if input.Email != nil {
+		account.Email = utils.DerefPointer(input.Email)
+	}
+
+	if input.FirstName != nil {
+		account.FirstName = utils.DerefPointer(input.FirstName)
+	}
+
+	if input.LastName != nil {
+		account.LastName = utils.DerefPointer(input.LastName)
+	}
+
+	if input.Metadata != nil {
+		account.Metadata = input.Metadata
+	}
+
+	if input.Role != nil {
+		account.RoleName = utils.DerefPointer(input.Role)
+	}
+
+	_, cSpan = input.Tracer.Start(rootCtx, "update-account")
+	err = svc.repo.UpdateAccountByPK(ctx, account)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	return resp, nil
 }

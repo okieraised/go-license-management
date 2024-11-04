@@ -101,3 +101,38 @@ func (req *AccountDeletionRequest) ToAccountDeletionInput(ctx context.Context, t
 		Username:   req.AccountName,
 	}
 }
+
+type AccountUpdateRequest struct {
+	Password  *string                `json:"password" validate:"required" example:"test"`
+	FirstName *string                `json:"first_name" validate:"optional" example:"test"`
+	LastName  *string                `json:"lastName" validate:"optional" example:"test"`
+	Email     *string                `json:"email" validate:"required" example:"test"`
+	Role      *string                `json:"role" validate:"required" example:"test"`
+	Metadata  map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+}
+
+func (req *AccountUpdateRequest) Validate() error {
+	if req.Role == nil {
+		req.Role = utils.RefPointer(constants.RoleUser)
+	} else {
+		if _, ok := constants.ValidRoleMapper[utils.DerefPointer(req.Role)]; !ok {
+			return comerrors.ErrAccountRoleIsInvalid
+		}
+	}
+	return nil
+}
+
+func (req *AccountUpdateRequest) ToAccountUpdateInput(ctx context.Context, tracer trace.Tracer, tenantName, username string) *models.AccountUpdateInput {
+	return &models.AccountUpdateInput{
+		TracerCtx:  ctx,
+		Tracer:     tracer,
+		TenantName: utils.RefPointer(tenantName),
+		Username:   utils.RefPointer(username),
+		Password:   req.Password,
+		FirstName:  req.FirstName,
+		LastName:   req.LastName,
+		Email:      req.Email,
+		Role:       req.Role,
+		Metadata:   req.Metadata,
+	}
+}
