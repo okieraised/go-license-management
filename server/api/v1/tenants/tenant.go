@@ -136,7 +136,6 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
-
 }
 
 func (r *TenantRouter) retrieve(ctx *gin.Context) {

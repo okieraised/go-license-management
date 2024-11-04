@@ -9,5 +9,6 @@ import (
 type IAccount interface {
 	InsertNewAccount(ctx context.Context, account *entities.Account) error
 	SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error)
+	SelectAccountsByTenant(ctx context.Context, tenantID uuid.UUID) ([]entities.Account, int, error)
 	CheckAccountExistByPK(ctx context.Context, tenantID uuid.UUID, username string) (bool, error)
 }

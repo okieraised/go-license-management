@@ -8,7 +8,9 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
+	"go-license-management/internal/server/v1/accounts/models"
 	"go-license-management/internal/server/v1/accounts/service"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/accounts"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -101,7 +103,6 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
 		}
-
 		return
 	}
 	cSpan.End()
@@ -130,5 +131,37 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 // list returns a list of accounts. The accounts are returned sorted by creation date,
 // with the most recent accounts appearing first
 func (r *AccountRouter) list(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
 
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts list request")
+
+	// serializer
+	tenantName := ctx.Param("tenant_name")
+	if tenantName == "" {
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	// handler
+	_, cSpan := r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.List(ctx, &models.AccountListInput{
+		TracerCtx:  rootCtx,
+		Tracer:     r.tracer,
+		TenantName: utils.RefPointer(tenantName),
+	})
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		ctx.JSON(http.StatusInternalServerError, resp)
+		return
+	}
+	cSpan.End()
+
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
+	ctx.JSON(http.StatusOK, resp)
+	return
 }

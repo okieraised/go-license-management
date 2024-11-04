@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	xormadapter "github.com/casbin/xorm-adapter/v3"
+	"go-license-management/internal/constants"
 )
 
 func main() {
@@ -20,45 +21,19 @@ func main() {
 		return
 	}
 
-	// Load the policy from DB.
-	err = e.LoadPolicy()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(e.GetPolicy())
-
-	subject := "alice"  // the user who wants to access the resource
-	domain := "domain1" // the domain in which access is requested
-	object := "data1"   // the resource to access
-	action := "read"    // the action the user wants to perform
-
-	// Check if the subject has permission
-	allowed, err := e.Enforce(domain, subject, object, action)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if allowed {
-		fmt.Printf("Access granted for %s to %s %s in %s\n", subject, action, object, domain)
-	} else {
-		fmt.Printf("Access denied for %s to %s %s in %s\n", subject, action, object, domain)
-	}
-
 	// Modify the policy.
-	//policy, err := e.AddPolicy(domain, subject, object, action)
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//fmt.Println(policy)
-	//// e.RemovePolicy(...)
-	//
-	//// Save the policy back to DB.
-	//err = e.SavePolicy()
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
+	for _, record := range constants.CreateAdminPermission("test") {
+		_, err := e.AddPolicy(record[1], record[2], record[3], record[4])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		err = e.SavePolicy()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
 }

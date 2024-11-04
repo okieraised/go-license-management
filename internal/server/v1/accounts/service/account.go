@@ -84,7 +84,6 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	}
 
 	// Hashing password
-	fmt.Println("utils.DerefPointer(input.Password)", utils.DerefPointer(input.Password))
 	_, cSpan = input.Tracer.Start(rootCtx, "hash-password")
 	hashed, err := utils.HashPassword(utils.DerefPointer(input.Password))
 	if err != nil {
@@ -101,17 +100,17 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 
 	now := time.Now()
 	account := &entities.Account{
-		Username:           utils.DerefPointer(input.Username),
-		TenantID:           tenant.ID,
-		RoleName:           utils.DerefPointer(input.Role),
-		Email:              utils.DerefPointer(input.Email),
-		FirstName:          utils.DerefPointer(input.FirstName),
-		LastName:           utils.DerefPointer(input.LastName),
-		PasswordDigest:     hashed,
-		PasswordResetToken: "",
-		Metadata:           input.Metadata,
-		CreatedAt:          now,
-		UpdatedAt:          now,
+		Username:       utils.DerefPointer(input.Username),
+		TenantID:       tenant.ID,
+		Status:         constants.AccountStatusActive,
+		RoleName:       utils.DerefPointer(input.Role),
+		Email:          utils.DerefPointer(input.Email),
+		FirstName:      utils.DerefPointer(input.FirstName),
+		LastName:       utils.DerefPointer(input.LastName),
+		PasswordDigest: hashed,
+		Metadata:       input.Metadata,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}
 
 	err = svc.repo.InsertNewAccount(ctx, account)
@@ -131,8 +130,64 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 }
 
 func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
 
-	return &response.BaseOutput{}, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-accounts")
+	accounts, count, err := svc.repo.SelectAccountsByTenant(ctx, tenant.ID)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "convert-tenants-to-output")
+	respData := make([]models.AccountListOutput, 0)
+	for _, account := range accounts {
+		respData = append(respData, models.AccountListOutput{
+			Username:  account.Username,
+			RoleName:  account.RoleName,
+			Email:     account.Email,
+			FirstName: account.FirstName,
+			LastName:  account.LastName,
+			Status:    account.Status,
+			Metadata:  account.Metadata,
+			BannedAt:  account.BannedAt,
+			CreatedAt: account.CreatedAt,
+			UpdatedAt: account.UpdatedAt,
+		})
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Count = count
+	resp.Data = respData
+
+	return resp, nil
 }
 
 func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetrievalInput) (*response.BaseOutput, error) {

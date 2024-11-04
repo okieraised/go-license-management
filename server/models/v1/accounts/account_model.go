@@ -61,3 +61,43 @@ func (req *AccountRegistrationRequest) ToAccountRegistrationInput(ctx context.Co
 		Metadata:   req.Metadata,
 	}
 }
+
+type AccountRetrievalRequest struct {
+	AccountName *string `uri:"account_name" binding:"required"`
+}
+
+func (req *AccountRetrievalRequest) Validate() error {
+	if req.AccountName == nil {
+		return comerrors.ErrAccountUsernameIsEmpty
+	}
+	return nil
+}
+
+func (req *AccountRetrievalRequest) ToAccountRetrievalInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.AccountRetrievalInput {
+	return &models.AccountRetrievalInput{
+		TracerCtx:  ctx,
+		Tracer:     tracer,
+		TenantName: utils.RefPointer(tenantName),
+		Username:   req.AccountName,
+	}
+}
+
+type AccountDeletionRequest struct {
+	AccountName *string `uri:"account_name" binding:"required"`
+}
+
+func (req *AccountDeletionRequest) Validate() error {
+	if req.AccountName == nil {
+		return comerrors.ErrAccountUsernameIsEmpty
+	}
+	return nil
+}
+
+func (req *AccountDeletionRequest) ToTenantDeletionInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.AccountDeletionInput {
+	return &models.AccountDeletionInput{
+		TracerCtx:  ctx,
+		Tracer:     tracer,
+		TenantName: utils.RefPointer(tenantName),
+		Username:   req.AccountName,
+	}
+}

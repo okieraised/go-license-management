@@ -15,6 +15,7 @@ type Account struct {
 	Email               string                 `bun:"email,type:varchar(256),notnull"`
 	FirstName           string                 `bun:"first_name,type:varchar(128)"`
 	LastName            string                 `bun:"last_name,type:varchar(128)"`
+	Status              string                 `bun:"status,type:varchar(32),notnull"`
 	PasswordDigest      string                 `bun:"password_digest,type:varchar(256)"`
 	PasswordResetToken  string                 `bun:"password_reset_token,type:varchar(256),notnull"`
 	Metadata            map[string]interface{} `bun:"metadata,type:jsonb"`

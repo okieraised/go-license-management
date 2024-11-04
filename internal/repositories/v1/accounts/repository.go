@@ -34,6 +34,21 @@ func (repo *AccountRepository) SelectTenantByName(ctx context.Context, tenantNam
 	return tenant, nil
 }
 
+func (repo *AccountRepository) SelectAccountsByTenant(ctx context.Context, tenantID uuid.UUID) ([]entities.Account, int, error) {
+	var count = 0
+	if repo.database == nil {
+		return nil, count, comerrors.ErrInvalidDatabaseClient
+	}
+
+	accounts := make([]entities.Account, 0)
+	count, err := repo.database.NewSelect().Model(new(entities.Account)).Where("tenant_id = ?", tenantID.String()).Order("created_at DESC").ScanAndCount(ctx, &accounts)
+	if err != nil {
+		return accounts, count, nil
+	}
+
+	return accounts, count, nil
+}
+
 func (repo *AccountRepository) CheckAccountExistByPK(ctx context.Context, tenantID uuid.UUID, username string) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient
