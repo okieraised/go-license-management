@@ -1,14 +1,14 @@
 package middlewares
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/constants"
-	"log/slog"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"time"
 )
 
-func LoggerMW(logger *slog.Logger) gin.HandlerFunc {
+func LoggerMW(logger *zap.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
 		path := ctx.Request.URL.Path
@@ -23,16 +23,18 @@ func LoggerMW(logger *slog.Logger) gin.HandlerFunc {
 		}
 
 		latency := time.Since(start).Milliseconds()
-		logger.LogAttrs(context.Background(), slog.LevelInfo, "request handled",
-			slog.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
-			slog.Int("status", ctx.Writer.Status()),
-			slog.String("method", ctx.Request.Method),
-			slog.String("path", path),
-			slog.String("full-path", ctx.FullPath()),
-			slog.String("query", query),
-			slog.String("ip", ctx.ClientIP()),
-			slog.String("user-agent", ctx.Request.UserAgent()),
-			slog.Int64("latency", latency),
-		)
+		fields := []zapcore.Field{
+			zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+			zap.Int("status", ctx.Writer.Status()),
+			zap.String("method", ctx.Request.Method),
+			zap.String("path", path),
+			zap.String("message", path),
+			zap.String("full-path", ctx.FullPath()),
+			zap.String("query", query),
+			zap.String("ip", ctx.ClientIP()),
+			zap.String("user-agent", ctx.Request.UserAgent()),
+			zap.Int64("latency", latency),
+		}
+		logger.Info("", fields...)
 	}
 }

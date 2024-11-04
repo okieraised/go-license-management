@@ -8,13 +8,13 @@ import (
 
 func main() {
 	a, err := xormadapter.NewAdapter("postgres",
-		"dbname=rbac_rules  user=postgres password=postgres host=127.0.0.1 port=5432 sslmode=disable")
+		"dbname=rbac_rules  user=postgres password=123qweA# host=127.0.0.1 port=5432 sslmode=disable")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	e, err := casbin.NewEnforcer("/Users/tripham/Desktop/go-license-management/conf/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("conf/rbac_model.conf", a)
 	if err != nil {
 		fmt.Println(err)
 		return

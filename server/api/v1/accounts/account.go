@@ -1,7 +1,9 @@
 package accounts
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
@@ -9,7 +11,7 @@ import (
 	"go-license-management/internal/server/v1/accounts/service"
 	"go-license-management/server/models/v1/accounts"
 	"go.opentelemetry.io/otel/trace"
-	"log/slog"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -19,13 +21,13 @@ const (
 
 type AccountRouter struct {
 	svc    *service.AccountService
-	logger *slog.Logger
+	logger *logging.Logger
 	tracer trace.Tracer
 }
 
 func NewAccountRouter(svc *service.AccountService) *AccountRouter {
 	tr := tracer.GetInstance().Tracer(accountGroup)
-	logger := logging.GetInstance().With(slog.Group(accountGroup))
+	logger := logging.NewECSLogger()
 	return &AccountRouter{
 		svc:    svc,
 		logger: logger,
@@ -47,19 +49,28 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new account resource.
 func (r *AccountRouter) create(ctx *gin.Context) {
+
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.InfoContext(ctx, "received new account creation request", slog.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new account creation request")
 
 	// serializer
-	var req accounts.AccountCreateModelRequest
+	tenantName := ctx.Param("tenant_name")
+	if tenantName == "" {
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var req accounts.AccountRegistrationRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.BindJSON(&req)
+	err := ctx.ShouldBind(&req)
 	if err != nil {
 		cSpan.End()
-		r.logger.Error(err.Error())
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -70,7 +81,8 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	err = req.Validate()
 	if err != nil {
 		cSpan.End()
-		r.logger.Error(err.Error())
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -78,16 +90,25 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	_, err = r.svc.Create(ctx, req.ToAccountRegistrationInput(rootCtx, r.tracer))
+	result, err := r.svc.Create(ctx, req.ToAccountRegistrationInput(rootCtx, r.tracer, tenantName))
 	if err != nil {
 		cSpan.End()
-		r.logger.Error(err.Error())
-		ctx.JSON(http.StatusInternalServerError, resp)
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid), errors.Is(err, comerrors.ErrAccountUsernameAlreadyExist):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+
 		return
 	}
 	cSpan.End()
 
-	ctx.JSON(http.StatusOK, resp)
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	ctx.JSON(http.StatusCreated, resp)
+	return
 }
 
 // retrieve retrieves the details of an existing account.

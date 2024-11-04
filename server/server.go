@@ -8,6 +8,8 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
@@ -33,7 +35,9 @@ func StartServer(appService *models.AppService, quit chan os.Signal) {
 		AllowCredentials: true,
 	}))
 
-	router.Use(middlewares.RequestIDMW(), middlewares.Recovery(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression))
+	router.Use(middlewares.RequestIDMW(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression), middlewares.LoggerMW(logging.GetInstance().GetLogger()), middlewares.Recovery())
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	rootRouter := api.New(appService)
 	rootRouter.InitRouters(router)
 
@@ -46,21 +50,21 @@ func StartServer(appService *models.AppService, quit chan os.Signal) {
 	go func() {
 		err := srv.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logging.GetInstance().Error(err.Error())
+			logging.GetInstance().GetLogger().Error(err.Error())
 		}
 	}()
-	logging.GetInstance().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
+	logging.GetInstance().GetLogger().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
 
 	<-quit
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		logging.GetInstance().Error(fmt.Sprintf("error shutting down server: %s", err.Error()))
+		logging.GetInstance().GetLogger().Error(fmt.Sprintf("error shutting down server: %s", err.Error()))
 	}
 
 	select {
 	case <-ctx.Done():
-		logging.GetInstance().Info("server shutdown completed")
+		logging.GetInstance().GetLogger().Info("server shutdown completed")
 	}
 }

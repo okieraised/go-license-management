@@ -1,17 +1,17 @@
 package constants
 
 const (
-	RoleSuperAdmin = iota
-	RoleAdmin
-	RoleProduct
-	RoleLicense
-	RoleUser
+	RoleSuperAdmin = "superadmin"
+	RoleAdmin      = "admin"
+	RoleProduct    = "product"
+	RoleLicense    = "license"
+	RoleUser       = "user"
 )
 
-var RoleMapper = map[int]string{
-	RoleSuperAdmin: "superadmin",
-	RoleAdmin:      "admin",
-	RoleProduct:    "product",
-	RoleLicense:    "license",
-	RoleUser:       "user",
+var ValidRoleMapper = map[string]bool{
+	RoleSuperAdmin: true,
+	RoleAdmin:      true,
+	RoleProduct:    true,
+	RoleLicense:    true,
+	RoleUser:       true,
 }

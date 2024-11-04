@@ -4,10 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/spf13/viper"
+	"go-license-management/internal/config"
+	"go-license-management/internal/infrastructure/database/postgres"
 	"go-license-management/internal/infrastructure/logging"
 	_ "go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
+	accountRepo "go-license-management/internal/repositories/v1/accounts"
+	tenantRepo "go-license-management/internal/repositories/v1/tenants"
 	accountSvc "go-license-management/internal/server/v1/accounts/service"
+	tenantSvc "go-license-management/internal/server/v1/tenants/service"
 	"go-license-management/server"
 	"go-license-management/server/models"
 	"log/slog"
@@ -33,15 +38,31 @@ func init() {
 func newDataSource() (*models.DataSource, error) {
 	dataSource := &models.DataSource{}
 
+	// init logger
+	logging.NewDefaultLogger()
+
 	// tracer
 	err := tracer.NewTracerProvider(
-		viper.GetString(""),
+		viper.GetString(config.TracerURI),
 		viper.GetString(""),
 		"",
 	)
 	if err != nil {
 		return dataSource, err
 	}
+
+	// database
+	dbClient, err := postgres.NewPostgresClient(
+		viper.GetString(config.PostgresHost),
+		viper.GetString(config.PostgresDatabase),
+		viper.GetString(config.PostgresUsername),
+		viper.GetString(config.PostgresPassword),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	dataSource.SetDatabase(dbClient)
 
 	return dataSource, nil
 }
@@ -51,7 +72,11 @@ func NewAppService(ds *models.DataSource) *models.AppService {
 
 	// register v1
 	v1 := &models.V1AppService{}
-	v1.SetAccount(accountSvc.NewAccountService())
+	// tenant
+	v1.SetTenant(tenantSvc.NewTenantService(tenantSvc.WithRepository(tenantRepo.NewTenantRepository(ds))))
+
+	// account
+	v1.SetAccount(accountSvc.NewAccountService(accountSvc.WithRepository(accountRepo.NewAccountRepository(ds))))
 
 	appSvc.SetV1Svc(v1)
 	return appSvc
@@ -64,7 +89,7 @@ func main() {
 
 	dataSources, err := newDataSource()
 	if err != nil {
-		logging.GetInstance().Error(err.Error())
+		logging.GetInstance().GetLogger().Error(err.Error())
 		return
 	}
 	appSvc := NewAppService(dataSources)
@@ -81,6 +106,6 @@ func main() {
 
 	select {
 	case <-ctx.Done():
-		slog.Info("app shutdown completed")
+		logging.GetInstance().GetLogger().Info("app shutdown completed")
 	}
 }

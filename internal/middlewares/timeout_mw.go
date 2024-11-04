@@ -2,6 +2,8 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-license-management/internal/comerrors"
+	"go-license-management/internal/response"
 	"net/http"
 	"time"
 )
@@ -24,12 +26,15 @@ func TimeoutMW() func(ctx *gin.Context) {
 			finish <- struct{}{}
 		}()
 
+		resp := response.NewResponse(ctx)
 		select {
 		case <-panicChan:
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, nil)
+			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer], comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer], nil, nil, nil)
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, resp)
 			return
 		case <-time.After(timeoutDuration):
-			ctx.AbortWithStatusJSON(http.StatusGatewayTimeout, nil)
+			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericRequestTimedOut], comerrors.ErrMessageMapper[comerrors.ErrGenericRequestTimedOut], nil, nil, nil)
+			ctx.AbortWithStatusJSON(http.StatusGatewayTimeout, resp)
 			return
 		case <-finish:
 		}

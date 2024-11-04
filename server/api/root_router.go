@@ -29,7 +29,7 @@ func (rr *RootRouter) InitRouters(engine *gin.Engine) {
 
 		// Account route
 		accountRoute := accounts.NewAccountRouter(rr.AppService.GetV1Svc().GetAccount())
-		accountRoute.Routes(v1Router, "")
+		accountRoute.Routes(v1Router, "tenants/:tenant_name")
 	}
 
 }

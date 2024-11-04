@@ -22,8 +22,8 @@ func NewResponse(ctx context.Context) *Response {
 	resp := new(Response)
 	resp.RequestID = fmt.Sprintf("%v", ctx.Value(constants.RequestIDField))
 	resp.ServerTime = time.Now().Unix()
-	resp.ErrorCode = "OK"
-	resp.ErrorMessage = "OK"
+	resp.ErrorCode = ""
+	resp.ErrorMessage = ""
 	resp.Data = map[string]interface{}{}
 	return resp
 }

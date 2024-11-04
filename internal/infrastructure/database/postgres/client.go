@@ -1,8 +1,10 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -17,13 +19,13 @@ const (
 	defaultMaxOpenConn  int = 100
 )
 
-type PostgreSQLClient struct {
-	db *bun.DB
+var postgresClient *bun.DB
+
+func GetInstance() *bun.DB {
+	return postgresClient
 }
 
-var postgresClient *PostgreSQLClient
-
-func NewPostgresClient(host, dbname, userName, password string) (*PostgreSQLClient, error) {
+func NewPostgresClient(host, dbname, userName, password string) (*bun.DB, error) {
 
 	if host == "" || userName == "" || password == "" || dbname == "" {
 		return nil, errors.New("one or more required connection parameters are empty")
@@ -46,22 +48,23 @@ func NewPostgresClient(host, dbname, userName, password string) (*PostgreSQLClie
 	postgresDB.SetConnMaxIdleTime(30 * time.Minute)
 	postgresDB.SetConnMaxLifetime(60 * time.Minute)
 
-	postgresClient = &PostgreSQLClient{
-		db: bun.NewDB(postgresDB, pgdialect.New()),
-	}
+	postgresClient = bun.NewDB(postgresDB, pgdialect.New())
 
 	return postgresClient, nil
 }
 
-func GetInstance() *PostgreSQLClient {
-	return postgresClient
+func checkDatabaseExists(ctx context.Context, dbName string) (bool, error) {
+	var exists bool
+	query := "SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower(?);"
+	err := postgresClient.NewRaw(query, dbName).Scan(ctx, &exists)
+	return exists, err
+
 }
 
-func (c *PostgreSQLClient) getClient() *bun.DB {
-	return c.db
-}
-
-func (c *PostgreSQLClient) Bootstrap() error {
-
+func CreateDatabase(ctx context.Context, dbName string) error {
+	_, err := postgresClient.ExecContext(ctx, fmt.Sprintf("CREATE DATABASE %s", dbName))
+	if err != nil {
+		return err
+	}
 	return nil
 }
