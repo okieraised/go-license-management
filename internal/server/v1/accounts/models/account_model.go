@@ -25,7 +25,7 @@ type AccountListInput struct {
 	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
 }
 
-type AccountListOutput struct {
+type AccountRetrievalOutput struct {
 	Username  string                 `json:"username"`
 	RoleName  string                 `json:"role_name"`
 	Email     string                 `json:"email"`

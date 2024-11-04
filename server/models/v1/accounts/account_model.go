@@ -93,7 +93,7 @@ func (req *AccountDeletionRequest) Validate() error {
 	return nil
 }
 
-func (req *AccountDeletionRequest) ToTenantDeletionInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.AccountDeletionInput {
+func (req *AccountDeletionRequest) ToAccountDeletionInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.AccountDeletionInput {
 	return &models.AccountDeletionInput{
 		TracerCtx:  ctx,
 		Tracer:     tracer,
