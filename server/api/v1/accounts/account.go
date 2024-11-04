@@ -43,9 +43,13 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes = routes.Group("/accounts")
 		routes.POST("", r.create)
 		routes.GET("", r.list)
-		routes.GET("/:account_name", r.retrieve)
-		routes.PATCH("/:account_name", r.update)
-		routes.DELETE("/:account_name", r.delete)
+		routes = routes.Group("/:account_name")
+		routes.GET("", r.retrieve)
+		routes.PATCH("", r.update)
+		routes.DELETE("", r.delete)
+		routes.POST("/tokens", r.token)
+		routes.POST("/actions/:action_name", r.actions)
+
 	}
 }
 
@@ -313,3 +317,7 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 	return
 }
+
+func (r *AccountRouter) actions(ctx *gin.Context) {}
+
+func (r *AccountRouter) token(ctx *gin.Context) {}

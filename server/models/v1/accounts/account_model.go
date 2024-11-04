@@ -136,3 +136,8 @@ func (req *AccountUpdateRequest) ToAccountUpdateInput(ctx context.Context, trace
 		Metadata:   req.Metadata,
 	}
 }
+
+type AccountListRequest struct {
+	Limit  *int `form:"limit" validate:"optional" example:"10"`
+	Offset *int `form:"offset" validate:"optional" example:"10"`
+}

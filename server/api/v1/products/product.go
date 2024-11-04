@@ -2,16 +2,30 @@ package products
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/server/v1/products/service"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type ProductRouter struct {
+	svc    *service.ProductService
+	logger *logging.Logger
 	tracer trace.Tracer
 }
 
-func NewProductRouter() *ProductRouter {
+const (
+	productGroup = "product_group"
+)
 
-	return &ProductRouter{}
+func NewProductRouter(svc *service.ProductService) *ProductRouter {
+	tr := tracer.GetInstance().Tracer(productGroup)
+	logger := logging.NewECSLogger()
+	return &ProductRouter{
+		svc:    svc,
+		logger: logger,
+		tracer: tr,
+	}
 }
 
 func (r *ProductRouter) Routes(engine *gin.RouterGroup, path string) {
