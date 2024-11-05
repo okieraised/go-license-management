@@ -4,6 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-license-management/server/api/v1/accounts"
 	"go-license-management/server/api/v1/authentications"
+	"go-license-management/server/api/v1/entitlements"
+	"go-license-management/server/api/v1/machines"
 	"go-license-management/server/api/v1/policies"
 	"go-license-management/server/api/v1/products"
 	"go-license-management/server/api/v1/tenants"
@@ -48,6 +50,14 @@ func (rr *RootRouter) InitRouters(engine *gin.Engine) {
 		// Policy routes
 		policyRoute := policies.NewPolicyRouter(rr.AppService.GetV1Svc().GetPolicy())
 		policyRoute.Routes(v1Router, prefix)
+
+		// Entitlement routes
+		entitlementRoute := entitlements.NewEntitlementRouter(rr.AppService.GetV1Svc().GetEntitlement())
+		entitlementRoute.Routes(v1Router, prefix)
+
+		// Machine routes
+		machineRoute := machines.NewMachineRouter(rr.AppService.GetV1Svc().GetMachine())
+		machineRoute.Routes(v1Router, prefix)
 	}
 
 }

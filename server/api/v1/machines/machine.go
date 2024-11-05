@@ -2,16 +2,30 @@ package machines
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/server/v1/machines/service"
 	"go.opentelemetry.io/otel/trace"
 )
 
+const (
+	machineGroup = "machine_group"
+)
+
 type MachineRouter struct {
+	svc    *service.MachineService
+	logger *logging.Logger
 	tracer trace.Tracer
 }
 
-func NewMachineRouter() *MachineRouter {
-
-	return &MachineRouter{}
+func NewMachineRouter(svc *service.MachineService) *MachineRouter {
+	tr := tracer.GetInstance().Tracer(machineGroup)
+	logger := logging.NewECSLogger()
+	return &MachineRouter{
+		svc:    svc,
+		logger: logger,
+		tracer: tr,
+	}
 }
 
 func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {

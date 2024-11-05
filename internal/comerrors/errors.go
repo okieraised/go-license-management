@@ -37,6 +37,14 @@ var (
 	ErrProductCodeAlreadyExist              = errors.New("product code already exists")
 )
 
+var (
+	ErrEntitlementIDIsEmpty        = errors.New("entitlement id is empty")
+	ErrEntitlementNameIsEmpty      = errors.New("entitlement name is empty")
+	ErrEntitlementCodeIsEmpty      = errors.New("entitlement code is empty")
+	ErrEntitlementCodeAlreadyExist = errors.New("entitlement code already exists")
+	ErrEntitlementIDIsInvalid      = errors.New("entitlement id is invalid")
+)
+
 var ErrCodeMapper = map[error]string{
 	nil:                                     "00000",
 	ErrGenericInternalServer:                "50000",
@@ -59,6 +67,11 @@ var ErrCodeMapper = map[error]string{
 	ErrProductDistributionStrategyIsInvalid: "44002",
 	ErrProductNameAlreadyExist:              "44003",
 	ErrProductCodeAlreadyExist:              "44004",
+	ErrEntitlementIDIsEmpty:                 "45000",
+	ErrEntitlementNameIsEmpty:               "45001",
+	ErrEntitlementCodeIsEmpty:               "45002",
+	ErrEntitlementCodeAlreadyExist:          "45003",
+	ErrEntitlementIDIsInvalid:               "45004",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -83,4 +96,9 @@ var ErrMessageMapper = map[error]string{
 	ErrProductDistributionStrategyIsInvalid: ErrProductDistributionStrategyIsInvalid.Error(),
 	ErrProductNameAlreadyExist:              ErrProductNameAlreadyExist.Error(),
 	ErrProductCodeAlreadyExist:              ErrProductCodeAlreadyExist.Error(),
+	ErrEntitlementIDIsEmpty:                 ErrEntitlementIDIsEmpty.Error(),
+	ErrEntitlementNameIsEmpty:               ErrEntitlementNameIsEmpty.Error(),
+	ErrEntitlementCodeIsEmpty:               ErrEntitlementCodeIsEmpty.Error(),
+	ErrEntitlementCodeAlreadyExist:          ErrEntitlementCodeAlreadyExist.Error(),
+	ErrEntitlementIDIsInvalid:               ErrEntitlementIDIsInvalid.Error(),
 }

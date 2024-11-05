@@ -5,14 +5,27 @@ An open-source license management written in Go
 
 
 ### Basic terminology
+1. **Product**: A product represents a software application or a digital product. 
+    It's essentially an identifier that groups together licenses, accounts, and policies related to a 
+    specific software application. You can think of a product as a single version or line of software. 
+    If your company offers multiple apps or product lines, you would create separate products for each.
+    Each product has unique settings, including metadata (like version and description) and configurations,
+    which can be customized for licensing purposes.
 
-| Term        | Description                                                                                                     |
-|-------------|-----------------------------------------------------------------------------------------------------------------|
-| **License** | Licenses represent an entitlement, i.e. you grant a licensee permission to use something.                       |
-| **Machine** | Machines represent a device or node that a license is allowed to be used with.                                  |
-| **Policy**  | Policies define behavior for different license types, e.g., Timed Trial, Basic, and Pro types.                  |
-| **User**    | Users represent an identity for an end-user, or licensee, of your software.                                     |
+2. **Policy**: A policy defines the rules or restrictions for licensing within a product. It’s like a template or set of rules 
+    that controls how the license for that product behaves. Policies are flexible and can be tailored to enforce specific 
+    licensing conditions, such as: 
+     * License duration (e.g., perpetual, trial, subscription-based)
+     * User limits (e.g., single user or multiple users)
+     * Feature gating (e.g., enabling specific features for different license tiers)
+     * Activation limits (e.g., limiting the number of devices a license can activate)
 
+    You can create multiple policies for the same product to support different license types, allowing you to offer various plans, 
+    such as basic, pro, or enterprise versions of your software, with each policy defining unique rules for usage and access.
+
+3. **Entitlement**: entitlements are a way to define and control specific permissions or features that are available 
+    to an account or license. They allow you to create granular access control, which can be tailored to suit different 
+    levels or types of licenses within a product
 
 
 ### Supported License Types

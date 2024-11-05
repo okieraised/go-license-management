@@ -2,16 +2,30 @@ package licenses
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/server/v1/licenses/service"
 	"go.opentelemetry.io/otel/trace"
 )
 
+const (
+	licenseGroup = "license_group"
+)
+
 type LicenseRouter struct {
+	svc    *service.LicenseService
+	logger *logging.Logger
 	tracer trace.Tracer
 }
 
-func NewLicenseRouter() *LicenseRouter {
-
-	return &LicenseRouter{}
+func NewLicenseRouter(svc *service.LicenseService) *LicenseRouter {
+	tr := tracer.GetInstance().Tracer(licenseGroup)
+	logger := logging.NewECSLogger()
+	return &LicenseRouter{
+		svc:    svc,
+		logger: logger,
+		tracer: tr,
+	}
 }
 
 func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {

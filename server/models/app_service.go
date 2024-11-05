@@ -3,6 +3,8 @@ package models
 import (
 	accountSvc "go-license-management/internal/server/v1/accounts/service"
 	authSvc "go-license-management/internal/server/v1/authentications/service"
+	entitlementSvc "go-license-management/internal/server/v1/entitlements/service"
+	machineSvc "go-license-management/internal/server/v1/machines/service"
 	policySvc "go-license-management/internal/server/v1/policies/service"
 	productSvc "go-license-management/internal/server/v1/products/service"
 	tenantSvc "go-license-management/internal/server/v1/tenants/service"
@@ -25,6 +27,8 @@ type V1AppService struct {
 	tenant         *tenantSvc.TenantService
 	product        *productSvc.ProductService
 	policy         *policySvc.PolicyService
+	entitlement    *entitlementSvc.EntitlementService
+	machine        *machineSvc.MachineService
 	authentication *authSvc.AuthenticationService
 }
 
@@ -58,6 +62,22 @@ func (v1 *V1AppService) GetPolicy() *policySvc.PolicyService {
 
 func (v1 *V1AppService) SetPolicy(svc *policySvc.PolicyService) {
 	v1.policy = svc
+}
+
+func (v1 *V1AppService) GetEntitlement() *entitlementSvc.EntitlementService {
+	return v1.entitlement
+}
+
+func (v1 *V1AppService) SetEntitlement(svc *entitlementSvc.EntitlementService) {
+	v1.entitlement = svc
+}
+
+func (v1 *V1AppService) GetMachine() *machineSvc.MachineService {
+	return v1.machine
+}
+
+func (v1 *V1AppService) SetMachine(svc *machineSvc.MachineService) {
+	v1.machine = svc
 }
 
 func (v1 *V1AppService) GetAuth() *authSvc.AuthenticationService {
