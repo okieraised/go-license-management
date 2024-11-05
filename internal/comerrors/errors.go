@@ -47,6 +47,10 @@ var (
 	ErrEntitlementIDIsInvalid      = errors.New("entitlement id is invalid")
 )
 
+var (
+	ErrPolicyNameIsEmpty = errors.New("policy name is empty")
+)
+
 var ErrCodeMapper = map[error]string{
 	nil:                                     "00000",
 	ErrGenericInternalServer:                "50000",
@@ -76,6 +80,7 @@ var ErrCodeMapper = map[error]string{
 	ErrEntitlementCodeIsEmpty:               "45002",
 	ErrEntitlementCodeAlreadyExist:          "45003",
 	ErrEntitlementIDIsInvalid:               "45004",
+	ErrPolicyNameIsEmpty:                    "46000",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -107,4 +112,5 @@ var ErrMessageMapper = map[error]string{
 	ErrEntitlementCodeIsEmpty:               ErrEntitlementCodeIsEmpty.Error(),
 	ErrEntitlementCodeAlreadyExist:          ErrEntitlementCodeAlreadyExist.Error(),
 	ErrEntitlementIDIsInvalid:               ErrEntitlementIDIsInvalid.Error(),
+	ErrPolicyNameIsEmpty:                    ErrPolicyNameIsEmpty.Error(),
 }
