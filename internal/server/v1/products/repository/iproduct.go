@@ -9,5 +9,6 @@ import (
 type IProduct interface {
 	InsertNewProduct(ctx context.Context, product *entities.Product) error
 	SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error)
+	CheckProductExistByCode(ctx context.Context, code string) (bool, error)
 	SelectProductByPK(ctx context.Context, tenantID, productID uuid.UUID) (*entities.Product, error)
 }

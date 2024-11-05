@@ -58,3 +58,16 @@ func (repo *ProductRepository) SelectProductByPK(ctx context.Context, tenantID, 
 	}
 	return product, nil
 }
+
+func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code string) (bool, error) {
+	if repo.database == nil {
+		return false, comerrors.ErrInvalidDatabaseClient
+	}
+
+	product := &entities.Product{Code: code}
+	exist, err := repo.database.NewSelect().Model(product).Exists(ctx)
+	if err != nil {
+		return exist, err
+	}
+	return exist, nil
+}

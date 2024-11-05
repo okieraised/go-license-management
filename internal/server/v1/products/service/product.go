@@ -5,14 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/products/models"
 	"go-license-management/internal/server/v1/products/repository"
 	"go-license-management/internal/utils"
 	"go.uber.org/zap"
+	"time"
 )
 
 type ProductService struct {
@@ -62,7 +65,58 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 	}
 	cSpan.End()
 
-	fmt.Println("tenant", tenant)
+	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-code")
+	exists, err := svc.repo.CheckProductExistByCode(ctx, utils.DerefPointer(input.Code))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+
+	// If username/tenant combo already exists, return with error
+	if exists {
+		cSpan.End()
+		svc.logger.GetLogger().Info(fmt.Sprintf("product code [%s] already exists in tenant [%s]", utils.DerefPointer(input.Code), utils.DerefPointer(input.TenantName)))
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductCodeAlreadyExist]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductCodeAlreadyExist]
+		return resp, comerrors.ErrProductCodeAlreadyExist
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-product")
+	productID := uuid.New()
+	now := time.Now()
+	product := &entities.Product{
+		ID:                   productID,
+		TenantID:             tenant.ID,
+		Name:                 utils.DerefPointer(input.Name),
+		DistributionStrategy: utils.DerefPointer(input.DistributionStrategy),
+		Code:                 utils.DerefPointer(input.Code),
+		Platforms:            input.Platforms,
+		Metadata:             input.Metadata,
+		CreatedAt:            now,
+		UpdatedAt:            now,
+	}
+	if input.Url != nil {
+		product.URL = utils.DerefPointer(input.Url)
+	}
+	err = svc.repo.InsertNewProduct(ctx, product)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = map[string]interface{}{
+		"product_id": productID,
+	}
 
 	return resp, nil
 }
