@@ -89,14 +89,14 @@ func (repo *EntitlementRepository) DeleteEntitlementByPK(ctx context.Context, te
 	return nil
 }
 
-func (repo *EntitlementRepository) SelectEntitlementsByTenant(ctx context.Context, tenantID uuid.UUID) ([]entities.Entitlement, int, error) {
+func (repo *EntitlementRepository) SelectEntitlementsByTenant(ctx context.Context, tenantID uuid.UUID, limit, offset int) ([]entities.Entitlement, int, error) {
 	var total = 0
 	if repo.database == nil {
 		return nil, total, comerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlements := make([]entities.Entitlement, 0)
-	total, err := repo.database.NewSelect().Model(new(entities.Entitlement)).Where("tenant_id = ?", tenantID).Order("created_at DESC").ScanAndCount(ctx, &entitlements)
+	total, err := repo.database.NewSelect().Model(new(entities.Entitlement)).Where("tenant_id = ?", tenantID).Limit(limit).Offset(offset).Order("created_at DESC").ScanAndCount(ctx, &entitlements)
 	if err != nil {
 		return entitlements, total, comerrors.ErrInvalidDatabaseClient
 	}

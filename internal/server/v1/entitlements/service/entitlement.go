@@ -140,7 +140,7 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-entitlements")
-	accounts, count, err := svc.repo.SelectEntitlementsByTenant(ctx, tenant.ID)
+	accounts, count, err := svc.repo.SelectEntitlementsByTenant(ctx, tenant.ID, utils.DerefPointer(input.Limit), utils.DerefPointer(input.Offset))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

@@ -120,5 +120,7 @@ func (req *EntitlementListRequest) ToEntitlementListInput(ctx context.Context, t
 		TracerCtx:  ctx,
 		Tracer:     tracer,
 		TenantName: utils.RefPointer(tenantName),
+		Limit:      req.Limit,
+		Offset:     req.Offset,
 	}
 }

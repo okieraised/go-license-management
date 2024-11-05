@@ -20,6 +20,8 @@ type EntitlementListInput struct {
 	TracerCtx  context.Context
 	Tracer     trace.Tracer
 	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	Limit      *int    `json:"limit" validate:"required" example:"test"`
+	Offset     *int    `json:"offset" validate:"required" example:"test"`
 }
 
 type EntitlementRetrievalInput struct {
