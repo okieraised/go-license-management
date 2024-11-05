@@ -23,10 +23,6 @@ An open-source license management written in Go
     You can create multiple policies for the same product to support different license types, allowing you to offer various plans, 
     such as basic, pro, or enterprise versions of your software, with each policy defining unique rules for usage and access.
 
-3. **Entitlement**: entitlements are a way to define and control specific permissions or features that are available 
-    to an account or license. They allow you to create granular access control, which can be tailored to suit different 
-    levels or types of licenses within a product
-
 
 ### Supported License Types
 

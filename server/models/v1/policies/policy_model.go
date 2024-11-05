@@ -1,11 +1,12 @@
 package policies
 
-type PolicyAttributeModel struct {
-	Name   *string `json:"name" validate:"required"`
-	Scheme *string `json:"scheme"`
+import "go-license-management/internal/comerrors"
 
-	Strict                        *bool                  `json:"strict"`
-	Floating                      *bool                  `json:"floating"`
+type PolicyAttributeModel struct {
+	Name                          *string                `json:"name" validate:"required"`
+	Scheme                        *string                `json:"scheme" validate:"optional"`
+	Strict                        *bool                  `json:"strict" validate:"optional"`
+	Floating                      *bool                  `json:"floating" validate:"optional"`
 	RequireProductScope           *bool                  `json:"require_product_scope" validate:"optional"`
 	RequirePolicyScope            *bool                  `json:"require_policy_scope" validate:"optional"`
 	RequireMachineScope           *bool                  `json:"require_machine_scope" validate:"optional"`
@@ -27,7 +28,7 @@ type PolicyAttributeModel struct {
 	MaxCores                      *int                   `json:"max_cores" validate:"optional"`
 	MaxUses                       *int                   `json:"max_uses" validate:"optional"`
 	HeartbeatDuration             *int                   `json:"heartbeat_duration" validate:"optional"`
-	Duration                      *int                   `json:"duration"`
+	Duration                      *int                   `json:"duration" validate:"optional"`
 	HeartbeatCullStrategy         *string                `json:"heartbeat_cull_strategy" validate:"optional"`
 	HeartbeatResurrectionStrategy *string                `json:"heartbeat_resurrection_strategy" validate:"optional"`
 	HeartbeatBasis                *string                `json:"heartbeat_basis" validate:"optional"`
@@ -51,5 +52,8 @@ type PolicyRegistrationRequest struct {
 }
 
 func (req *PolicyRegistrationRequest) Validate() error {
+	if req.Name == nil {
+		return comerrors.ErrPolicyNameIsEmpty
+	}
 	return nil
 }

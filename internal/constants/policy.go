@@ -48,22 +48,23 @@ const (
 )
 
 const (
-	PolicyCheckinIntervalDaily   = "daily"
-	PolicyCheckinIntervalWeekly  = "weekly"
+	// PolicyCheckinIntervalDaily requires a license implementing the policy checkin at least once every day to remain valid.
+	PolicyCheckinIntervalDaily = "daily"
+	// PolicyCheckinIntervalWeekly requires a license implementing the policy checkin at least once every week to remain valid.
+	PolicyCheckinIntervalWeekly = "weekly"
+	// PolicyCheckinIntervalMonthly requires a license implementing the policy checkin at least once every month to remain valid.
 	PolicyCheckinIntervalMonthly = "monthly"
-	PolicyCheckinIntervalYearly  = "yearly"
+	// PolicyCheckinIntervalYearly requires a license implementing the policy to check-in at least once every year to remain valid.
+	PolicyCheckinIntervalYearly = "yearly"
 )
 
 const (
 	// PolicyExpirationBasisFromCreation - License expirations are set immediately upon creation.
 	PolicyExpirationBasisFromCreation = "from_creation"
-
 	// PolicyExpirationBasisFromFirstActivation - License expirations are set after their first license validation event.
 	PolicyExpirationBasisFromFirstActivation = "from_first_activation"
-
 	// PolicyExpirationBasisFromFirstValidation - License expirations are set after their first machine activation event.
 	PolicyExpirationBasisFromFirstValidation = "from_first_validation"
-
 	// PolicyExpirationBasisFromFirstUse - License expirations are set after their first usage increment event.
 	PolicyExpirationBasisFromFirstUse = "from_first_use"
 )
@@ -102,4 +103,23 @@ const (
 	PolicyHeartbeatBasisFromFirstPing = "from_first_ping"
 )
 
-const ()
+const (
+	// PolicyOverageStrategyNoOverage - Do not allow overages. Attempts to exceed limits will fail. This is the default.
+	PolicyOverageStrategyNoOverage = "no_overage"
+	// PolicyOverageStrategyAlwaysAllow - The license may exceed its limits, and doing so will not affect the license validity.
+	PolicyOverageStrategyAlwaysAllow = "always_allow"
+)
+
+const (
+	// PolicyProcessLeasingStrategyPerMachine - Processes are counted per-machine. This is the default.
+	PolicyProcessLeasingStrategyPerMachine = "per_machine"
+	// PolicyProcessLeasingStrategyPerUser - Processes are counted per-user, per-license.
+	PolicyProcessLeasingStrategyPerUser = "per_user"
+	// PolicyProcessLeasingStrategyPerLicense - Processes are counted per-license.
+	PolicyProcessLeasingStrategyPerLicense = "per_license"
+)
+
+const (
+	PolicyTransferStrategyResetExpiry = "reset_expiry"
+	PolicyTransferStrategyKeepExpiry  = "keep_expiry"
+)
