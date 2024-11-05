@@ -157,7 +157,6 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
-
 }
 
 // update updates the specified entitlement resource by setting the values of the parameters passed.

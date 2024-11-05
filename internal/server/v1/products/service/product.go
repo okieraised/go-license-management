@@ -75,7 +75,7 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 		return resp, comerrors.ErrGenericInternalServer
 	}
 
-	// If username/tenant combo already exists, return with error
+	// If product code/tenant combo already exists, return with error
 	if exists {
 		cSpan.End()
 		svc.logger.GetLogger().Info(fmt.Sprintf("product code [%s] already exists in tenant [%s]", utils.DerefPointer(input.Code), utils.DerefPointer(input.TenantName)))
@@ -122,8 +122,58 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 }
 
 func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetrievalInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
 
-	return &response.BaseOutput{}, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "select-product")
+	product, err := svc.repo.SelectProductByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.ProductID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	respData := &models.ProductRetrievalOutput{
+		ID:                   product.ID,
+		TenantID:             product.ID,
+		Name:                 product.Name,
+		DistributionStrategy: product.DistributionStrategy,
+		Code:                 product.Code,
+		Platforms:            product.Platforms,
+		Metadata:             product.Metadata,
+		URL:                  product.URL,
+		CreatedAt:            product.CreatedAt,
+		UpdatedAt:            product.UpdatedAt,
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = respData
+
+	return resp, nil
 }
 
 func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput) (*response.BaseOutput, error) {

@@ -65,9 +65,22 @@ func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code
 	}
 
 	product := &entities.Product{Code: code}
-	exist, err := repo.database.NewSelect().Model(product).Exists(ctx)
+	exist, err := repo.database.NewSelect().Model(product).Where("code = ?", code).Exists(ctx)
 	if err != nil {
 		return exist, err
 	}
 	return exist, nil
+}
+
+func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, tenantID, productID uuid.UUID) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	product := &entities.Product{ID: productID, TenantID: tenantID}
+	_, err := repo.database.NewDelete().Model(product).Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }

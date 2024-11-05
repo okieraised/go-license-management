@@ -35,6 +35,8 @@ var (
 	ErrProductDistributionStrategyIsInvalid = errors.New("product distribution strategy is invalid")
 	ErrProductNameAlreadyExist              = errors.New("product name already exists")
 	ErrProductCodeAlreadyExist              = errors.New("product code already exists")
+	ErrProductIDIsEmpty                     = errors.New("product id is empty")
+	ErrProductIDIsInvalid                   = errors.New("product id is invalid")
 )
 
 var (
@@ -67,6 +69,8 @@ var ErrCodeMapper = map[error]string{
 	ErrProductDistributionStrategyIsInvalid: "44002",
 	ErrProductNameAlreadyExist:              "44003",
 	ErrProductCodeAlreadyExist:              "44004",
+	ErrProductIDIsEmpty:                     "44005",
+	ErrProductIDIsInvalid:                   "44006",
 	ErrEntitlementIDIsEmpty:                 "45000",
 	ErrEntitlementNameIsEmpty:               "45001",
 	ErrEntitlementCodeIsEmpty:               "45002",
@@ -96,6 +100,8 @@ var ErrMessageMapper = map[error]string{
 	ErrProductDistributionStrategyIsInvalid: ErrProductDistributionStrategyIsInvalid.Error(),
 	ErrProductNameAlreadyExist:              ErrProductNameAlreadyExist.Error(),
 	ErrProductCodeAlreadyExist:              ErrProductCodeAlreadyExist.Error(),
+	ErrProductIDIsEmpty:                     ErrProductIDIsEmpty.Error(),
+	ErrProductIDIsInvalid:                   ErrProductIDIsInvalid.Error(),
 	ErrEntitlementIDIsEmpty:                 ErrEntitlementIDIsEmpty.Error(),
 	ErrEntitlementNameIsEmpty:               ErrEntitlementNameIsEmpty.Error(),
 	ErrEntitlementCodeIsEmpty:               ErrEntitlementCodeIsEmpty.Error(),

@@ -2,6 +2,7 @@ package products
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/server/v1/products/models"
@@ -61,16 +62,51 @@ func (req *ProductListRequest) Validate() error {
 }
 
 type ProductRetrievalRequest struct {
+	ProductID  *string `uri:"product_id" validate:"required" example:"test"`
+	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
 }
 
 func (req *ProductRetrievalRequest) Validate() error {
+	if req.ProductID == nil {
+		return comerrors.ErrProductIDIsEmpty
+	}
+	_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
+	if err != nil {
+		return comerrors.ErrProductIDIsInvalid
+	}
+
+	if req.TenantName == nil {
+		return comerrors.ErrTenantNameIsEmpty
+	}
 	return nil
 }
 
+func (req *ProductRetrievalRequest) ToProductRetrievalInput(ctx context.Context, tracer trace.Tracer) *models.ProductRetrievalInput {
+	return &models.ProductRetrievalInput{
+		TracerCtx:  ctx,
+		Tracer:     tracer,
+		TenantName: req.TenantName,
+		ProductID:  req.ProductID,
+	}
+}
+
 type ProductDeletionRequest struct {
+	ProductID  *string `uri:"product_id" validate:"required" example:"test"`
+	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
 }
 
 func (req *ProductDeletionRequest) Validate() error {
+	if req.ProductID == nil {
+		return comerrors.ErrProductIDIsEmpty
+	}
+	_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
+	if err != nil {
+		return comerrors.ErrProductIDIsInvalid
+	}
+
+	if req.TenantName == nil {
+		return comerrors.ErrTenantNameIsEmpty
+	}
 	return nil
 }
 

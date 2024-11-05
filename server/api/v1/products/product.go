@@ -114,7 +114,51 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing product.
 func (r *ProductRouter) retrieve(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
 
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts retrieval request")
+
+	// serializer
+	var req products.ProductRetrievalRequest
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = req.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.Retrieve(ctx, req.ToProductRetrievalInput(rootCtx, r.tracer))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		ctx.JSON(http.StatusInternalServerError, resp)
+		return
+	}
+	cSpan.End()
+
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // update updates the specified product resource by setting the values of the parameters passed.

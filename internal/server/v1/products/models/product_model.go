@@ -2,7 +2,9 @@ package models
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
+	"time"
 )
 
 type ProductRegistrationInput struct {
@@ -31,17 +33,30 @@ type ProductListInput struct {
 }
 
 type ProductRetrievalInput struct {
-	TracerCtx   context.Context
-	Tracer      trace.Tracer
-	TenantName  *string `json:"tenant_name" validate:"required" example:"test"`
-	ProductName *string `json:"product_name" validate:"required" example:"test"`
+	TracerCtx  context.Context
+	Tracer     trace.Tracer
+	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	ProductID  *string `json:"product_id" validate:"required" example:"test"`
+}
+
+type ProductRetrievalOutput struct {
+	ID                   uuid.UUID              `json:"id"`
+	TenantID             uuid.UUID              `json:"tenant_id"`
+	Name                 string                 `json:"name"`
+	DistributionStrategy string                 `json:"distribution_strategy"`
+	Code                 string                 `json:"code"`
+	Platforms            []string               `json:"platform"`
+	Metadata             map[string]interface{} `json:"metadata"`
+	URL                  string                 `json:"url,type"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            time.Time              `json:"updated_at"`
 }
 
 type ProductDeletionInput struct {
-	TracerCtx   context.Context
-	Tracer      trace.Tracer
-	TenantName  *string `json:"tenant_name" validate:"required" example:"test"`
-	ProductName *string `json:"product_name" validate:"required" example:"test"`
+	TracerCtx  context.Context
+	Tracer     trace.Tracer
+	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	ProductID  *string `json:"product_id" validate:"required" example:"test"`
 }
 
 type ProductTokensInput struct {
