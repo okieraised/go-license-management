@@ -119,5 +119,24 @@ func TestNewPostgresClient_CreateAccountsSchema(t *testing.T) {
 
 	_, err = dbClient.NewCreateTable().Model((*entities.Account)(nil)).WithForeignKeys().Exec(context.Background())
 	assert.NoError(t, err)
+}
 
+func TestNewPostgresClient_CreateProductsSchema(t *testing.T) {
+
+	viper.Set(config.PostgresHost, "127.0.0.1:5432")
+	viper.Set(config.PostgresDatabase, "licenses")
+	viper.Set(config.PostgresUsername, "postgres")
+	viper.Set(config.PostgresPassword, "123qweA#")
+
+	dbClient, err := NewPostgresClient(
+		viper.GetString(config.PostgresHost),
+		viper.GetString(config.PostgresDatabase),
+		viper.GetString(config.PostgresUsername),
+		viper.GetString(config.PostgresPassword),
+	)
+	assert.NoError(t, err)
+	assert.NotNil(t, dbClient)
+
+	_, err = dbClient.NewCreateTable().Model((*entities.Product)(nil)).WithForeignKeys().Exec(context.Background())
+	assert.NoError(t, err)
 }

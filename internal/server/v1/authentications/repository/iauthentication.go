@@ -6,8 +6,7 @@ import (
 	"go-license-management/internal/infrastructure/database/entities"
 )
 
-type IProduct interface {
-	InsertNewProduct(ctx context.Context, product *entities.Product) error
+type IAuthentication interface {
 	SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error)
-	SelectProductByPK(ctx context.Context, tenantID, productID uuid.UUID) (*entities.Product, error)
+	SelectAccountByPK(ctx context.Context, tenantID uuid.UUID, username string) (*entities.Account, error)
 }

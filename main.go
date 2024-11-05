@@ -10,8 +10,14 @@ import (
 	_ "go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
 	accountRepo "go-license-management/internal/repositories/v1/accounts"
+	authRepo "go-license-management/internal/repositories/v1/authentications"
+	policyRepo "go-license-management/internal/repositories/v1/policies"
+	productRepo "go-license-management/internal/repositories/v1/products"
 	tenantRepo "go-license-management/internal/repositories/v1/tenants"
 	accountSvc "go-license-management/internal/server/v1/accounts/service"
+	authSvc "go-license-management/internal/server/v1/authentications/service"
+	policySvc "go-license-management/internal/server/v1/policies/service"
+	productSvc "go-license-management/internal/server/v1/products/service"
 	tenantSvc "go-license-management/internal/server/v1/tenants/service"
 	"go-license-management/server"
 	"go-license-management/server/models"
@@ -72,11 +78,21 @@ func NewAppService(ds *models.DataSource) *models.AppService {
 
 	// register v1
 	v1 := &models.V1AppService{}
+
 	// tenant
 	v1.SetTenant(tenantSvc.NewTenantService(tenantSvc.WithRepository(tenantRepo.NewTenantRepository(ds))))
 
+	// auth
+	v1.SetAuth(authSvc.NewAuthenticationService(authSvc.WithRepository(authRepo.NewAuthenticationRepository(ds))))
+
 	// account
 	v1.SetAccount(accountSvc.NewAccountService(accountSvc.WithRepository(accountRepo.NewAccountRepository(ds))))
+
+	// product
+	v1.SetProduct(productSvc.NewProductService(productSvc.WithRepository(productRepo.NewProductRepository(ds))))
+
+	// policy
+	v1.SetPolicy(policySvc.NewPolicyService(policySvc.WithRepository(policyRepo.NewPolicyRepository(ds))))
 
 	appSvc.SetV1Svc(v1)
 	return appSvc

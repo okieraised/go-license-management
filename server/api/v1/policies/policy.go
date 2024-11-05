@@ -2,16 +2,30 @@ package policies
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/server/v1/policies/service"
 	"go.opentelemetry.io/otel/trace"
 )
 
+const (
+	policyGroup = "policy_group"
+)
+
 type PolicyRouter struct {
+	svc    *service.PolicyService
+	logger *logging.Logger
 	tracer trace.Tracer
 }
 
-func NewPolicyRouter() *PolicyRouter {
-
-	return &PolicyRouter{}
+func NewPolicyRouter(svc *service.PolicyService) *PolicyRouter {
+	tr := tracer.GetInstance().Tracer(policyGroup)
+	logger := logging.NewECSLogger()
+	return &PolicyRouter{
+		svc:    svc,
+		logger: logger,
+		tracer: tr,
+	}
 }
 
 func (r *PolicyRouter) Routes(engine *gin.RouterGroup, path string) {
