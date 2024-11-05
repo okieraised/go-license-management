@@ -10,9 +10,8 @@ type Policy struct {
 	bun.BaseModel `bun:"table:policies,alias:p" swaggerignore:"true"`
 
 	ID                            uuid.UUID              `bun:"id,pk,type:uuid"`
-	ProductID                     uuid.UUID              `bun:"product_id,type:uuid,notnull"`
-	AccountID                     uuid.UUID              `bun:"account_id,type:uuid,notnull"`
-	EnvironmentID                 uuid.UUID              `bun:"environment_id,type:uuid,nullzero"`
+	TenantID                      uuid.UUID              `bun:"tenant_id,type:uuid,notnull"`
+	ProductID                     uuid.UUID              `bun:"product_id,type:uuid"`
 	Duration                      int64                  `bun:"duration,nullzero"`
 	LockVersion                   int                    `bun:"lock_version,default:0,notnull"`
 	MaxMachines                   int                    `bun:"max_machines,nullzero"`
@@ -63,4 +62,6 @@ type Policy struct {
 	Metadata                      map[string]interface{} `bun:"type:jsonb,nullzero"`
 	CreatedAt                     time.Time              `bun:"created_at,nullzero,notnull,default:current_timestamp"`
 	UpdatedAt                     time.Time              `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
+	Tenant                        *Tenant                `bun:"rel:belongs-to,join:tenant_id=id"`
+	Product                       *Product               `bun:"rel:belongs-to,join:product_id=id,join:tenant_id=tenant_id"`
 }
