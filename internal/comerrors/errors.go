@@ -53,6 +53,10 @@ var (
 	ErrPolicySchemeIsInvalid = errors.New("policy scheme is invalid")
 )
 
+var (
+	ErrLicenseNameIsEmpty = errors.New("license name is empty")
+)
+
 var ErrCodeMapper = map[error]string{
 	nil:                                      "00000",
 	ErrGenericInternalServer:                 "50000",
@@ -85,6 +89,7 @@ var ErrCodeMapper = map[error]string{
 	ErrEntitlementIDIsInvalid:                "45004",
 	ErrPolicyNameIsEmpty:                     "46000",
 	ErrPolicySchemeIsInvalid:                 "46001",
+	ErrLicenseNameIsEmpty:                    "47001",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -119,4 +124,5 @@ var ErrMessageMapper = map[error]string{
 	ErrEntitlementIDIsInvalid:                ErrEntitlementIDIsInvalid.Error(),
 	ErrPolicyNameIsEmpty:                     ErrPolicyNameIsEmpty.Error(),
 	ErrPolicySchemeIsInvalid:                 ErrPolicySchemeIsInvalid.Error(),
+	ErrLicenseNameIsEmpty:                    ErrLicenseNameIsEmpty.Error(),
 }
