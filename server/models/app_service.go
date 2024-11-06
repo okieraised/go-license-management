@@ -4,6 +4,7 @@ import (
 	accountSvc "go-license-management/internal/server/v1/accounts/service"
 	authSvc "go-license-management/internal/server/v1/authentications/service"
 	entitlementSvc "go-license-management/internal/server/v1/entitlements/service"
+	licenseSvc "go-license-management/internal/server/v1/licenses/service"
 	machineSvc "go-license-management/internal/server/v1/machines/service"
 	policySvc "go-license-management/internal/server/v1/policies/service"
 	productSvc "go-license-management/internal/server/v1/products/service"
@@ -30,6 +31,7 @@ type V1AppService struct {
 	entitlement    *entitlementSvc.EntitlementService
 	machine        *machineSvc.MachineService
 	authentication *authSvc.AuthenticationService
+	license        *licenseSvc.LicenseService
 }
 
 func (v1 *V1AppService) GetAccount() *accountSvc.AccountService {
@@ -86,4 +88,12 @@ func (v1 *V1AppService) GetAuth() *authSvc.AuthenticationService {
 
 func (v1 *V1AppService) SetAuth(svc *authSvc.AuthenticationService) {
 	v1.authentication = svc
+}
+
+func (v1 *V1AppService) GetLicense() *licenseSvc.LicenseService {
+	return v1.license
+}
+
+func (v1 *V1AppService) SetLicense(svc *licenseSvc.LicenseService) {
+	v1.license = svc
 }

@@ -5,6 +5,7 @@ import (
 	"go-license-management/server/api/v1/accounts"
 	"go-license-management/server/api/v1/authentications"
 	"go-license-management/server/api/v1/entitlements"
+	"go-license-management/server/api/v1/licenses"
 	"go-license-management/server/api/v1/machines"
 	"go-license-management/server/api/v1/policies"
 	"go-license-management/server/api/v1/products"
@@ -50,6 +51,10 @@ func (rr *RootRouter) InitRouters(engine *gin.Engine) {
 		// Policy routes
 		policyRoute := policies.NewPolicyRouter(rr.AppService.GetV1Svc().GetPolicy())
 		policyRoute.Routes(v1Router, prefix)
+
+		// License routes
+		licenseRoute := licenses.NewLicenseRouter(rr.AppService.GetV1Svc().GetLicense())
+		licenseRoute.Routes(v1Router, prefix)
 
 		// Entitlement routes
 		entitlementRoute := entitlements.NewEntitlementRouter(rr.AppService.GetV1Svc().GetEntitlement())

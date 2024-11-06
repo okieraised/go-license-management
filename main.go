@@ -12,6 +12,7 @@ import (
 	accountRepo "go-license-management/internal/repositories/v1/accounts"
 	authRepo "go-license-management/internal/repositories/v1/authentications"
 	entitlementRepo "go-license-management/internal/repositories/v1/entitlements"
+	licenseRepo "go-license-management/internal/repositories/v1/licenses"
 	machineRepo "go-license-management/internal/repositories/v1/machines"
 	policyRepo "go-license-management/internal/repositories/v1/policies"
 	productRepo "go-license-management/internal/repositories/v1/products"
@@ -19,6 +20,7 @@ import (
 	accountSvc "go-license-management/internal/server/v1/accounts/service"
 	authSvc "go-license-management/internal/server/v1/authentications/service"
 	entitlementSvc "go-license-management/internal/server/v1/entitlements/service"
+	licenseSvc "go-license-management/internal/server/v1/licenses/service"
 	machineSvc "go-license-management/internal/server/v1/machines/service"
 	policySvc "go-license-management/internal/server/v1/policies/service"
 	productSvc "go-license-management/internal/server/v1/products/service"
@@ -100,6 +102,9 @@ func NewAppService(ds *models.DataSource) *models.AppService {
 
 	// entitlements
 	v1.SetEntitlement(entitlementSvc.NewEntitlementService(entitlementSvc.WithRepository(entitlementRepo.NewEntitlementRepository(ds))))
+
+	// licenses
+	v1.SetLicense(licenseSvc.NewLicenseService(licenseSvc.WithRepository(licenseRepo.NewLicenseRepository(ds))))
 
 	// machines
 	v1.SetMachine(machineSvc.NewMachineService(machineSvc.WithRepository(machineRepo.NewMachineRepository(ds))))
