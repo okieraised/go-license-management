@@ -107,7 +107,6 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
-
 }
 
 // retrieve retrieves the details of an existing entitlement.

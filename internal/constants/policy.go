@@ -24,6 +24,12 @@ const (
 	PolicySchemeRSA2048JWTRS256 = "RSA2048JWTRS256"
 )
 
+var ValidPolicySchemeMapper = map[string]bool{
+	PolicySchemeED25519:         true,
+	PolicySchemeRSA2048PKCS1:    true,
+	PolicySchemeRSA2048JWTRS256: true,
+}
+
 const (
 	// PolicyExpirationStrategyRestrictAccess - expired licenses can continue to access releases published prior to
 	// their license expiry. Automatic upgrades are enabled, but only for releases published prior to their expiry.

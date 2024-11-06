@@ -48,7 +48,8 @@ var (
 )
 
 var (
-	ErrPolicyNameIsEmpty = errors.New("policy name is empty")
+	ErrPolicyNameIsEmpty     = errors.New("policy name is empty")
+	ErrPolicySchemeIsInvalid = errors.New("policy scheme is invalid")
 )
 
 var ErrCodeMapper = map[error]string{
@@ -81,6 +82,7 @@ var ErrCodeMapper = map[error]string{
 	ErrEntitlementCodeAlreadyExist:          "45003",
 	ErrEntitlementIDIsInvalid:               "45004",
 	ErrPolicyNameIsEmpty:                    "46000",
+	ErrPolicySchemeIsInvalid:                "46001",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -113,4 +115,5 @@ var ErrMessageMapper = map[error]string{
 	ErrEntitlementCodeAlreadyExist:          ErrEntitlementCodeAlreadyExist.Error(),
 	ErrEntitlementIDIsInvalid:               ErrEntitlementIDIsInvalid.Error(),
 	ErrPolicyNameIsEmpty:                    ErrPolicyNameIsEmpty.Error(),
+	ErrPolicySchemeIsInvalid:                ErrPolicySchemeIsInvalid.Error(),
 }

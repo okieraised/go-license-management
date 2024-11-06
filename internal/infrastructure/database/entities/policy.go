@@ -38,27 +38,29 @@ type Policy struct {
 	RequireVersionScope           bool                   `bun:"require_version_scope,default:false,notnull"`
 	RequireComponentsScope        bool                   `bun:"require_components_scope,default:false,notnull"`
 	RequireUserScope              bool                   `bun:"require_user_scope,default:false,notnull"`
+	PublicKey                     string                 `bun:"public_key,type:varchar(1024),notnull"`
+	PrivateKey                    string                 `bun:"private_key,type:varchar(1024),notnull"`
 	Name                          string                 `bun:"name,type:varchar(256),nullzero"`
-	Scheme                        string                 `bun:"scheme,nullzero"`
-	FingerprintUniquenessStrategy string                 `bun:"fingerprint_uniqueness_strategy,nullzero"`
-	FingerprintMatchingStrategy   string                 `bun:"fingerprint_matching_strategy,nullzero"`
-	LeasingStrategy               string                 `bun:"leasing_strategy,nullzero"`
-	ExpirationStrategy            string                 `bun:"expiration_strategy,nullzero"`
-	ExpirationBasis               string                 `bun:"expiration_basis,nullzero"`
-	AuthenticationStrategy        string                 `bun:"authentication_strategy,nullzero"`
-	HeartbeatCullStrategy         string                 `bun:"heartbeat_cull_strategy,nullzero"`
-	HeartbeatResurrectionStrategy string                 `bun:"heartbeat_resurrection_strategy,nullzero"`
-	CheckInInterval               string                 `bun:"check_in_interval,nullzero"`
-	TransferStrategy              string                 `bun:"transfer_strategy,nullzero"`
-	OverageStrategy               string                 `bun:"overage_strategy,nullzero"`
-	HeartbeatBasis                string                 `bun:"heartbeat_basis,nullzero"`
-	MachineUniquenessStrategy     string                 `bun:"machine_uniqueness_strategy,nullzero"`
-	MachineMatchingStrategy       string                 `bun:"machine_matching_strategy,nullzero"`
-	ComponentUniquenessStrategy   string                 `bun:"component_uniqueness_strategy,nullzero"`
-	ComponentMatchingStrategy     string                 `bun:"component_matching_strategy,nullzero"`
-	RenewalBasis                  string                 `bun:"renewal_basis,nullzero"`
-	MachineLeasingStrategy        string                 `bun:"machine_leasing_strategy,nullzero"`
-	ProcessLeasingStrategy        string                 `bun:"process_leasing_strategy,nullzero"`
+	Scheme                        string                 `bun:"scheme,type:varchar(128),nullzero"`
+	FingerprintUniquenessStrategy string                 `bun:"fingerprint_uniqueness_strategy,type:varchar(64),nullzero"`
+	FingerprintMatchingStrategy   string                 `bun:"fingerprint_matching_strategy,type:varchar(64),nullzero"`
+	LeasingStrategy               string                 `bun:"leasing_strategy,type:varchar(64),nullzero"`
+	ExpirationStrategy            string                 `bun:"expiration_strategy,type:varchar(64),nullzero"`
+	ExpirationBasis               string                 `bun:"expiration_basis,type:varchar(64),nullzero"`
+	AuthenticationStrategy        string                 `bun:"authentication_strategy,type:varchar(64),nullzero"`
+	HeartbeatCullStrategy         string                 `bun:"heartbeat_cull_strategy,type:varchar(64),nullzero"`
+	HeartbeatResurrectionStrategy string                 `bun:"heartbeat_resurrection_strategy,type:varchar(64),nullzero"`
+	CheckInInterval               string                 `bun:"check_in_interval,type:varchar(64),nullzero"`
+	TransferStrategy              string                 `bun:"transfer_strategy,type:varchar(64),nullzero"`
+	OverageStrategy               string                 `bun:"overage_strategy,type:varchar(64),nullzero"`
+	HeartbeatBasis                string                 `bun:"heartbeat_basis,type:varchar(64),nullzero"`
+	MachineUniquenessStrategy     string                 `bun:"machine_uniqueness_strategy,type:varchar(64),nullzero"`
+	MachineMatchingStrategy       string                 `bun:"machine_matching_strategy,type:varchar(64),nullzero"`
+	ComponentUniquenessStrategy   string                 `bun:"component_uniqueness_strategy,type:varchar(64),nullzero"`
+	ComponentMatchingStrategy     string                 `bun:"component_matching_strategy,type:varchar(64),nullzero"`
+	RenewalBasis                  string                 `bun:"renewal_basis,type:varchar(64),nullzero"`
+	MachineLeasingStrategy        string                 `bun:"machine_leasing_strategy,type:varchar(64),nullzero"`
+	ProcessLeasingStrategy        string                 `bun:"process_leasing_strategy,type:varchar(64),nullzero"`
 	Metadata                      map[string]interface{} `bun:"type:jsonb,nullzero"`
 	CreatedAt                     time.Time              `bun:"created_at,nullzero,notnull,default:current_timestamp"`
 	UpdatedAt                     time.Time              `bun:"updated_at,nullzero,notnull,default:current_timestamp"`

@@ -1,11 +1,22 @@
 package service
 
 import (
+	"database/sql"
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/license_key"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/policies/models"
 	"go-license-management/internal/server/v1/policies/repository"
+	"go-license-management/internal/utils"
+	"go.uber.org/zap"
+	"time"
 )
 
 type PolicyService struct {
@@ -32,7 +43,155 @@ func WithRepository(repo repository.IPolicy) func(*PolicyService) {
 }
 
 func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrationInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	// Check if tenant exists
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	productID := uuid.MustParse(utils.DerefPointer(input.ProductID))
+
+	// Check if productID exists
+	_, cSpan = input.Tracer.Start(rootCtx, "check-product-id")
+	exists, err := svc.repo.CheckProductExistByID(ctx, tenant.ID, productID)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	if !exists {
+		svc.logger.GetLogger().Info(fmt.Sprintf("product id [%s] does not exist in tenant [%s]", productID.String(), tenant.ID.String()))
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
+		return resp, comerrors.ErrProductIDIsInvalid
+	}
+
+	// Generate new private/public key pair
+	var privateKey = ""
+	var publicKey = ""
+	scheme := utils.DerefPointer(input.Scheme)
+	switch scheme {
+	case constants.PolicySchemeED25519:
+		privateKey, publicKey, err = license_key.NewEd25519KeyPair()
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	case constants.PolicySchemeRSA2048PKCS1, constants.PolicySchemeRSA2048JWTRS256:
+		privateKey, publicKey, err = license_key.NewRSA2048PKCS1KeyPair()
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	default:
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicySchemeIsInvalid]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicySchemeIsInvalid]
+		return resp, comerrors.ErrPolicySchemeIsInvalid
+	}
+
+	// Insert new policy
+	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-policy")
+	policyID := uuid.New()
+	now := time.Now()
+	entitlement := &entities.Policy{
+		ID:                            policyID,
+		TenantID:                      tenant.ID,
+		ProductID:                     productID,
+		Duration:                      0,
+		LockVersion:                   0,
+		MaxMachines:                   0,
+		CheckInIntervalCount:          0,
+		MaxUses:                       0,
+		MaxProcesses:                  0,
+		HeartbeatDuration:             0,
+		MaxCores:                      0,
+		MaxUsers:                      0,
+		Strict:                        false,
+		Floating:                      false,
+		UsePool:                       false,
+		Encrypted:                     false,
+		Protected:                     false,
+		RequireCheckIn:                false,
+		RequireProductScope:           false,
+		RequirePolicyScope:            false,
+		RequireMachineScope:           false,
+		RequireFingerprintScope:       false,
+		Concurrent:                    false,
+		RequireHeartbeat:              false,
+		RequireEnvironmentScope:       false,
+		RequireChecksumScope:          false,
+		RequireVersionScope:           false,
+		RequireComponentsScope:        false,
+		RequireUserScope:              false,
+		PublicKey:                     publicKey,
+		PrivateKey:                    privateKey,
+		Name:                          utils.DerefPointer(input.Name),
+		Scheme:                        scheme,
+		FingerprintUniquenessStrategy: "",
+		FingerprintMatchingStrategy:   "",
+		LeasingStrategy:               "",
+		ExpirationStrategy:            "",
+		ExpirationBasis:               "",
+		AuthenticationStrategy:        "",
+		HeartbeatCullStrategy:         "",
+		HeartbeatResurrectionStrategy: "",
+		CheckInInterval:               "",
+		TransferStrategy:              "",
+		OverageStrategy:               "",
+		HeartbeatBasis:                "",
+		MachineUniquenessStrategy:     "",
+		MachineMatchingStrategy:       "",
+		ComponentUniquenessStrategy:   "",
+		ComponentMatchingStrategy:     "",
+		RenewalBasis:                  "",
+		MachineLeasingStrategy:        "",
+		ProcessLeasingStrategy:        "",
+		Metadata:                      nil,
+		CreatedAt:                     now,
+		UpdatedAt:                     now,
+	}
+	err = svc.repo.InsertNewPolicy(ctx, entitlement)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = map[string]interface{}{
+		"policy_id": policyID.String(),
+	}
+	return resp, nil
 }
 
 func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) (*response.BaseOutput, error) {
