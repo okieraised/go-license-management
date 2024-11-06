@@ -34,23 +34,23 @@ const (
 	// PolicyExpirationStrategyRestrictAccess - expired licenses can continue to access releases published prior to
 	// their license expiry. Automatic upgrades are enabled, but only for releases published prior to their expiry.
 	// Validation scopes take precedence over expiry check during license validation. This is the default.
-	PolicyExpirationStrategyRestrictAccess = "RestrictAccess"
+	PolicyExpirationStrategyRestrictAccess = "restrict"
 
 	// PolicyExpirationStrategyRevokeAccess - Expired licenses are no longer able to access any releases,
 	// including past releases. Automatic upgrades are disabled. Expiry check takes precedence over
 	// scopes during license validation.
-	PolicyExpirationStrategyRevokeAccess = "RevokeAccess"
+	PolicyExpirationStrategyRevokeAccess = "revoke"
 
 	// PolicyExpirationStrategyMaintainAccess - Expired licenses can continue to access releases published prior to their
 	// license expiry. Automatic upgrades are enabled, but only for releases published prior to their expiry.
 	// Validation scopes take precedence over expiry check during license validation. In addition,
 	// validations with an EXPIRED code will return valid=true
-	PolicyExpirationStrategyMaintainAccess = "MaintainAccess"
+	PolicyExpirationStrategyMaintainAccess = "maintain"
 
 	// PolicyExpirationStrategyAllowAccess - Expired licenses can access any releases, including past releases and
 	// future releases. Automatic upgrades are enabled. Validation scopes take precedence over expiry check during
 	// license validation. In addition, validations with an EXPIRED code will return valid=true.
-	PolicyExpirationStrategyAllowAccess = "AllowAccess"
+	PolicyExpirationStrategyAllowAccess = "allow"
 )
 
 const (
@@ -126,6 +126,8 @@ const (
 )
 
 const (
+	// PolicyTransferStrategyResetExpiry resets the transferred license's expiry from the time of transfer.
 	PolicyTransferStrategyResetExpiry = "reset_expiry"
-	PolicyTransferStrategyKeepExpiry  = "keep_expiry"
+	// PolicyTransferStrategyKeepExpiry keeps the license's current expiry.
+	PolicyTransferStrategyKeepExpiry = "keep_expiry"
 )

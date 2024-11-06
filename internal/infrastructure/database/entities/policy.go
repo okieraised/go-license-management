@@ -13,7 +13,7 @@ type Policy struct {
 	TenantID                      uuid.UUID              `bun:"tenant_id,type:uuid,notnull"`
 	ProductID                     uuid.UUID              `bun:"product_id,type:uuid"`
 	Duration                      int64                  `bun:"duration,nullzero"`
-	LockVersion                   int                    `bun:"lock_version,default:0,notnull"`
+	LockVersion                   int                    `bun:"lock_version,nullzero"`
 	MaxMachines                   int                    `bun:"max_machines,nullzero"`
 	CheckInIntervalCount          int                    `bun:"check_in_interval_count,nullzero"`
 	MaxUses                       int                    `bun:"max_uses,nullzero"`
@@ -33,7 +33,6 @@ type Policy struct {
 	RequireFingerprintScope       bool                   `bun:"require_fingerprint_scope,default:false"`
 	Concurrent                    bool                   `bun:"concurrent,default:true"`
 	RequireHeartbeat              bool                   `bun:"require_heartbeat,default:false,notnull"`
-	RequireEnvironmentScope       bool                   `bun:"require_environment_scope,default:false,notnull"`
 	RequireChecksumScope          bool                   `bun:"require_checksum_scope,default:false,notnull"`
 	RequireVersionScope           bool                   `bun:"require_version_scope,default:false,notnull"`
 	RequireComponentsScope        bool                   `bun:"require_components_scope,default:false,notnull"`

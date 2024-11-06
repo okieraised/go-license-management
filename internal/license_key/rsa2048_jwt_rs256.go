@@ -1,38 +1,23 @@
 package license_key
 
-//// NewJWTLicenseKeyWithRSA2048 generates new jwt license key using RSA2048 algorithm
-//func NewJWTLicenseKeyWithRSA2048(signingKey string, data any) (string, error) {
-//	bData, err := json.Marshal(data)
+//// NewJWTRS256KeyPair generates the private key and the public key pair using RS256 algorithm
+//func NewJWTRS256KeyPair() (string, string, error) {
+//	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 //	if err != nil {
-//		return "", err
+//		return "", "", err
 //	}
 //
-//	// Decode the private key string
-//	block, _ := pem.Decode([]byte(signingKey))
+//	// Encode the private key to PEM format (PKCS1)
+//	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+//		Type:  RSAPrivateKeyStr,
+//		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+//	})
 //
-//	if block == nil || block.Type != RSAPrivateKeyStr {
-//		return "", errors.New("failed to decode PEM block containing private key")
-//	}
+//	// Encode the public key to PEM format (PKCS1)
+//	publicKeyPEM := pem.EncodeToMemory(&pem.Block{
+//		Type:  RSAPublicKeyStr,
+//		Bytes: x509.MarshalPKCS1PublicKey(&privateKey.PublicKey),
+//	})
 //
-//	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-//	if err != nil {
-//		return "", err
-//	}
-//
-//	claims := jwt.MapClaims{
-//		"sub":        "user_id_1234",
-//		"exp":        time.Now().Add(time.Hour * 24).Unix(), // License valid for 24 hours
-//		"iat":        time.Now().Unix(),
-//		"scope":      "basic_license",
-//		"license_id": "license_123456",
-//	}
-//
-//	// Create a new JWT token with claims and sign it with RS256
-//	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-//	tokenString, err := token.SignedString(privateKey)
-//	if err != nil {
-//		return "", err
-//	}
-//
-//	return "", nil
+//	return string(privateKeyPEM), string(publicKeyPEM), nil
 //}

@@ -17,6 +17,7 @@ type PolicyRegistrationRequest struct {
 }
 
 func (req *PolicyRegistrationRequest) Validate() error {
+	// Must have
 	if req.Name == nil {
 		return comerrors.ErrPolicyNameIsEmpty
 	}
@@ -29,7 +30,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	if err != nil {
 		return comerrors.ErrProductIDIsInvalid
 	}
-
 	if req.Strict == nil {
 		req.Strict = utils.RefPointer(false)
 	}
@@ -43,7 +43,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 			return comerrors.ErrPolicySchemeIsInvalid
 		}
 	}
-
 	if req.ExpirationStrategy == nil {
 		req.ExpirationStrategy = utils.RefPointer(constants.PolicyExpirationStrategyRevokeAccess)
 	}
@@ -52,6 +51,50 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	}
 	if req.AuthenticationStrategy == nil {
 		req.AuthenticationStrategy = utils.RefPointer(constants.PolicyAuthenticationStrategyLicense)
+	}
+	if req.ExpirationBasis == nil {
+		req.ExpirationBasis = utils.RefPointer(constants.PolicyExpirationBasisFromCreation)
+	}
+	if req.OverageStrategy == nil {
+		req.OverageStrategy = utils.RefPointer(constants.PolicyOverageStrategyNoOverage)
+	}
+
+	// Optional
+	if req.RequireProductScope == nil {
+		req.RequireProductScope = utils.RefPointer(false)
+	}
+	if req.RequirePolicyScope == nil {
+		req.RequirePolicyScope = utils.RefPointer(false)
+	}
+	if req.RequireMachineScope == nil {
+		req.RequireMachineScope = utils.RefPointer(false)
+	}
+	if req.RequireFingerprintScope == nil {
+		req.RequireFingerprintScope = utils.RefPointer(false)
+	}
+	if req.RequireComponentsScope == nil {
+		req.RequireComponentsScope = utils.RefPointer(false)
+	}
+	if req.RequireUserScope == nil {
+		req.RequireUserScope = utils.RefPointer(false)
+	}
+	if req.RequireChecksumScope == nil {
+		req.RequireChecksumScope = utils.RefPointer(false)
+	}
+	if req.RequireVersionScope == nil {
+		req.RequireVersionScope = utils.RefPointer(false)
+	}
+	if req.RequireCheckIn == nil {
+		req.RequireCheckIn = utils.RefPointer(false)
+	}
+	if req.RequireHeartbeat == nil {
+		req.RequireHeartbeat = utils.RefPointer(false)
+	}
+	if req.UsePool == nil {
+		req.UsePool = utils.RefPointer(false)
+	}
+	if req.Protected == nil {
+		req.Protected = utils.RefPointer(false)
 	}
 
 	return nil
