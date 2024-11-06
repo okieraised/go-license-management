@@ -26,7 +26,7 @@ func (repo *ProductRepository) SelectTenantByName(ctx context.Context, tenantNam
 
 	tenant := &entities.Tenant{}
 
-	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name").Where("name = ?", tenantName).Scan(ctx)
+	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name, ed25519_private_key").Where("name = ?", tenantName).Scan(ctx)
 	if err != nil {
 		return tenant, err
 	}

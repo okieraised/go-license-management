@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/server/v1/products/models"
 	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/trace"
+	"time"
 )
 
 type ProductRegistrationRequest struct {
@@ -111,8 +112,34 @@ func (req *ProductDeletionRequest) Validate() error {
 }
 
 type ProductTokenRequest struct {
+	Name        *string  `json:"name" validate:"optional" example:"test"`
+	Expiry      *string  `json:"expiry" validate:"optional" example:"test"`
+	Permissions []string `json:"permissions" validate:"required" example:"test"`
 }
 
 func (req *ProductTokenRequest) Validate() error {
+
+	if req.Expiry != nil {
+		_, err := time.Parse(constants.DateFormatISO8601Hyphen, utils.DerefPointer(req.Expiry))
+		if err != nil {
+			return comerrors.ErrProductTokenExpirationFormatIsInvalid
+		}
+	}
+	if req.Permissions == nil {
+		req.Permissions = []string{"*"}
+	}
+
 	return nil
+}
+
+func (req *ProductTokenRequest) ToProductTokenInput(ctx context.Context, tracer trace.Tracer, tenantName, productID string) *models.ProductTokensInput {
+	return &models.ProductTokensInput{
+		TracerCtx:   ctx,
+		Tracer:      tracer,
+		TenantName:  utils.RefPointer(tenantName),
+		ProductID:   uuid.MustParse(productID),
+		Name:        req.Name,
+		Expiry:      req.Expiry,
+		Permissions: req.Permissions,
+	}
 }

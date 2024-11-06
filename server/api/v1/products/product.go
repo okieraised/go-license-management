@@ -3,6 +3,7 @@ package products
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
@@ -181,5 +182,72 @@ func (r *ProductRouter) list(ctx *gin.Context) {
 
 // tokens generates a new product token resource. Product tokens do not expire.
 func (r *ProductRouter) tokens(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
+
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new product token creation request")
+
+	// serializer
+	tenantName := ctx.Param(constants.TenantNameField)
+	if tenantName == "" {
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	productID := ctx.Param("product_id")
+	_, err := uuid.Parse(productID)
+	if err != nil {
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid], comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var req products.ProductTokenRequest
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err = ctx.ShouldBind(&req)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = req.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.Tokens(ctx, req.ToProductTokenInput(rootCtx, r.tracer, tenantName, productID))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+		return
+	}
+	cSpan.End()
+
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	ctx.JSON(http.StatusCreated, resp)
+	return
 
 }

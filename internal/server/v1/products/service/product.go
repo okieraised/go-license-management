@@ -192,6 +192,55 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 }
 
 func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
+	defer span.End()
 
-	return &response.BaseOutput{}, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	// Check tenant
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	// Check product
+	_, cSpan = input.Tracer.Start(rootCtx, "query-product")
+	product, err := svc.repo.SelectProductByPK(ctx, tenant.ID, input.ProductID)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
+			return resp, comerrors.ErrProductIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	// Generate token
+	fmt.Println(product)
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = map[string]interface{}{
+		"token": "",
+	}
+	return resp, nil
 }

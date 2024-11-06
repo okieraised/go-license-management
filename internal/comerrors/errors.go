@@ -30,13 +30,14 @@ var (
 )
 
 var (
-	ErrProductNameIsEmpty                   = errors.New("product name is empty")
-	ErrProductCodeIsEmpty                   = errors.New("product code is empty")
-	ErrProductDistributionStrategyIsInvalid = errors.New("product distribution strategy is invalid")
-	ErrProductNameAlreadyExist              = errors.New("product name already exists")
-	ErrProductCodeAlreadyExist              = errors.New("product code already exists")
-	ErrProductIDIsEmpty                     = errors.New("product id is empty")
-	ErrProductIDIsInvalid                   = errors.New("product id is invalid")
+	ErrProductNameIsEmpty                    = errors.New("product name is empty")
+	ErrProductCodeIsEmpty                    = errors.New("product code is empty")
+	ErrProductDistributionStrategyIsInvalid  = errors.New("product distribution strategy is invalid")
+	ErrProductNameAlreadyExist               = errors.New("product name already exists")
+	ErrProductCodeAlreadyExist               = errors.New("product code already exists")
+	ErrProductIDIsEmpty                      = errors.New("product id is empty")
+	ErrProductIDIsInvalid                    = errors.New("product id is invalid")
+	ErrProductTokenExpirationFormatIsInvalid = errors.New("product token expiration format is invalid")
 )
 
 var (
@@ -53,67 +54,69 @@ var (
 )
 
 var ErrCodeMapper = map[error]string{
-	nil:                                     "00000",
-	ErrGenericInternalServer:                "50000",
-	ErrInvalidDatabaseClient:                "50001",
-	ErrGenericRequestTimedOut:               "50004",
-	ErrGenericBadRequest:                    "40000",
-	ErrGenericUnauthorized:                  "40001",
-	ErrGenericPermission:                    "40003",
-	ErrTenantNameIsEmpty:                    "42000",
-	ErrTenantNameAlreadyExist:               "42001",
-	ErrTenantNameIsInvalid:                  "42002",
-	ErrAccountUsernameIsEmpty:               "43000",
-	ErrAccountEmailIsEmpty:                  "43001",
-	ErrAccountRoleIsEmpty:                   "43002",
-	ErrAccountRoleIsInvalid:                 "43003",
-	ErrAccountPasswordIsEmpty:               "43004",
-	ErrAccountUsernameAlreadyExist:          "43005",
-	ErrProductNameIsEmpty:                   "44000",
-	ErrProductCodeIsEmpty:                   "44001",
-	ErrProductDistributionStrategyIsInvalid: "44002",
-	ErrProductNameAlreadyExist:              "44003",
-	ErrProductCodeAlreadyExist:              "44004",
-	ErrProductIDIsEmpty:                     "44005",
-	ErrProductIDIsInvalid:                   "44006",
-	ErrEntitlementIDIsEmpty:                 "45000",
-	ErrEntitlementNameIsEmpty:               "45001",
-	ErrEntitlementCodeIsEmpty:               "45002",
-	ErrEntitlementCodeAlreadyExist:          "45003",
-	ErrEntitlementIDIsInvalid:               "45004",
-	ErrPolicyNameIsEmpty:                    "46000",
-	ErrPolicySchemeIsInvalid:                "46001",
+	nil:                                      "00000",
+	ErrGenericInternalServer:                 "50000",
+	ErrInvalidDatabaseClient:                 "50001",
+	ErrGenericRequestTimedOut:                "50004",
+	ErrGenericBadRequest:                     "40000",
+	ErrGenericUnauthorized:                   "40001",
+	ErrGenericPermission:                     "40003",
+	ErrTenantNameIsEmpty:                     "42000",
+	ErrTenantNameAlreadyExist:                "42001",
+	ErrTenantNameIsInvalid:                   "42002",
+	ErrAccountUsernameIsEmpty:                "43000",
+	ErrAccountEmailIsEmpty:                   "43001",
+	ErrAccountRoleIsEmpty:                    "43002",
+	ErrAccountRoleIsInvalid:                  "43003",
+	ErrAccountPasswordIsEmpty:                "43004",
+	ErrAccountUsernameAlreadyExist:           "43005",
+	ErrProductNameIsEmpty:                    "44000",
+	ErrProductCodeIsEmpty:                    "44001",
+	ErrProductDistributionStrategyIsInvalid:  "44002",
+	ErrProductNameAlreadyExist:               "44003",
+	ErrProductCodeAlreadyExist:               "44004",
+	ErrProductIDIsEmpty:                      "44005",
+	ErrProductIDIsInvalid:                    "44006",
+	ErrProductTokenExpirationFormatIsInvalid: "44007",
+	ErrEntitlementIDIsEmpty:                  "45000",
+	ErrEntitlementNameIsEmpty:                "45001",
+	ErrEntitlementCodeIsEmpty:                "45002",
+	ErrEntitlementCodeAlreadyExist:           "45003",
+	ErrEntitlementIDIsInvalid:                "45004",
+	ErrPolicyNameIsEmpty:                     "46000",
+	ErrPolicySchemeIsInvalid:                 "46001",
 }
 
 var ErrMessageMapper = map[error]string{
-	nil:                                     "OK",
-	ErrGenericInternalServer:                ErrGenericInternalServer.Error(),
-	ErrGenericRequestTimedOut:               ErrGenericRequestTimedOut.Error(),
-	ErrInvalidDatabaseClient:                ErrInvalidDatabaseClient.Error(),
-	ErrGenericBadRequest:                    ErrGenericBadRequest.Error(),
-	ErrGenericUnauthorized:                  ErrGenericUnauthorized.Error(),
-	ErrGenericPermission:                    ErrGenericPermission.Error(),
-	ErrTenantNameIsEmpty:                    ErrTenantNameIsEmpty.Error(),
-	ErrTenantNameAlreadyExist:               ErrTenantNameAlreadyExist.Error(),
-	ErrTenantNameIsInvalid:                  ErrTenantNameIsInvalid.Error(),
-	ErrAccountUsernameIsEmpty:               ErrAccountUsernameIsEmpty.Error(),
-	ErrAccountEmailIsEmpty:                  ErrAccountEmailIsEmpty.Error(),
-	ErrAccountRoleIsEmpty:                   ErrAccountRoleIsEmpty.Error(),
-	ErrAccountRoleIsInvalid:                 ErrAccountRoleIsInvalid.Error(),
-	ErrAccountPasswordIsEmpty:               ErrAccountPasswordIsEmpty.Error(),
-	ErrAccountUsernameAlreadyExist:          ErrAccountUsernameAlreadyExist.Error(),
-	ErrProductNameIsEmpty:                   ErrProductNameIsEmpty.Error(),
-	ErrProductCodeIsEmpty:                   ErrProductCodeIsEmpty.Error(),
-	ErrProductDistributionStrategyIsInvalid: ErrProductDistributionStrategyIsInvalid.Error(),
-	ErrProductNameAlreadyExist:              ErrProductNameAlreadyExist.Error(),
-	ErrProductCodeAlreadyExist:              ErrProductCodeAlreadyExist.Error(),
-	ErrProductIDIsEmpty:                     ErrProductIDIsEmpty.Error(),
-	ErrProductIDIsInvalid:                   ErrProductIDIsInvalid.Error(),
-	ErrEntitlementIDIsEmpty:                 ErrEntitlementIDIsEmpty.Error(),
-	ErrEntitlementNameIsEmpty:               ErrEntitlementNameIsEmpty.Error(),
-	ErrEntitlementCodeIsEmpty:               ErrEntitlementCodeIsEmpty.Error(),
-	ErrEntitlementCodeAlreadyExist:          ErrEntitlementCodeAlreadyExist.Error(),
-	ErrEntitlementIDIsInvalid:               ErrEntitlementIDIsInvalid.Error(),
-	ErrPolicyNameIsEmpty:                    ErrPolicyNameIsEmpty.Error(),
-	ErrPolicySchemeIsInvalid:                ErrPolicySchemeIsInvalid.Error(),
+	nil:                                      "OK",
+	ErrGenericInternalServer:                 ErrGenericInternalServer.Error(),
+	ErrGenericRequestTimedOut:                ErrGenericRequestTimedOut.Error(),
+	ErrInvalidDatabaseClient:                 ErrInvalidDatabaseClient.Error(),
+	ErrGenericBadRequest:                     ErrGenericBadRequest.Error(),
+	ErrGenericUnauthorized:                   ErrGenericUnauthorized.Error(),
+	ErrGenericPermission:                     ErrGenericPermission.Error(),
+	ErrTenantNameIsEmpty:                     ErrTenantNameIsEmpty.Error(),
+	ErrTenantNameAlreadyExist:                ErrTenantNameAlreadyExist.Error(),
+	ErrTenantNameIsInvalid:                   ErrTenantNameIsInvalid.Error(),
+	ErrAccountUsernameIsEmpty:                ErrAccountUsernameIsEmpty.Error(),
+	ErrAccountEmailIsEmpty:                   ErrAccountEmailIsEmpty.Error(),
+	ErrAccountRoleIsEmpty:                    ErrAccountRoleIsEmpty.Error(),
+	ErrAccountRoleIsInvalid:                  ErrAccountRoleIsInvalid.Error(),
+	ErrAccountPasswordIsEmpty:                ErrAccountPasswordIsEmpty.Error(),
+	ErrAccountUsernameAlreadyExist:           ErrAccountUsernameAlreadyExist.Error(),
+	ErrProductNameIsEmpty:                    ErrProductNameIsEmpty.Error(),
+	ErrProductCodeIsEmpty:                    ErrProductCodeIsEmpty.Error(),
+	ErrProductDistributionStrategyIsInvalid:  ErrProductDistributionStrategyIsInvalid.Error(),
+	ErrProductNameAlreadyExist:               ErrProductNameAlreadyExist.Error(),
+	ErrProductCodeAlreadyExist:               ErrProductCodeAlreadyExist.Error(),
+	ErrProductIDIsEmpty:                      ErrProductIDIsEmpty.Error(),
+	ErrProductIDIsInvalid:                    ErrProductIDIsInvalid.Error(),
+	ErrProductTokenExpirationFormatIsInvalid: ErrProductTokenExpirationFormatIsInvalid.Error(),
+	ErrEntitlementIDIsEmpty:                  ErrEntitlementIDIsEmpty.Error(),
+	ErrEntitlementNameIsEmpty:                ErrEntitlementNameIsEmpty.Error(),
+	ErrEntitlementCodeIsEmpty:                ErrEntitlementCodeIsEmpty.Error(),
+	ErrEntitlementCodeAlreadyExist:           ErrEntitlementCodeAlreadyExist.Error(),
+	ErrEntitlementIDIsInvalid:                ErrEntitlementIDIsInvalid.Error(),
+	ErrPolicyNameIsEmpty:                     ErrPolicyNameIsEmpty.Error(),
+	ErrPolicySchemeIsInvalid:                 ErrPolicySchemeIsInvalid.Error(),
 }
