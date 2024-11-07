@@ -30,6 +30,10 @@ An open-source license management written in Go
     You can create multiple policies for the same product to support different license types, allowing you to offer various plans, 
     such as basic, pro, or enterprise versions of your software, with each policy defining unique rules for usage and access.
 
+### Supported License Scheme
+* **Ed25519**
+* **RSA2048**
+* **RSA-JWT-RS256**
 
 ### Supported License Types
 
