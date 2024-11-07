@@ -1,4 +1,4 @@
-package policy
+package policy_attribute
 
 type PolicyAttributeModel struct {
 	Name                          *string                `json:"name" validate:"required"`                            // Name: name of the policy

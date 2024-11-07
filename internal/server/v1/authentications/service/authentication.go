@@ -7,7 +7,6 @@ import (
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
-	"go-license-management/internal/jwt_token"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/authentications/models"
 	"go-license-management/internal/server/v1/authentications/repository"
@@ -84,22 +83,22 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 	}
 	cSpan.End()
 
-	// generate jwt
-	_, cSpan = input.Tracer.Start(rootCtx, "generate-account-token")
-	token, err := jwt_token.GenerateJWT(account.Email, account.Username, account.RoleName, tenant.ID.String(), tenant.Ed25519PrivateKey)
-	if err != nil {
-		svc.logger.GetLogger().Error(err.Error())
-		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
-	}
-	cSpan.End()
+	//// generate jwt
+	//_, cSpan = input.Tracer.Start(rootCtx, "generate-account-token")
+	//token, err := utils.GenerateJWT(account.Email, account.Username, account.RoleName, tenant.ID.String(), tenant.Ed25519PrivateKey)
+	//if err != nil {
+	//	svc.logger.GetLogger().Error(err.Error())
+	//	cSpan.End()
+	//	resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+	//	resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+	//	return resp, comerrors.ErrGenericInternalServer
+	//}
+	//cSpan.End()
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
 	resp.Data = map[string]string{
-		"access": token,
+		"access": "",
 	}
 
 	return resp, nil

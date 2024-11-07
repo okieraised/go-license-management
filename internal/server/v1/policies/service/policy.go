@@ -10,7 +10,6 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
-	"go-license-management/internal/license_key"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/policies/models"
 	"go-license-management/internal/server/v1/policies/repository"
@@ -94,7 +93,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	scheme := utils.DerefPointer(input.Scheme)
 	switch scheme {
 	case constants.PolicySchemeED25519:
-		privateKey, publicKey, err = license_key.NewEd25519KeyPair()
+		privateKey, publicKey, err = utils.NewEd25519KeyPair()
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
@@ -102,7 +101,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 			return resp, comerrors.ErrGenericInternalServer
 		}
 	case constants.PolicySchemeRSA2048PKCS1, constants.PolicySchemeRSA2048JWTRS256:
-		privateKey, publicKey, err = license_key.NewRSA2048PKCS1KeyPair()
+		privateKey, publicKey, err = utils.NewRSA2048PKCS1KeyPair()
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
@@ -147,7 +146,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		RequireChecksumScope:          false,
 		RequireVersionScope:           utils.DerefPointer(input.RequireVersionScope),
 		RequireComponentsScope:        utils.DerefPointer(input.RequireComponentsScope),
-		RequireUserScope:              false,
+		RequireAccountScope:           false,
 		PublicKey:                     publicKey,
 		PrivateKey:                    privateKey,
 		Name:                          utils.DerefPointer(input.Name),

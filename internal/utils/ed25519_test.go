@@ -1,4 +1,4 @@
-package license_key
+package utils
 
 import (
 	"fmt"

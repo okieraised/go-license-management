@@ -51,10 +51,14 @@ var (
 var (
 	ErrPolicyNameIsEmpty     = errors.New("policy name is empty")
 	ErrPolicySchemeIsInvalid = errors.New("policy scheme is invalid")
+	ErrPolicyIDIsInvalid     = errors.New("policy id is invalid")
 )
 
 var (
-	ErrLicenseNameIsEmpty = errors.New("license name is empty")
+	ErrLicenseNameIsEmpty           = errors.New("license name is empty")
+	ErrLicenseProductIDIsEmpty      = errors.New("license product id is empty")
+	ErrLicensePolicyIDIsEmpty       = errors.New("license policy id is empty")
+	ErrLicenseExpiryFormatIsInvalid = errors.New("license expiry format is invalid")
 )
 
 var ErrCodeMapper = map[error]string{
@@ -89,7 +93,11 @@ var ErrCodeMapper = map[error]string{
 	ErrEntitlementIDIsInvalid:                "45004",
 	ErrPolicyNameIsEmpty:                     "46000",
 	ErrPolicySchemeIsInvalid:                 "46001",
+	ErrPolicyIDIsInvalid:                     "46002",
 	ErrLicenseNameIsEmpty:                    "47001",
+	ErrLicenseProductIDIsEmpty:               "47002",
+	ErrLicensePolicyIDIsEmpty:                "47003",
+	ErrLicenseExpiryFormatIsInvalid:          "47004",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -124,5 +132,9 @@ var ErrMessageMapper = map[error]string{
 	ErrEntitlementIDIsInvalid:                ErrEntitlementIDIsInvalid.Error(),
 	ErrPolicyNameIsEmpty:                     ErrPolicyNameIsEmpty.Error(),
 	ErrPolicySchemeIsInvalid:                 ErrPolicySchemeIsInvalid.Error(),
+	ErrPolicyIDIsInvalid:                     ErrPolicyIDIsInvalid.Error(),
 	ErrLicenseNameIsEmpty:                    ErrLicenseNameIsEmpty.Error(),
+	ErrLicenseProductIDIsEmpty:               ErrLicenseProductIDIsEmpty.Error(),
+	ErrLicensePolicyIDIsEmpty:                ErrLicensePolicyIDIsEmpty.Error(),
+	ErrLicenseExpiryFormatIsInvalid:          ErrLicenseExpiryFormatIsInvalid.Error(),
 }

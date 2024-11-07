@@ -98,7 +98,9 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid), errors.Is(err, comerrors.ErrEntitlementCodeAlreadyExist):
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
+			errors.Is(err, comerrors.ErrProductIDIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)

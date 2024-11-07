@@ -8,7 +8,6 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
-	"go-license-management/internal/license_key"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/tenants/models"
 	"go-license-management/internal/server/v1/tenants/repository"
@@ -68,7 +67,7 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 
 	// If not, generate additional required info
 	_, cSpan = input.Tracer.Start(rootCtx, "generate-tenant-key")
-	privateKey, publicKey, err := license_key.NewEd25519KeyPair()
+	privateKey, publicKey, err := utils.NewEd25519KeyPair()
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

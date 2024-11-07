@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
-	"go-license-management/internal/policy"
+	"go-license-management/internal/infrastructure/models/policy_attribute"
 	"go-license-management/internal/server/v1/policies/models"
 	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/trace"
@@ -13,7 +13,7 @@ import (
 
 type PolicyRegistrationRequest struct {
 	ProductID *string `json:"product_id" validate:"required" example:"test"`
-	policy.PolicyAttributeModel
+	policy_attribute.PolicyAttributeModel
 }
 
 func (req *PolicyRegistrationRequest) Validate() error {

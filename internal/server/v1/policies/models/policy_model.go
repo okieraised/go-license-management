@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 	"github.com/google/uuid"
-	"go-license-management/internal/policy"
+	"go-license-management/internal/infrastructure/models/policy_attribute"
 	"go.opentelemetry.io/otel/trace"
 	"time"
 )
@@ -13,7 +13,7 @@ type PolicyRegistrationInput struct {
 	Tracer     trace.Tracer
 	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
 	ProductID  *string `json:"product_id" validate:"required" example:"test"`
-	policy.PolicyAttributeModel
+	policy_attribute.PolicyAttributeModel
 }
 
 type PolicyListInput struct {

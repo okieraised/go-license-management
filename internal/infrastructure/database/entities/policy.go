@@ -36,7 +36,7 @@ type Policy struct {
 	RequireChecksumScope          bool                   `bun:"require_checksum_scope,default:false,notnull"`
 	RequireVersionScope           bool                   `bun:"require_version_scope,default:false,notnull"`
 	RequireComponentsScope        bool                   `bun:"require_components_scope,default:false,notnull"`
-	RequireUserScope              bool                   `bun:"require_user_scope,default:false,notnull"`
+	RequireAccountScope           bool                   `bun:"require_account_scope,default:false,notnull"`
 	PublicKey                     string                 `bun:"public_key,type:varchar(1024),notnull"`
 	PrivateKey                    string                 `bun:"private_key,type:varchar(1024),notnull"`
 	Name                          string                 `bun:"name,type:varchar(256),nullzero"`
