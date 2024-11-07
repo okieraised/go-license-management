@@ -2,6 +2,7 @@ package license
 
 import (
 	"context"
+	"go-license-management/internal/comerrors"
 	"go-license-management/internal/server/v1/licenses/models"
 	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/trace"
@@ -24,6 +25,10 @@ type LicenseRegistrationRequest struct {
 
 func (req *LicenseRegistrationRequest) Validate() error {
 
+	if req.Name == nil {
+		return comerrors.ErrLicenseNameIsEmpty
+	}
+
 	return nil
 }
 
@@ -34,4 +39,14 @@ func (req *LicenseRegistrationRequest) ToLicenseRegistrationInput(ctx context.Co
 		Tracer:     tracer,
 		TenantName: utils.RefPointer(tenantName),
 	}
+}
+
+type LicenseRetrievalRequest struct {
+	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
+	LicenseID  *string `uri:"license_id" validate:"required" example:"test"`
+}
+
+func (req *LicenseRetrievalRequest) Validate() error {
+
+	return nil
 }

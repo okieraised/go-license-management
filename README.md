@@ -4,6 +4,13 @@ An open-source license management written in Go
 ### Authentication and Authorization
 
 
+### Device Registration
+
+
+
+
+
+
 ### Basic terminology
 1. **Product**: A product represents a software application or a digital product. 
     It's essentially an identifier that groups together licenses, accounts, and policies related to a 
