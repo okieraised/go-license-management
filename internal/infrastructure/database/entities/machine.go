@@ -28,7 +28,7 @@ type Machine struct {
 }
 
 type MachineProcess struct {
-	ID                   uuid.UUID              `bun:",pk,type:uuid,default:uuid_generate_v4()"`
+	ID                   uuid.UUID              `bun:",pk,type:uuid"`
 	TenantID             uuid.UUID              `bun:"tenant_id,type:uuid,notnull"`
 	MachineID            uuid.UUID              `bun:"machine_id,notnull"`
 	PID                  string                 `bun:"pid,notnull"`
@@ -43,7 +43,7 @@ type MachineProcess struct {
 }
 
 type MachineComponent struct {
-	ID          uuid.UUID              `bun:",pk,type:uuid,default:uuid_generate_v4()"`
+	ID          uuid.UUID              `bun:",pk,type:uuid"`
 	TenantID    uuid.UUID              `bun:"tenant_id,type:uuid,notnull"`
 	MachineID   uuid.UUID              `bun:"machine_id,notnull"`
 	Fingerprint string                 `bun:"fingerprint,notnull"`

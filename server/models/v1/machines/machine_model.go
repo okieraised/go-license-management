@@ -21,3 +21,17 @@ type MachineAttributeModel struct {
 	Created           time.Time   `json:"created"`            // When the machine was created.
 	Updated           time.Time   `json:"updated"`            // When the machine was last updated.
 }
+
+type MachineRegistrationRequest struct {
+}
+
+type MachineRetrievalRequest struct {
+}
+
+type MachineDeletionRequest struct{}
+
+type MachineUpdateRequest struct{}
+
+type MachineDeactivateRequest struct{}
+
+type MachineHeartbeatRequest struct{}
