@@ -37,8 +37,8 @@ type Policy struct {
 	RequireVersionScope           bool                   `bun:"require_version_scope,default:false,notnull"`
 	RequireComponentsScope        bool                   `bun:"require_components_scope,default:false,notnull"`
 	RequireAccountScope           bool                   `bun:"require_account_scope,default:false,notnull"`
-	PublicKey                     string                 `bun:"public_key,type:varchar(1024),notnull"`
-	PrivateKey                    string                 `bun:"private_key,type:varchar(1024),notnull"`
+	PublicKey                     string                 `bun:"public_key,type:varchar(4096),notnull"`
+	PrivateKey                    string                 `bun:"private_key,type:varchar(4096),notnull"`
 	Name                          string                 `bun:"name,type:varchar(256),nullzero"`
 	Scheme                        string                 `bun:"scheme,type:varchar(128),nullzero"`
 	FingerprintUniquenessStrategy string                 `bun:"fingerprint_uniqueness_strategy,type:varchar(64),nullzero"`

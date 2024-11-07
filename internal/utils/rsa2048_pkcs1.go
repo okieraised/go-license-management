@@ -36,7 +36,7 @@ func NewRSA2048PKCS1KeyPair() (string, string, error) {
 		Bytes: x509.MarshalPKCS1PublicKey(&privateKey.PublicKey),
 	})
 
-	return string(privateKeyPEM), string(publicKeyPEM), nil
+	return base64.URLEncoding.EncodeToString(privateKeyPEM), base64.URLEncoding.EncodeToString(publicKeyPEM), nil
 }
 
 // NewLicenseKeyWithRSA2048PKCS1 generates new license key using RSA2048 algorithm
@@ -47,7 +47,7 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	}
 
 	// Encode the original data to base64
-	encodedData := base64.StdEncoding.EncodeToString(bData)
+	encodedData := base64.URLEncoding.EncodeToString(bData)
 
 	// Sign the data using the private key with SHA-256 hashing
 	hash := sha512.New()
@@ -55,7 +55,12 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	hashed := hash.Sum(nil)
 
 	// Decode the private key string
-	block, _ := pem.Decode([]byte(signingKey))
+	privateKeyPEM, err := base64.URLEncoding.DecodeString(signingKey)
+	if err != nil {
+		return "", err
+	}
+
+	block, _ := pem.Decode(privateKeyPEM)
 
 	if block == nil || block.Type != RSAPrivateKeyStr {
 		return "", errors.New("failed to decode PEM block containing private key")
@@ -72,7 +77,7 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	}
 
 	// Encode the signature in base64
-	encodedSignature := base64.StdEncoding.EncodeToString(signature)
+	encodedSignature := base64.URLEncoding.EncodeToString(signature)
 
 	// Combine the encoded data and signature to create the license key
 	licenseKey := fmt.Sprintf("%s.%s", encodedData, encodedSignature)
@@ -89,19 +94,24 @@ func VerifyLicenseKeyWithRSA2048PKCS1(verifyKey string, licenseKey string) (bool
 	encodedData := parts[0]
 	encodedSignature := parts[1]
 
-	data, err := base64.StdEncoding.DecodeString(encodedData)
+	data, err := base64.URLEncoding.DecodeString(encodedData)
 	if err != nil {
 		return false, nil, err
 	}
 
 	// Decode signature
-	signature, err := base64.StdEncoding.DecodeString(encodedSignature)
+	signature, err := base64.URLEncoding.DecodeString(encodedSignature)
 	if err != nil {
 		return false, nil, err
 	}
 
-	// Decode the private key string
-	block, _ := pem.Decode([]byte(verifyKey))
+	// Decode the public key string
+	publicKeyPEM, err := base64.URLEncoding.DecodeString(verifyKey)
+	if err != nil {
+		return false, nil, err
+	}
+
+	block, _ := pem.Decode(publicKeyPEM)
 
 	if block == nil || block.Type != RSAPublicKeyStr {
 		return false, nil, errors.New("failed to decode PEM block containing public key")

@@ -1,8 +1,7 @@
 package utils
 
 import (
-	"encoding/pem"
-	"errors"
+	"encoding/base64"
 	"github.com/golang-jwt/jwt/v5"
 	"go-license-management/internal/infrastructure/models/license_key"
 	"math"
@@ -12,13 +11,12 @@ import (
 // NewLicenseKeyWithJWTRS256 generates new license key in jwt format using RS256 signing method.
 func NewLicenseKeyWithJWTRS256(signingKey string, data *license_key.LicenseKeyContent) (string, error) {
 
-	block, _ := pem.Decode([]byte(signingKey))
-
-	if block == nil || block.Type != RSAPrivateKeyStr {
-		return "", errors.New("failed to decode PEM block containing private key")
+	privateKeyPem, err := base64.URLEncoding.DecodeString(signingKey)
+	if err != nil {
+		return "", err
 	}
 
-	var exp int64 = math.MaxInt64
+	var exp int64 = math.MaxInt32
 	if !data.Expiry.IsZero() {
 		exp = data.Expiry.Unix()
 	}
@@ -33,7 +31,12 @@ func NewLicenseKeyWithJWTRS256(signingKey string, data *license_key.LicenseKeyCo
 		"nbf": time.Now().Unix(),
 	})
 
-	licenseKey, err := claims.SignedString(block.Bytes)
+	pkey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyPem)
+	if err != nil {
+		return "", err
+	}
+
+	licenseKey, err := claims.SignedString(pkey)
 	if err != nil {
 		return "", err
 	}
