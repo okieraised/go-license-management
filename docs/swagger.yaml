@@ -1,0 +1,67 @@
+definitions:
+  response.Response:
+    properties:
+      agg: {}
+      code:
+        type: string
+      count:
+        type: integer
+      data: {}
+      message:
+        type: string
+      meta: {}
+      request_id:
+        type: string
+      server_time:
+        type: integer
+    type: object
+  tenants.TenantRegistrationRequest:
+    properties:
+      name:
+        example: test
+        type: string
+      protected:
+        example: true
+        type: boolean
+    required:
+    - name
+    type: object
+info:
+  contact: {}
+paths:
+  /tenants:
+    post:
+      consumes:
+      - application/json
+      description: Register new tenant
+      parameters:
+      - description: authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/tenants.TenantRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to register new tenant
+      tags:
+      - tenant
+swagger: "2.0"
