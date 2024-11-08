@@ -3,21 +3,16 @@ package models
 import (
 	"context"
 	"github.com/google/uuid"
+	"go-license-management/internal/infrastructure/models/product_attribute"
 	"go.opentelemetry.io/otel/trace"
 	"time"
 )
 
 type ProductRegistrationInput struct {
-	TracerCtx            context.Context
-	Tracer               trace.Tracer
-	TenantName           *string                `json:"tenant_name" validate:"required" example:"test"`
-	Name                 *string                `json:"name" validate:"required" example:"test"`
-	Code                 *string                `json:"code" validate:"required" example:"test"`
-	DistributionStrategy *string                `json:"distribution_strategy" validate:"optional" example:"test"`
-	Url                  *string                `json:"url" validate:"optional" example:"test"`
-	Permissions          []string               `json:"permissions" validate:"optional" example:"test"`
-	Platforms            []string               `json:"platforms" validate:"optional" example:"test"`
-	Metadata             map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	TracerCtx  context.Context
+	Tracer     trace.Tracer
+	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	product_attribute.ProductAttribute
 }
 
 type ProductRegistrationOutput struct {
@@ -37,6 +32,7 @@ type ProductUpdateInput struct {
 	TracerCtx  context.Context
 	Tracer     trace.Tracer
 	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	product_attribute.ProductAttribute
 }
 
 type ProductListInput struct {
