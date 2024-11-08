@@ -52,7 +52,7 @@ func (repo *ProductRepository) SelectProductByPK(ctx context.Context, tenantID, 
 	}
 
 	product := &entities.Product{ID: productID, TenantID: tenantID}
-	err := repo.database.NewSelect().Model(product).Scan(ctx)
+	err := repo.database.NewSelect().Model(product).WherePK().Scan(ctx)
 	if err != nil {
 		return product, err
 	}

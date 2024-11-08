@@ -153,7 +153,13 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-		ctx.JSON(http.StatusInternalServerError, resp)
+
+		switch {
+		case errors.Is(err, comerrors.ErrProductIDIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
 		return
 	}
 	cSpan.End()

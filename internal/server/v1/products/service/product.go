@@ -161,9 +161,16 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
+			return resp, comerrors.ErrProductIDIsInvalid
+		default:
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
 	}
 	cSpan.End()
 
