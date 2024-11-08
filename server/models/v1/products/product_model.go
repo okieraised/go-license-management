@@ -55,6 +55,9 @@ func (req *ProductRegistrationRequest) ToProductRegistrationInput(ctx context.Co
 	}
 }
 
+type ProductUpdateRequest struct {
+}
+
 type ProductListRequest struct {
 }
 
