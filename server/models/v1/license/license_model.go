@@ -76,3 +76,34 @@ func (req *LicenseRetrievalRequest) Validate() error {
 
 	return nil
 }
+
+type LicenseActionsRequest struct {
+	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
+	LicenseID  *string `uri:"license_id" validate:"required" example:"test"`
+	Action     *string `uri:"action" validate:"required" example:"test"`
+}
+
+func (req *LicenseActionsRequest) Validate() error {
+
+	if req.TenantName == nil {
+		return comerrors.ErrTenantNameIsEmpty
+	}
+
+	if req.LicenseID == nil {
+		return comerrors.ErrLicenseIDIsEmpty
+	} else {
+		_, err := uuid.Parse(utils.DerefPointer(req.LicenseID))
+		if err != nil {
+			return comerrors.ErrLicenseIDIsInvalid
+		}
+	}
+
+	if req.Action == nil {
+		return comerrors.ErrLicenseActionIsEmpty
+	} else {
+		if _, ok := constants.ValidLicenseActionMapper[utils.DerefPointer(req.Action)]; !ok {
+			return comerrors.ErrLicenseActionIsInvalid
+		}
+	}
+	return nil
+}
