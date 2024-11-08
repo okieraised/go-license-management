@@ -69,10 +69,27 @@ func (req *ProductUpdateRequest) ToProductUpdateInput(ctx context.Context, trace
 }
 
 type ProductListRequest struct {
+	constants.QueryCommonParam
 }
 
 func (req *ProductListRequest) Validate() error {
+	if req.Limit == nil {
+		req.Limit = utils.RefPointer(100)
+	}
+	if req.Offset == nil {
+		req.Offset = utils.RefPointer(0)
+	}
+
 	return nil
+}
+
+func (req *ProductListRequest) ToProductListInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.ProductListInput {
+	return &models.ProductListInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		TenantName:       nil,
+		QueryCommonParam: req.QueryCommonParam,
+	}
 }
 
 type ProductRetrievalRequest struct {

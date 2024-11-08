@@ -53,3 +53,8 @@ const (
 const (
 	AuthorizationTypeBearer = "Bearer"
 )
+
+type QueryCommonParam struct {
+	Limit  *int `form:"limit" validate:"optional" example:"10"`
+	Offset *int `form:"offset" validate:"optional" example:"10"`
+}

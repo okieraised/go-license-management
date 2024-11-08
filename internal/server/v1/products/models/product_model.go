@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"github.com/google/uuid"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/product_attribute"
 	"go.opentelemetry.io/otel/trace"
 	"time"
@@ -39,6 +40,7 @@ type ProductListInput struct {
 	TracerCtx  context.Context
 	Tracer     trace.Tracer
 	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	constants.QueryCommonParam
 }
 
 type ProductRetrievalInput struct {
