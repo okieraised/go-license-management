@@ -111,6 +111,15 @@ func (req *ProductDeletionRequest) Validate() error {
 	return nil
 }
 
+func (req *ProductDeletionRequest) ToProductDeletionInput(ctx context.Context, tracer trace.Tracer) *models.ProductDeletionInput {
+	return &models.ProductDeletionInput{
+		TracerCtx:  ctx,
+		Tracer:     tracer,
+		TenantName: req.TenantName,
+		ProductID:  uuid.MustParse(utils.DerefPointer(req.ProductID)),
+	}
+}
+
 type ProductTokenRequest struct {
 	Name        *string  `json:"name" validate:"optional" example:"test"`
 	Expiry      *string  `json:"expiry" validate:"optional" example:"test"`

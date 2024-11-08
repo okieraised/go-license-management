@@ -112,11 +112,22 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 	}
 	cSpan.End()
 
+	respData := models.ProductRegistrationOutput{
+		ID:                   productID.String(),
+		TenantID:             tenant.ID.String(),
+		Name:                 product.Name,
+		DistributionStrategy: product.DistributionStrategy,
+		Code:                 product.Code,
+		URL:                  product.URL,
+		Platforms:            product.Platforms,
+		Metadata:             product.Metadata,
+		CreatedAt:            product.CreatedAt,
+		UpdatedAt:            product.UpdatedAt,
+	}
+
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
-	resp.Data = map[string]interface{}{
-		"product_id": productID,
-	}
+	resp.Data = respData
 
 	return resp, nil
 }
@@ -182,8 +193,43 @@ func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput
 }
 
 func (svc *ProductService) Delete(ctx *gin.Context, input *models.ProductDeletionInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "delete-handler")
+	defer span.End()
 
-	return &response.BaseOutput{}, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "delete-product")
+	err = svc.repo.DeleteProductByPK(ctx, tenant.ID, input.ProductID)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	return resp, nil
 }
 
 func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateInput) (*response.BaseOutput, error) {

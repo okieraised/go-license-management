@@ -171,7 +171,7 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts deletion request")
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement deletion request")
 
 	// serializer
 	var req entitlements.EntitlementDeletionRequest

@@ -20,6 +20,19 @@ type ProductRegistrationInput struct {
 	Metadata             map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
+type ProductRegistrationOutput struct {
+	ID                   string                 `json:"id"`
+	TenantID             string                 `json:"tenant_id"`
+	Name                 string                 `json:"name"`
+	DistributionStrategy string                 `json:"distribution_strategy"`
+	Code                 string                 `json:"code"`
+	URL                  string                 `json:"url"`
+	Platforms            []string               `json:"platform"`
+	Metadata             map[string]interface{} `json:"metadata"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            time.Time              `json:"updated_at"`
+}
+
 type ProductUpdateInput struct {
 	TracerCtx  context.Context
 	Tracer     trace.Tracer
@@ -55,8 +68,8 @@ type ProductRetrievalOutput struct {
 type ProductDeletionInput struct {
 	TracerCtx  context.Context
 	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
-	ProductID  *string `json:"product_id" validate:"required" example:"test"`
+	TenantName *string   `json:"tenant_name" validate:"required" example:"test"`
+	ProductID  uuid.UUID `json:"product_id" validate:"required" example:"test"`
 }
 
 type ProductTokensInput struct {
