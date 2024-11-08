@@ -58,6 +58,21 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	if req.OverageStrategy == nil {
 		req.OverageStrategy = utils.RefPointer(constants.PolicyOverageStrategyNoOverage)
 	}
+	if req.RenewalBasis == nil {
+		req.RenewalBasis = utils.RefPointer(constants.PolicyRenewalBasisFromExpiry)
+	}
+	if req.HeartbeatBasis == nil {
+		req.HeartbeatBasis = utils.RefPointer(constants.PolicyHeartbeatBasisFromCreation)
+	}
+	if req.CheckInInterval == nil {
+		req.CheckInInterval = utils.RefPointer(constants.PolicyCheckinIntervalDaily)
+	}
+	if req.HeartbeatCullStrategy == nil {
+		req.HeartbeatCullStrategy = utils.RefPointer(constants.PolicyHeartbeatCullPolicyDeactivateDead)
+	}
+	if req.HeartbeatResurrectionStrategy == nil {
+		req.HeartbeatResurrectionStrategy = utils.RefPointer(constants.PolicyHeartbeatResurrectionPolicyNoRevive)
+	}
 
 	// Optional
 	if req.RequireCheckIn == nil {
@@ -80,6 +95,24 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	}
 	if req == nil {
 		req.Protected = utils.RefPointer(false)
+	}
+	if req.Duration == nil {
+		req.Duration = utils.RefPointer(0)
+	}
+	if req.MaxMachines == nil {
+		req.MaxMachines = utils.RefPointer(0)
+	}
+	if req.MaxUses == nil {
+		req.MaxUses = utils.RefPointer(0)
+	}
+	if req.HeartbeatDuration == nil {
+		req.HeartbeatDuration = utils.RefPointer(0)
+	}
+	if req.MaxUsers == nil {
+		req.MaxUsers = utils.RefPointer(0)
+	}
+	if req.Concurrent == nil {
+		req.Concurrent = utils.RefPointer(true)
 	}
 
 	return nil

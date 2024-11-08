@@ -131,3 +131,21 @@ const (
 	// PolicyTransferStrategyKeepExpiry keeps the license's current expiry.
 	PolicyTransferStrategyKeepExpiry = "keep_expiry"
 )
+
+const (
+	// PolicyHeartbeatCullPolicyDeactivateDead - Automatically deactivate machines that fail to maintain their heartbeat pings. This is the default.
+	PolicyHeartbeatCullPolicyDeactivateDead = "deactivate_dead"
+	// PolicyHeartbeatCullPolicyKeepDead - Mark machines that fail to maintain their heartbeat pings as dead, but do not deactivate.
+	PolicyHeartbeatCullPolicyKeepDead = "keep_dead"
+)
+
+const (
+	// PolicyHeartbeatResurrectionPolicyNoRevive -  Do not allow dead machines and processes to be revived. This is the default.
+	PolicyHeartbeatResurrectionPolicyNoRevive = "no_revive"
+	// PolicyHeartbeatResurrectionPolicyOneMinute - A machine or process can be revived if it sends a ping within 1 minute from its time of death.
+	PolicyHeartbeatResurrectionPolicyOneMinute = "1_minute"
+	// PolicyHeartbeatResurrectionPolicyOneHour - A machine or process can be revived if it sends a ping within 1 hour from its time of death.
+	PolicyHeartbeatResurrectionPolicyOneHour = "1_hour"
+	// PolicyHeartbeatResurrectionPolicyAlwaysRevive - A machine or process can always be revived.
+	PolicyHeartbeatResurrectionPolicyAlwaysRevive = "always_revive"
+)
