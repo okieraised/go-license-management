@@ -60,30 +60,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	}
 
 	// Optional
-	if req.RequireProductScope == nil {
-		req.RequireProductScope = utils.RefPointer(false)
-	}
-	if req.RequirePolicyScope == nil {
-		req.RequirePolicyScope = utils.RefPointer(false)
-	}
-	if req.RequireMachineScope == nil {
-		req.RequireMachineScope = utils.RefPointer(false)
-	}
-	if req.RequireFingerprintScope == nil {
-		req.RequireFingerprintScope = utils.RefPointer(false)
-	}
-	if req.RequireComponentsScope == nil {
-		req.RequireComponentsScope = utils.RefPointer(false)
-	}
-	if req.RequireUserScope == nil {
-		req.RequireUserScope = utils.RefPointer(false)
-	}
-	if req.RequireChecksumScope == nil {
-		req.RequireChecksumScope = utils.RefPointer(false)
-	}
-	if req.RequireVersionScope == nil {
-		req.RequireVersionScope = utils.RefPointer(false)
-	}
 	if req.RequireCheckIn == nil {
 		req.RequireCheckIn = utils.RefPointer(false)
 	}
@@ -94,6 +70,15 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.UsePool = utils.RefPointer(false)
 	}
 	if req.Protected == nil {
+		req.Protected = utils.RefPointer(false)
+	}
+	if req.RateLimited == nil {
+		req.RateLimited = utils.RefPointer(false)
+	}
+	if req.Encrypted == nil {
+		req.Encrypted = utils.RefPointer(false)
+	}
+	if req == nil {
 		req.Protected = utils.RefPointer(false)
 	}
 

@@ -13,27 +13,6 @@ import (
 )
 
 func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.LicenseRegistrationInput, tenant *entities.Tenant, product *entities.Product, policy *entities.Policy) (*entities.License, error) {
-
-	if input.MaxMachine == nil {
-		input.MaxMachine = utils.RefPointer(policy.MaxMachines)
-	}
-
-	if input.MaxCores == nil {
-		input.MaxCores = utils.RefPointer(policy.MaxCores)
-	}
-
-	if input.MaxUsers == nil {
-		input.MaxUsers = utils.RefPointer(policy.MaxUsers)
-	}
-
-	if input.MaxProcesses == nil {
-		input.MaxProcesses = utils.RefPointer(policy.MaxProcesses)
-	}
-
-	if input.MaxUses == nil {
-		input.MaxUses = utils.RefPointer(policy.MaxUses)
-	}
-
 	licenseID := uuid.New()
 	licenseKey, err := svc.generateLicenseKey(ctx, licenseID.String(), tenant, product, policy)
 	if err != nil {
@@ -42,22 +21,17 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 
 	now := time.Now()
 	license := &entities.License{
-		ID:                   licenseID,
-		TenantID:             tenant.ID,
-		PolicyID:             policy.ID,
-		ProductID:            product.ID,
-		Key:                  licenseKey,
-		Name:                 utils.DerefPointer(input.Name),
-		Suspended:            utils.DerefPointer(input.Suspended),
-		Protected:            utils.DerefPointer(input.Protected),
-		MaxMachinesOverride:  utils.DerefPointer(input.MaxMachine),
-		MaxCoresOverride:     utils.DerefPointer(input.MaxCores),
-		MaxUsesOverride:      utils.DerefPointer(input.MaxUses),
-		MaxProcessesOverride: utils.DerefPointer(input.MaxProcesses),
-		MaxUsersOverride:     utils.DerefPointer(input.MaxUsers),
-		Metadata:             input.Metadata,
-		CreatedAt:            now,
-		UpdatedAt:            now,
+		ID:        licenseID,
+		TenantID:  tenant.ID,
+		PolicyID:  policy.ID,
+		ProductID: product.ID,
+		Key:       licenseKey,
+		Name:      utils.DerefPointer(input.Name),
+		Suspended: utils.DerefPointer(input.Suspended),
+		Protected: utils.DerefPointer(input.Protected),
+		Metadata:  input.Metadata,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	if input.Expiry != nil {

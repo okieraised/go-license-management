@@ -23,12 +23,6 @@ type License struct {
 	Protected                   bool                   `bun:"protected,default:true"`
 	Uses                        int                    `bun:"uses,type:integer,default:0"`
 	MachinesCount               int                    `bun:"machines_count,type:integer,default:0"`
-	MachinesCoreCount           int                    `bun:"machines_core_count,nullzero"`
-	MaxMachinesOverride         int                    `bun:"max_machine_override,nullzero"`
-	MaxCoresOverride            int                    `bun:"max_cores_override,nullzero"`
-	MaxUsesOverride             int                    `bun:"max_uses_override,nullzero"`
-	MaxProcessesOverride        int                    `bun:"max_processes_override,nullzero"`
-	MaxUsersOverride            int                    `bun:"max_user_override,nullzero"`
 	LicenseUsersCount           int                    `bun:"license_users_count,default:0,notnull"`
 	Metadata                    map[string]interface{} `bun:"metadata,type:jsonb"`
 	CreatedAt                   time.Time              `bun:"created_at,nullzero,notnull,default:current_timestamp"`

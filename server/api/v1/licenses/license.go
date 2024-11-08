@@ -140,6 +140,32 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 }
 
 // action Actions for the license resource.
+//
+//   - Validate: Action to validate a license. This will check the following: if the license is suspended,
+//     if the license is expired, if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
+//   - Validate-key: Action to validate a license key. This will look up the license by its key and check the following:
+//     if the license is suspended, if the license is expired, if the license is overdue for check-in, and
+//     if the license meets its machine requirements (if strict).
+//   - suspend: Action to temporarily suspend (ban) a license. This will cause the license to fail validation until reinstated.
+//   - reinstate: Action to reinstate a suspended license.
+//   - renew: Action to renew a license. Extends license expiry by the policy's duration, according to the policy's renewal basis.
+//   - revoke: Action to revoke (delete) a license. This cannot be undone. This action also immediately deletes
+//     any machines that the license is associated with.
+//   - checkout: Action to check out a license. This will generate a snapshot of the license at time of checkout,
+//     encoded into a license file certificate that can be decoded and used for licensing offline and air-gapped
+//     environments. The algorithm will depend on the policy's scheme.
+//   - checkin: Action to check in a license. Sets the license's lastCheckIn to the current time, and the license's
+//     nex_check_in according to the policy's check-in interval.
+//   - increment-usage: Action to increment a license's uses attribute in accordance with its policy's maxUses attribute.
+//     When the policy's maxUses limit is exceeded, the increment attempt will fail. When the policy's maxUses is
+//     set to null, there is no limit on usage.
+//   - decrement-usage: Action to decrement a license's uses attribute in accordance with its policy's maxUses attribute.
+//   - reset-usage: Action to reset a license's uses attribute to 0.
 func (r *LicenseRouter) action(ctx *gin.Context) {
+
+}
+
+// tokens creates a license token for a license. A license token has permission to activate and deactivate machines for the given license, among other things.
+func (r *LicenseRouter) tokens(ctx *gin.Context) {
 
 }
