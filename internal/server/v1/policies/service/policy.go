@@ -118,7 +118,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-policy")
 	policyID := uuid.New()
 	now := time.Now()
-	entitlement := &entities.Policy{
+	policy := &entities.Policy{
 		ID:                            policyID,
 		TenantID:                      tenant.ID,
 		ProductID:                     productID,
@@ -155,7 +155,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		CreatedAt:                     now,
 		UpdatedAt:                     now,
 	}
-	err = svc.repo.InsertNewPolicy(ctx, entitlement)
+	err = svc.repo.InsertNewPolicy(ctx, policy)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -165,11 +165,46 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	}
 	cSpan.End()
 
+	respData := models.PolicyRegistrationOutput{
+		ID:                            policyID.String(),
+		TenantID:                      tenant.ID.String(),
+		ProductID:                     productID.String(),
+		Name:                          policy.Name,
+		Scheme:                        policy.Scheme,
+		Duration:                      policy.Duration,
+		MaxMachines:                   policy.MaxMachines,
+		MaxUses:                       policy.MaxUses,
+		MaxUsers:                      policy.MaxUsers,
+		CheckInIntervalCount:          policy.CheckInIntervalCount,
+		HeartbeatDuration:             policy.HeartbeatDuration,
+		Strict:                        policy.Strict,
+		Floating:                      policy.Floating,
+		UsePool:                       policy.UsePool,
+		RateLimited:                   policy.RateLimited,
+		Encrypted:                     policy.Encrypted,
+		Protected:                     policy.Protected,
+		RequireCheckIn:                policy.RequireCheckIn,
+		Concurrent:                    policy.Concurrent,
+		RequireHeartbeat:              policy.RequireHeartbeat,
+		PublicKey:                     policy.PublicKey,
+		ExpirationStrategy:            policy.ExpirationStrategy,
+		ExpirationBasis:               policy.ExpirationBasis,
+		AuthenticationStrategy:        policy.AuthenticationStrategy,
+		HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
+		HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
+		CheckInInterval:               policy.CheckInInterval,
+		TransferStrategy:              policy.TransferStrategy,
+		OverageStrategy:               policy.OverageStrategy,
+		HeartbeatBasis:                policy.HeartbeatBasis,
+		RenewalBasis:                  policy.RenewalBasis,
+		Metadata:                      policy.Metadata,
+		CreatedAt:                     policy.CreatedAt,
+		UpdatedAt:                     policy.UpdatedAt,
+	}
+
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
-	resp.Data = map[string]interface{}{
-		"policy_id": policyID.String(),
-	}
+	resp.Data = respData
 	return resp, nil
 }
 

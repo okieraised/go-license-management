@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
+	"time"
 )
 
 type LicenseRegistrationInput struct {
@@ -14,34 +15,48 @@ type LicenseRegistrationInput struct {
 	ProductID  uuid.UUID              `json:"product_id" validate:"required" example:"test"`
 	Name       *string                `json:"name" validate:"required" example:"test"`
 	Expiry     *string                `json:"expiry" validate:"optional" example:"test"`
-	Protected  *bool                  `json:"protected" validate:"optional" example:"test"`
-	Suspended  *bool                  `json:"suspended" validate:"optional" example:"test"`
 	Metadata   map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
 type LicenseRegistrationOutput struct {
-	ID                      string `json:"id"`
-	TenantID                string `json:"tenant_id"`
-	ProductID               string `json:"product_id"`
-	PolicyID                string `json:"policy_id"`
-	Name                    string `json:"name"`
-	Key                     string `json:"key"`
-	MD5                     string `json:"md5"`
-	Sha1                    string `json:"sha1"`
-	Sha256                  string `json:"sha256"`
-	PublicKey               string `json:"public_key"`
-	Scheme                  string `json:"scheme"`
-	RequireCheckIn          bool   `json:"require_check_in"`
-	RequireProductScope     bool   `json:"require_product_scope"`
-	RequirePolicyScope      bool   `json:"require_policy_scope"`
-	RequireMachineScope     bool   `json:"require_machine_scope"`
-	RequireFingerprintScope bool   `json:"require_fingerprint_scope"`
-	Concurrent              bool   `json:"concurrent"`
-	RequireHeartbeat        bool   `json:"require_heartbeat"`
-	RequireChecksumScope    bool   `json:"require_checksum_scope"`
-	RequireVersionScope     bool   `json:"require_version_scope"`
-	RequireComponentsScope  bool   `json:"require_components_scope"`
-	RequireUserScope        bool   `json:"require_user_scope"`
+	ID                            string                 `json:"id"`
+	TenantID                      string                 `json:"tenant_id"`
+	ProductID                     string                 `json:"product_id"`
+	PolicyID                      string                 `json:"policy_id"`
+	Name                          string                 `json:"name"`
+	Key                           string                 `json:"key"`
+	MD5                           string                 `json:"md5"`
+	Sha1                          string                 `json:"sha1"`
+	Sha256                        string                 `json:"sha256"`
+	PublicKey                     string                 `json:"public_key"`
+	Scheme                        string                 `json:"scheme"`
+	ExpirationStrategy            string                 `json:"expiration_strategy"`
+	ExpirationBasis               string                 `json:"expiration_basis"`
+	AuthenticationStrategy        string                 `json:"authentication_strategy"`
+	HeartbeatCullStrategy         string                 `json:"heartbeat_cull_strategy"`
+	HeartbeatResurrectionStrategy string                 `json:"heartbeat_resurrection_strategy"`
+	CheckInInterval               string                 `json:"check_in_interval"`
+	TransferStrategy              string                 `json:"transfer_strategy"`
+	OverageStrategy               string                 `json:"overage_strategy"`
+	HeartbeatBasis                string                 `json:"heartbeat_basis"`
+	RenewalBasis                  string                 `json:"renewal_basis"`
+	RequireCheckIn                bool                   `json:"require_check_in"`
+	Concurrent                    bool                   `json:"concurrent"`
+	RequireHeartbeat              bool                   `json:"require_heartbeat"`
+	Strict                        bool                   `json:"strict"`
+	Floating                      bool                   `json:"floating"`
+	UsePool                       bool                   `json:"use_pool"`
+	RateLimited                   bool                   `json:"rate_limited"`
+	Encrypted                     bool                   `json:"encrypted"`
+	Protected                     bool                   `json:"protected"`
+	Duration                      int64                  `json:"duration"`
+	MaxMachines                   int                    `json:"max_machines"`
+	MaxUses                       int                    `json:"max_uses"`
+	MaxUsers                      int                    `json:"max_users"`
+	HeartbeatDuration             int                    `json:"heartbeat_duration"`
+	Metadata                      map[string]interface{} `json:"metadata"`
+	CreatedAt                     time.Time              `json:"created_at"`
+	UpdatedAt                     time.Time              `json:"updated_at"`
 }
 
 type LicenseListInput struct {

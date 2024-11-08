@@ -16,8 +16,6 @@ type LicenseRegistrationRequest struct {
 	ProductID *string                `json:"product_id" validate:"required" example:"test"`
 	Name      *string                `json:"name" validate:"required" example:"test"`
 	Expiry    *string                `json:"expiry" validate:"optional" example:"test"`
-	Protected *bool                  `json:"protected" validate:"optional" example:"test"`
-	Suspended *bool                  `json:"suspended" validate:"optional" example:"test"`
 	Metadata  map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
@@ -43,13 +41,6 @@ func (req *LicenseRegistrationRequest) Validate() error {
 		return comerrors.ErrLicenseNameIsEmpty
 	}
 
-	if req.Protected == nil {
-		req.Protected = utils.RefPointer(true)
-	}
-	if req.Suspended == nil {
-		req.Suspended = utils.RefPointer(false)
-	}
-
 	if req.Expiry != nil {
 		if req.Expiry != nil {
 			_, err := time.Parse(constants.DateFormatISO8601Hyphen, utils.DerefPointer(req.Expiry))
@@ -72,8 +63,6 @@ func (req *LicenseRegistrationRequest) ToLicenseRegistrationInput(ctx context.Co
 		ProductID:  uuid.MustParse(utils.DerefPointer(req.ProductID)),
 		Name:       req.Name,
 		Expiry:     req.Expiry,
-		Protected:  req.Protected,
-		Suspended:  req.Suspended,
 		Metadata:   req.Metadata,
 	}
 }

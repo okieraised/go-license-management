@@ -23,7 +23,7 @@ type Policy struct {
 	UsePool                       bool                   `bun:"use_pool,default:false"`
 	RateLimited                   bool                   `bun:"rate_limited,default:false"`
 	Encrypted                     bool                   `bun:"encrypted,default:false"`
-	Protected                     bool                   `bun:"protected,nullzero"`
+	Protected                     bool                   `bun:"protected,default:false"`
 	RequireCheckIn                bool                   `bun:"require_check_in,default:false"`
 	Concurrent                    bool                   `bun:"concurrent,default:true"`
 	RequireHeartbeat              bool                   `bun:"require_heartbeat,default:false,notnull"`

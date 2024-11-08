@@ -14,13 +14,11 @@ type License struct {
 	PolicyID                    uuid.UUID              `bun:"policy_id,type:uuid,notnull"`
 	ProductID                   uuid.UUID              `bun:"product_id,type:uuid,notnull"`
 	AccountID                   uuid.UUID              `bun:"account_id,type:uuid,nullzero"`
-	GroupID                     uuid.UUID              `bun:"group_id,type:uuid,nullzero"`
 	Key                         string                 `bun:"key,type:varchar(1028),notnull"`
 	Name                        string                 `bun:"name,type:varchar(256),notnull"`
 	LastValidatedChecksum       string                 `bun:"last_validated_checksum,type:varchar(1028),notnull"`
 	LastValidatedVersion        string                 `bun:"last_validated_version,type:varchar(1028),notnull"`
 	Suspended                   bool                   `bun:"suspended,default:false"`
-	Protected                   bool                   `bun:"protected,default:true"`
 	Uses                        int                    `bun:"uses,type:integer,default:0"`
 	MachinesCount               int                    `bun:"machines_count,type:integer,default:0"`
 	LicenseUsersCount           int                    `bun:"license_users_count,default:0,notnull"`
