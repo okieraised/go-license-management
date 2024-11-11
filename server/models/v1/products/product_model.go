@@ -49,9 +49,7 @@ type ProductUpdateRequest struct {
 }
 
 func (req *ProductUpdateRequest) Validate() error {
-	if req.DistributionStrategy == nil {
-		req.DistributionStrategy = utils.RefPointer(constants.ProductDistributionStrategyLicensed)
-	} else {
+	if req.DistributionStrategy != nil {
 		if _, ok := constants.ValidProductDistributionStrategyMapper[utils.DerefPointer(req.DistributionStrategy)]; !ok {
 			return comerrors.ErrProductDistributionStrategyIsInvalid
 		}
@@ -59,11 +57,12 @@ func (req *ProductUpdateRequest) Validate() error {
 	return nil
 }
 
-func (req *ProductUpdateRequest) ToProductUpdateInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.ProductUpdateInput {
+func (req *ProductUpdateRequest) ToProductUpdateInput(ctx context.Context, tracer trace.Tracer, tenantName string, productID string) *models.ProductUpdateInput {
 	return &models.ProductUpdateInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
 		TenantName:       utils.RefPointer(tenantName),
+		ProductID:        utils.RefPointer(productID),
 		ProductAttribute: req.ProductAttribute,
 	}
 }

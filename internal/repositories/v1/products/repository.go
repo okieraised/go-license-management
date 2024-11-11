@@ -7,6 +7,7 @@ import (
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/server/models"
+	"time"
 )
 
 type ProductRepository struct {
@@ -79,6 +80,19 @@ func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, tenantID, 
 
 	product := &entities.Product{ID: productID, TenantID: tenantID}
 	_, err := repo.database.NewDelete().Model(product).Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *ProductRepository) UpdateProductByPK(ctx context.Context, product *entities.Product) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	product.UpdatedAt = time.Now()
+	_, err := repo.database.NewUpdate().Model(product).WherePK().Exec(ctx)
 	if err != nil {
 		return err
 	}

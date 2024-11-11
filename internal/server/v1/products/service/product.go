@@ -240,8 +240,112 @@ func (svc *ProductService) Delete(ctx *gin.Context, input *models.ProductDeletio
 }
 
 func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
+	defer span.End()
 
-	return &response.BaseOutput{}, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-pkc")
+	product, err := svc.repo.SelectProductByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.ProductID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "update-existing-product")
+	if input.Code != nil {
+		exists, err := svc.repo.CheckProductExistByCode(ctx, utils.DerefPointer(input.Code))
+		if err != nil {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		if !exists {
+			product.Code = utils.DerefPointer(input.Code)
+		} else {
+			svc.logger.GetLogger().Info(fmt.Sprintf("product code [%s] already exists", product.Code))
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductCodeAlreadyExist]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductCodeAlreadyExist]
+			return resp, comerrors.ErrProductCodeAlreadyExist
+		}
+	}
+
+	if input.Name != nil {
+		product.Name = utils.DerefPointer(input.Name)
+	}
+
+	if input.Url != nil {
+		product.URL = utils.DerefPointer(input.Url)
+	}
+
+	if input.Platforms != nil {
+		product.Platforms = input.Platforms
+	}
+
+	if input.Metadata != nil {
+		product.Metadata = input.Metadata
+	}
+
+	if input.DistributionStrategy != nil {
+		product.DistributionStrategy = utils.DerefPointer(input.DistributionStrategy)
+	}
+
+	err = svc.repo.UpdateProductByPK(ctx, product)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	respData := models.ProductUpdateOutput{
+		ID:                   product.ID.String(),
+		TenantID:             tenant.ID.String(),
+		Name:                 product.Name,
+		DistributionStrategy: product.DistributionStrategy,
+		Code:                 product.Code,
+		URL:                  product.URL,
+		Platforms:            product.Platforms,
+		Metadata:             product.Metadata,
+		CreatedAt:            product.CreatedAt,
+		UpdatedAt:            product.UpdatedAt,
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = respData
+
+	return resp, nil
 }
 
 func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensInput) (*response.BaseOutput, error) {
