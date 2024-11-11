@@ -1,5 +1,30 @@
 package policy_attribute
 
+import (
+	"github.com/google/uuid"
+	"go-license-management/internal/comerrors"
+	"go-license-management/internal/utils"
+)
+
+type PolicyCommonURI struct {
+	TenantName *string `uri:"tenant_name"`
+	PolicyID   *string `uri:"policy_id"`
+}
+
+func (req *PolicyCommonURI) Validate() error {
+	if req.TenantName == nil {
+		return comerrors.ErrTenantNameIsEmpty
+	}
+
+	if req.PolicyID != nil {
+		if _, err := uuid.Parse(utils.DerefPointer(req.PolicyID)); err != nil {
+			return comerrors.ErrPolicyIDIsInvalid
+		}
+	}
+
+	return nil
+}
+
 type PolicyAttributeModel struct {
 	Name                          *string                `json:"name" validate:"required"`   // Name: name of the policy
 	Scheme                        *string                `json:"scheme" validate:"optional"` // Scheme: The encryption/signature scheme used on license keys.

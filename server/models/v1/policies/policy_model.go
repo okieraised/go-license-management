@@ -14,6 +14,7 @@ import (
 type PolicyRegistrationRequest struct {
 	ProductID *string `json:"product_id" validate:"required" example:"test"`
 	policy_attribute.PolicyAttributeModel
+	policy_attribute.PolicyCommonURI
 }
 
 func (req *PolicyRegistrationRequest) Validate() error {
@@ -118,12 +119,51 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	return nil
 }
 
-func (req *PolicyRegistrationRequest) ToPolicyRegistrationInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.PolicyRegistrationInput {
+func (req *PolicyRegistrationRequest) ToPolicyRegistrationInput(ctx context.Context, tracer trace.Tracer, policyURI policy_attribute.PolicyCommonURI) *models.PolicyRegistrationInput {
 	return &models.PolicyRegistrationInput{
 		TracerCtx:            ctx,
 		Tracer:               tracer,
-		TenantName:           utils.RefPointer(tenantName),
+		PolicyCommonURI:      policyURI,
 		ProductID:            req.ProductID,
 		PolicyAttributeModel: req.PolicyAttributeModel,
 	}
+}
+
+type PolicyUpdateRequest struct {
+}
+
+func (req *PolicyUpdateRequest) Validate() error {
+	return nil
+}
+
+type PolicyDeleteRequest struct{}
+
+func (req *PolicyDeleteRequest) Validate() error {
+	return nil
+}
+
+type PolicyRetrievalRequest struct{}
+
+func (req *PolicyRetrievalRequest) Validate() error {
+	return nil
+}
+
+type PolicyAttachmentRequest struct {
+}
+
+func (req *PolicyAttachmentRequest) Validate() error {
+	return nil
+}
+
+type PolicyDetachmentRequest struct{}
+
+func (req *PolicyDetachmentRequest) Validate() error {
+	return nil
+}
+
+type PolicyEntitlementListRequest struct {
+}
+
+func (req *PolicyEntitlementListRequest) Validate() error {
+	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/models/policy_attribute"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/policies/service"
@@ -59,16 +60,19 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy creation request")
 
 	// serializer
-	tenantName := ctx.Param(constants.TenantNameField)
-	if tenantName == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	var uriReq policy_attribute.PolicyCommonURI
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	var req policies.PolicyRegistrationRequest
-	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.ShouldBind(&req)
+	var bodyReq policies.PolicyRegistrationRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -80,7 +84,7 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -88,11 +92,21 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
+
+	err = uriReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	cSpan.End()
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Create(ctx, req.ToPolicyRegistrationInput(rootCtx, r.tracer, tenantName))
+	result, err := r.svc.Create(ctx, bodyReq.ToPolicyRegistrationInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
