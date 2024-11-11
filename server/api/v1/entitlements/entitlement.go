@@ -6,6 +6,7 @@ import (
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/models/entitlement_attribute"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/entitlements/service"
@@ -42,7 +43,6 @@ func (r *EntitlementRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes.POST("", r.create)
 		routes.GET("", r.list)
 		routes.GET("/:entitlement_id", r.retrieve)
-		routes.PATCH("/:entitlement_id", r.update)
 		routes.DELETE("/:entitlement_id", r.delete)
 	}
 }
@@ -56,16 +56,19 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement creation request")
 
 	// serializer
-	tenantName := ctx.Param("tenant_name")
-	if tenantName == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	var uriReq entitlement_attribute.EntitlementCommonURI
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	var req entitlements.EntitlementRegistrationRequest
-	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.ShouldBind(&req)
+	var bodyReq entitlements.EntitlementRegistrationRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -77,7 +80,7 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -85,11 +88,21 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
+
+	err = uriReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	cSpan.End()
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Create(ctx, req.ToEntitlementRegistrationInput(rootCtx, r.tracer, tenantName))
+	result, err := r.svc.Create(ctx, bodyReq.ToEntitlementRegistrationInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -115,7 +128,7 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts retrieval request")
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement retrieval request")
 
 	// serializer
 	var req entitlements.EntitlementRetrievalRequest
@@ -156,12 +169,6 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
-}
-
-// update updates the specified entitlement resource by setting the values of the parameters passed.
-// Any parameters not provided will be left unchanged.
-func (r *EntitlementRouter) update(ctx *gin.Context) {
-
 }
 
 // delete permanently deletes an entitlement.
@@ -225,16 +232,19 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement list request")
 
 	// serializer
-	tenantName := ctx.Param("tenant_name")
-	if tenantName == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	var uriReq entitlement_attribute.EntitlementCommonURI
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	var req entitlements.EntitlementListRequest
-	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.ShouldBind(&req)
+	var bodyReq entitlements.EntitlementListRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -246,7 +256,7 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -258,7 +268,7 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.List(ctx, req.ToEntitlementListInput(ctx, r.tracer, tenantName))
+	result, err := r.svc.List(ctx, bodyReq.ToEntitlementListInput(ctx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())

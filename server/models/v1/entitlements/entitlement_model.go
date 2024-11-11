@@ -3,10 +3,10 @@ package entitlements
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/models/entitlement_attribute"
 	"go-license-management/internal/server/v1/entitlements/models"
-	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -28,99 +28,69 @@ func (req *EntitlementRegistrationRequest) Validate() error {
 	return nil
 }
 
-func (req *EntitlementRegistrationRequest) ToEntitlementRegistrationInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.EntitlementRegistrationInput {
-
+func (req *EntitlementRegistrationRequest) ToEntitlementRegistrationInput(ctx context.Context, tracer trace.Tracer, entitlementURI entitlement_attribute.EntitlementCommonURI) *models.EntitlementRegistrationInput {
 	return &models.EntitlementRegistrationInput{
-		TracerCtx:  ctx,
-		Tracer:     tracer,
-		TenantName: utils.RefPointer(tenantName),
-		Name:       req.Name,
-		Code:       req.Code,
-		Metadata:   req.Metadata,
+		TracerCtx:            ctx,
+		Tracer:               tracer,
+		Name:                 req.Name,
+		Code:                 req.Code,
+		Metadata:             req.Metadata,
+		EntitlementCommonURI: entitlementURI,
 	}
 }
 
 type EntitlementRetrievalRequest struct {
-	EntitlementID *string `uri:"entitlement_id" validate:"required" example:"test"`
-	TenantName    *string `uri:"tenant_name" validate:"required" example:"test"`
+	entitlement_attribute.EntitlementCommonURI
 }
 
 func (req *EntitlementRetrievalRequest) Validate() error {
 	if req.EntitlementID == nil {
 		return comerrors.ErrEntitlementIDIsEmpty
 	}
-	_, err := uuid.Parse(utils.DerefPointer(req.EntitlementID))
-	if err != nil {
-		return comerrors.ErrEntitlementIDIsInvalid
-	}
-
-	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
-	}
-	return nil
+	return req.EntitlementCommonURI.Validate()
 }
 
 func (req *EntitlementRetrievalRequest) ToEntitlementRetrievalInput(ctx context.Context, tracer trace.Tracer) *models.EntitlementRetrievalInput {
 	return &models.EntitlementRetrievalInput{
-		TracerCtx:     ctx,
-		Tracer:        tracer,
-		TenantName:    req.TenantName,
-		EntitlementID: uuid.MustParse(utils.DerefPointer(req.EntitlementID)),
+		TracerCtx:            ctx,
+		Tracer:               tracer,
+		EntitlementCommonURI: req.EntitlementCommonURI,
 	}
 }
 
 type EntitlementDeletionRequest struct {
-	EntitlementID *string `uri:"entitlement_id" validate:"required" example:"test"`
-	TenantName    *string `uri:"tenant_name" validate:"required" example:"test"`
+	entitlement_attribute.EntitlementCommonURI
 }
 
 func (req *EntitlementDeletionRequest) Validate() error {
 	if req.EntitlementID == nil {
 		return comerrors.ErrEntitlementIDIsEmpty
 	}
-	_, err := uuid.Parse(utils.DerefPointer(req.EntitlementID))
-	if err != nil {
-		return comerrors.ErrEntitlementIDIsInvalid
-	}
-
-	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
-	}
-	return nil
+	return req.EntitlementCommonURI.Validate()
 }
 
 func (req *EntitlementDeletionRequest) ToEntitlementDeletionInput(ctx context.Context, tracer trace.Tracer) *models.EntitlementDeletionInput {
 	return &models.EntitlementDeletionInput{
-		TracerCtx:     ctx,
-		Tracer:        tracer,
-		TenantName:    req.TenantName,
-		EntitlementID: uuid.MustParse(utils.DerefPointer(req.EntitlementID)),
+		TracerCtx:            ctx,
+		Tracer:               tracer,
+		EntitlementCommonURI: req.EntitlementCommonURI,
 	}
 }
 
 type EntitlementListRequest struct {
-	Limit  *int `form:"limit" validate:"optional" example:"10"`
-	Offset *int `form:"offset" validate:"optional" example:"10"`
+	constants.QueryCommonParam
 }
 
 func (req *EntitlementListRequest) Validate() error {
-	if req.Limit == nil {
-		req.Limit = utils.RefPointer(10)
-	}
-
-	if req.Offset == nil {
-		req.Offset = utils.RefPointer(0)
-	}
-
+	req.QueryCommonParam.Validate()
 	return nil
 }
 
-func (req *EntitlementListRequest) ToEntitlementListInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.EntitlementListInput {
+func (req *EntitlementListRequest) ToEntitlementListInput(ctx context.Context, tracer trace.Tracer, uriParam entitlement_attribute.EntitlementCommonURI) *models.EntitlementListInput {
 	return &models.EntitlementListInput{
-		TracerCtx:  ctx,
-		Tracer:     tracer,
-		TenantName: utils.RefPointer(tenantName),
-		Limit:      req.Limit,
-		Offset:     req.Offset,
+		TracerCtx:            ctx,
+		Tracer:               tracer,
+		EntitlementCommonURI: uriParam,
+		QueryCommonParam:     req.QueryCommonParam,
 	}
 }

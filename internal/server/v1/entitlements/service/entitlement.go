@@ -111,10 +111,6 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 	return resp, nil
 }
 
-func (svc *EntitlementService) Update(ctx *gin.Context, input *models.EntitlementUpdateInput) (*response.BaseOutput, error) {
-	return nil, nil
-}
-
 func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementListInput) (*response.BaseOutput, error) {
 	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
 	defer span.End()
@@ -197,8 +193,8 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 	}
 	cSpan.End()
 
-	_, cSpan = input.Tracer.Start(rootCtx, "select-account")
-	entitlement, err := svc.repo.SelectEntitlementByPK(ctx, tenant.ID, input.EntitlementID)
+	_, cSpan = input.Tracer.Start(rootCtx, "select-entitlement")
+	entitlement, err := svc.repo.SelectEntitlementByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -250,7 +246,7 @@ func (svc *EntitlementService) Delete(ctx *gin.Context, input *models.Entitlemen
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-entitlement")
-	err = svc.repo.DeleteEntitlementByPK(ctx, tenant.ID, input.EntitlementID)
+	err = svc.repo.DeleteEntitlementByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
