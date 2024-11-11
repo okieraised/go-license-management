@@ -51,6 +51,7 @@ var (
 var (
 	ErrPolicyNameIsEmpty     = errors.New("policy name is empty")
 	ErrPolicySchemeIsInvalid = errors.New("policy scheme is invalid")
+	ErrPolicyIDIsEmpty       = errors.New("policy id is empty")
 	ErrPolicyIDIsInvalid     = errors.New("policy id is invalid")
 )
 
@@ -97,7 +98,8 @@ var ErrCodeMapper = map[error]string{
 	ErrEntitlementIDIsInvalid:                "45004",
 	ErrPolicyNameIsEmpty:                     "46000",
 	ErrPolicySchemeIsInvalid:                 "46001",
-	ErrPolicyIDIsInvalid:                     "46002",
+	ErrPolicyIDIsEmpty:                       "46002",
+	ErrPolicyIDIsInvalid:                     "46003",
 	ErrLicenseNameIsEmpty:                    "47001",
 	ErrLicenseProductIDIsEmpty:               "47002",
 	ErrLicensePolicyIDIsEmpty:                "47003",
@@ -140,6 +142,7 @@ var ErrMessageMapper = map[error]string{
 	ErrEntitlementIDIsInvalid:                ErrEntitlementIDIsInvalid.Error(),
 	ErrPolicyNameIsEmpty:                     ErrPolicyNameIsEmpty.Error(),
 	ErrPolicySchemeIsInvalid:                 ErrPolicySchemeIsInvalid.Error(),
+	ErrPolicyIDIsEmpty:                       ErrPolicyIDIsEmpty.Error(),
 	ErrPolicyIDIsInvalid:                     ErrPolicyIDIsInvalid.Error(),
 	ErrLicenseNameIsEmpty:                    ErrLicenseNameIsEmpty.Error(),
 	ErrLicenseProductIDIsEmpty:               ErrLicenseProductIDIsEmpty.Error(),

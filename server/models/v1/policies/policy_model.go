@@ -136,16 +136,60 @@ func (req *PolicyUpdateRequest) Validate() error {
 	return nil
 }
 
-type PolicyDeleteRequest struct{}
+type PolicyDeletionRequest struct {
+	policy_attribute.PolicyCommonURI
+}
 
-func (req *PolicyDeleteRequest) Validate() error {
+func (req *PolicyDeletionRequest) Validate() error {
+	if req.PolicyID == nil {
+		return comerrors.ErrPolicyIDIsEmpty
+	}
+	return req.PolicyCommonURI.Validate()
+}
+
+func (req *PolicyDeletionRequest) ToPolicyDeletionInput(ctx context.Context, tracer trace.Tracer) *models.PolicyDeletionInput {
+	return &models.PolicyDeletionInput{
+		TracerCtx:       ctx,
+		Tracer:          tracer,
+		PolicyCommonURI: req.PolicyCommonURI,
+	}
+}
+
+type PolicyRetrievalRequest struct {
+	policy_attribute.PolicyCommonURI
+}
+
+func (req *PolicyRetrievalRequest) Validate() error {
+	if req.PolicyID == nil {
+		return comerrors.ErrPolicyIDIsEmpty
+	}
+	return req.PolicyCommonURI.Validate()
+}
+
+func (req *PolicyRetrievalRequest) ToPolicyRetrievalInput(ctx context.Context, tracer trace.Tracer) *models.PolicyRetrievalInput {
+	return &models.PolicyRetrievalInput{
+		TracerCtx:       ctx,
+		Tracer:          tracer,
+		PolicyCommonURI: req.PolicyCommonURI,
+	}
+}
+
+type PolicyListRequest struct {
+	constants.QueryCommonParam
+}
+
+func (req *PolicyListRequest) Validate() error {
+	req.QueryCommonParam.Validate()
 	return nil
 }
 
-type PolicyRetrievalRequest struct{}
-
-func (req *PolicyRetrievalRequest) Validate() error {
-	return nil
+func (req *PolicyListRequest) ToPolicyListInput(ctx context.Context, tracer trace.Tracer, policyURI policy_attribute.PolicyCommonURI) *models.PolicyListInput {
+	return &models.PolicyListInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		PolicyCommonURI:  policyURI,
+		QueryCommonParam: req.QueryCommonParam,
+	}
 }
 
 type PolicyAttachmentRequest struct {

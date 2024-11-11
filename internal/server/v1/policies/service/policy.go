@@ -208,15 +208,217 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 }
 
 func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-policies")
+	products, total, err := svc.repo.SelectPolicies(ctx, tenant.ID, input.QueryCommonParam)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	policiesOutput := make([]models.PolicyRetrievalOutput, 0)
+	for _, policy := range products {
+		policiesOutput = append(policiesOutput, models.PolicyRetrievalOutput{
+			ID:                            policy.ID.String(),
+			TenantID:                      policy.TenantID.String(),
+			ProductID:                     policy.ProductID.String(),
+			PublicKey:                     policy.PublicKey,
+			Name:                          policy.Name,
+			Scheme:                        policy.Scheme,
+			ExpirationStrategy:            policy.ExpirationStrategy,
+			ExpirationBasis:               policy.ExpirationBasis,
+			AuthenticationStrategy:        policy.AuthenticationStrategy,
+			HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
+			HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
+			CheckInInterval:               policy.CheckInInterval,
+			TransferStrategy:              policy.TransferStrategy,
+			OverageStrategy:               policy.OverageStrategy,
+			HeartbeatBasis:                policy.HeartbeatBasis,
+			RenewalBasis:                  policy.RenewalBasis,
+			Metadata:                      policy.Metadata,
+			Duration:                      policy.Duration,
+			MaxMachines:                   policy.MaxMachines,
+			MaxUses:                       policy.MaxUses,
+			MaxUsers:                      policy.MaxUsers,
+			CheckInIntervalCount:          policy.CheckInIntervalCount,
+			HeartbeatDuration:             policy.HeartbeatDuration,
+			Strict:                        policy.Strict,
+			Floating:                      policy.Floating,
+			UsePool:                       policy.UsePool,
+			RateLimited:                   policy.RateLimited,
+			Encrypted:                     policy.Encrypted,
+			Protected:                     policy.Protected,
+			RequireCheckIn:                policy.RequireCheckIn,
+			Concurrent:                    policy.Concurrent,
+			RequireHeartbeat:              policy.RequireHeartbeat,
+			CreatedAt:                     policy.CreatedAt,
+			UpdatedAt:                     policy.UpdatedAt,
+		})
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Count = total
+	resp.Data = policiesOutput
+	return resp, nil
 }
 
 func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetrievalInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "select-product")
+	policy, err := svc.repo.SelectPolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
+			return resp, comerrors.ErrPolicyIDIsInvalid
+		default:
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	respData := &models.PolicyRetrievalOutput{
+		ID:                            policy.ID.String(),
+		TenantID:                      policy.TenantID.String(),
+		ProductID:                     policy.ProductID.String(),
+		PublicKey:                     policy.PublicKey,
+		Name:                          policy.Name,
+		Scheme:                        policy.Scheme,
+		ExpirationStrategy:            policy.ExpirationStrategy,
+		ExpirationBasis:               policy.ExpirationBasis,
+		AuthenticationStrategy:        policy.AuthenticationStrategy,
+		HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
+		HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
+		CheckInInterval:               policy.CheckInInterval,
+		TransferStrategy:              policy.TransferStrategy,
+		OverageStrategy:               policy.OverageStrategy,
+		HeartbeatBasis:                policy.HeartbeatBasis,
+		RenewalBasis:                  policy.RenewalBasis,
+		Metadata:                      policy.Metadata,
+		Duration:                      policy.Duration,
+		MaxMachines:                   policy.MaxMachines,
+		MaxUses:                       policy.MaxUses,
+		MaxUsers:                      policy.MaxUsers,
+		CheckInIntervalCount:          policy.CheckInIntervalCount,
+		HeartbeatDuration:             policy.HeartbeatDuration,
+		Strict:                        policy.Strict,
+		Floating:                      policy.Floating,
+		UsePool:                       policy.UsePool,
+		RateLimited:                   policy.RateLimited,
+		Encrypted:                     policy.Encrypted,
+		Protected:                     policy.Protected,
+		RequireCheckIn:                policy.RequireCheckIn,
+		Concurrent:                    policy.Concurrent,
+		RequireHeartbeat:              policy.RequireHeartbeat,
+		CreatedAt:                     policy.CreatedAt,
+		UpdatedAt:                     policy.UpdatedAt,
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = respData
+
+	return resp, nil
 }
 
 func (svc *PolicyService) Delete(ctx *gin.Context, input *models.PolicyDeletionInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "delete-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "delete-policy")
+	err = svc.repo.DeletePolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	return resp, nil
 }
 
 func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInput) (*response.BaseOutput, error) {

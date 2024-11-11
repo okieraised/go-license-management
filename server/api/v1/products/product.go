@@ -131,7 +131,7 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts retrieval request")
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new product retrieval request")
 
 	// serializer
 	var req products.ProductRetrievalRequest
@@ -294,7 +294,6 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
-
 }
 
 // list returns a list of products. The products are returned sorted by creation date,
