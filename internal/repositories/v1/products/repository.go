@@ -5,7 +5,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models"
 	"time"
 )
@@ -60,6 +62,24 @@ func (repo *ProductRepository) SelectProductByPK(ctx context.Context, tenantID, 
 	return product, nil
 }
 
+func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantID uuid.UUID, queryParam constants.QueryCommonParam) ([]entities.Product, int, error) {
+	var total = 0
+
+	if repo.database == nil {
+		return nil, total, comerrors.ErrInvalidDatabaseClient
+	}
+
+	products := make([]entities.Product, 0)
+	total, err := repo.database.NewSelect().Model(new(entities.Product)).
+		Where("tenant_id = ?", tenantID.String()).
+		Order("created_at DESC").
+		Limit(utils.DerefPointer(queryParam.Limit)).Offset(utils.DerefPointer(queryParam.Offset)).ScanAndCount(ctx, &products)
+	if err != nil {
+		return products, total, err
+	}
+	return products, total, nil
+}
+
 func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code string) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient
@@ -79,7 +99,7 @@ func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, tenantID, 
 	}
 
 	product := &entities.Product{ID: productID, TenantID: tenantID}
-	_, err := repo.database.NewDelete().Model(product).Exec(ctx)
+	_, err := repo.database.NewDelete().Model(product).WherePK().Exec(ctx)
 	if err != nil {
 		return err
 	}

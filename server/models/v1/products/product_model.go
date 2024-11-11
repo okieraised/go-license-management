@@ -35,11 +35,11 @@ func (req *ProductRegistrationRequest) Validate() error {
 	return nil
 }
 
-func (req *ProductRegistrationRequest) ToProductRegistrationInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.ProductRegistrationInput {
+func (req *ProductRegistrationRequest) ToProductRegistrationInput(ctx context.Context, tracer trace.Tracer, productURI product_attribute.ProductCommonURI) *models.ProductRegistrationInput {
 	return &models.ProductRegistrationInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
-		TenantName:       utils.RefPointer(tenantName),
+		ProductCommonURI: productURI,
 		ProductAttribute: req.ProductAttribute,
 	}
 }
@@ -57,12 +57,11 @@ func (req *ProductUpdateRequest) Validate() error {
 	return nil
 }
 
-func (req *ProductUpdateRequest) ToProductUpdateInput(ctx context.Context, tracer trace.Tracer, tenantName string, productID string) *models.ProductUpdateInput {
+func (req *ProductUpdateRequest) ToProductUpdateInput(ctx context.Context, tracer trace.Tracer, productURI product_attribute.ProductCommonURI) *models.ProductUpdateInput {
 	return &models.ProductUpdateInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
-		TenantName:       utils.RefPointer(tenantName),
-		ProductID:        utils.RefPointer(productID),
+		ProductCommonURI: productURI,
 		ProductAttribute: req.ProductAttribute,
 	}
 }
@@ -72,80 +71,54 @@ type ProductListRequest struct {
 }
 
 func (req *ProductListRequest) Validate() error {
-	if req.Limit == nil {
-		req.Limit = utils.RefPointer(100)
-	}
-	if req.Offset == nil {
-		req.Offset = utils.RefPointer(0)
-	}
-
+	req.QueryCommonParam.Validate()
 	return nil
 }
 
-func (req *ProductListRequest) ToProductListInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.ProductListInput {
+func (req *ProductListRequest) ToProductListInput(ctx context.Context, tracer trace.Tracer, productURI product_attribute.ProductCommonURI) *models.ProductListInput {
 	return &models.ProductListInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
-		TenantName:       nil,
+		ProductCommonURI: productURI,
 		QueryCommonParam: req.QueryCommonParam,
 	}
 }
 
 type ProductRetrievalRequest struct {
-	ProductID  *string `uri:"product_id" validate:"required" example:"test"`
-	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
+	product_attribute.ProductCommonURI
 }
 
 func (req *ProductRetrievalRequest) Validate() error {
 	if req.ProductID == nil {
 		return comerrors.ErrProductIDIsEmpty
 	}
-	_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
-	if err != nil {
-		return comerrors.ErrProductIDIsInvalid
-	}
-
-	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
-	}
-	return nil
+	return req.ProductCommonURI.Validate()
 }
 
 func (req *ProductRetrievalRequest) ToProductRetrievalInput(ctx context.Context, tracer trace.Tracer) *models.ProductRetrievalInput {
 	return &models.ProductRetrievalInput{
-		TracerCtx:  ctx,
-		Tracer:     tracer,
-		TenantName: req.TenantName,
-		ProductID:  req.ProductID,
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		ProductCommonURI: req.ProductCommonURI,
 	}
 }
 
 type ProductDeletionRequest struct {
-	ProductID  *string `uri:"product_id" validate:"required" example:"test"`
-	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
+	product_attribute.ProductCommonURI
 }
 
 func (req *ProductDeletionRequest) Validate() error {
 	if req.ProductID == nil {
 		return comerrors.ErrProductIDIsEmpty
 	}
-	_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
-	if err != nil {
-		return comerrors.ErrProductIDIsInvalid
-	}
-
-	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
-	}
-	return nil
+	return req.ProductCommonURI.Validate()
 }
 
 func (req *ProductDeletionRequest) ToProductDeletionInput(ctx context.Context, tracer trace.Tracer) *models.ProductDeletionInput {
 	return &models.ProductDeletionInput{
-		TracerCtx:  ctx,
-		Tracer:     tracer,
-		TenantName: req.TenantName,
-		ProductID:  uuid.MustParse(utils.DerefPointer(req.ProductID)),
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		ProductCommonURI: req.ProductCommonURI,
 	}
 }
 

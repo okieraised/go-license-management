@@ -7,6 +7,7 @@ import (
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/models/product_attribute"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/products/service"
@@ -58,16 +59,19 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new product creation request")
 
 	// serializer
-	tenantName := ctx.Param(constants.TenantNameField)
-	if tenantName == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
+	var uriReq product_attribute.ProductCommonURI
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	var req products.ProductRegistrationRequest
-	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.ShouldBind(&req)
+	var bodyReq products.ProductRegistrationRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -79,7 +83,16 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = uriReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -91,7 +104,7 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Create(ctx, req.ToProductRegistrationInput(rootCtx, r.tracer, tenantName))
+	result, err := r.svc.Create(ctx, bodyReq.ToProductRegistrationInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -176,24 +189,19 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new product creation request")
 
 	// serializer
-	tenantName := ctx.Param(constants.TenantNameField)
-	if tenantName == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
-	}
-
-	productID := ctx.Param("product_id")
-	_, err := uuid.Parse(productID)
-	if err != nil {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid], comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid], nil, nil, nil)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
-	}
-
-	var req products.ProductUpdateRequest
+	var uriReq product_attribute.ProductCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err = ctx.ShouldBind(&req)
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var bodyReq products.ProductUpdateRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -205,7 +213,7 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -217,7 +225,7 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Update(ctx, req.ToProductUpdateInput(rootCtx, r.tracer, tenantName, productID))
+	result, err := r.svc.Update(ctx, bodyReq.ToProductUpdateInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -292,7 +300,67 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 // list returns a list of products. The products are returned sorted by creation date,
 // with the most recent products appearing first.
 func (r *ProductRouter) list(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
 
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new product history request")
+
+	// serializer
+	var uriReq product_attribute.ProductCommonURI
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var bodyReq products.ProductListRequest
+	err = ctx.ShouldBind(&bodyReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = bodyReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.List(ctx, bodyReq.ToProductListInput(rootCtx, r.tracer, uriReq))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+		return
+	}
+	cSpan.End()
+
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
+	ctx.JSON(http.StatusOK, resp)
+	return
 }
 
 // tokens generates a new product token resource. Product tokens do not expire.

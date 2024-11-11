@@ -1,5 +1,30 @@
 package product_attribute
 
+import (
+	"github.com/google/uuid"
+	"go-license-management/internal/comerrors"
+	"go-license-management/internal/utils"
+)
+
+type ProductCommonURI struct {
+	TenantName *string `uri:"tenant_name"`
+	ProductID  *string `uri:"product_id"`
+}
+
+func (req *ProductCommonURI) Validate() error {
+	if req.TenantName == nil {
+		return comerrors.ErrTenantNameIsEmpty
+	}
+
+	if req.ProductID != nil {
+		if _, err := uuid.Parse(utils.DerefPointer(req.ProductID)); err != nil {
+			return comerrors.ErrProductIDIsInvalid
+		}
+	}
+
+	return nil
+}
+
 type ProductAttribute struct {
 	Name                 *string                `json:"name" validate:"required" example:"test"`
 	Code                 *string                `json:"code" validate:"required" example:"test"`

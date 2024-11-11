@@ -195,8 +195,68 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 }
 
 func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
+	defer span.End()
 
-	return &response.BaseOutput{}, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-pkc")
+	products, total, err := svc.repo.SelectProducts(ctx, tenant.ID, input.QueryCommonParam)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	productOutput := make([]models.ProductRetrievalOutput, 0)
+	for _, product := range products {
+		productOutput = append(productOutput, models.ProductRetrievalOutput{
+			ID:                   product.ID,
+			TenantID:             product.ID,
+			Name:                 product.Name,
+			DistributionStrategy: product.DistributionStrategy,
+			Code:                 product.Code,
+			Platforms:            product.Platforms,
+			Metadata:             product.Metadata,
+			URL:                  product.URL,
+			CreatedAt:            product.CreatedAt,
+			UpdatedAt:            product.UpdatedAt,
+		})
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Count = total
+	resp.Data = productOutput
+
+	return resp, nil
 }
 
 func (svc *ProductService) Delete(ctx *gin.Context, input *models.ProductDeletionInput) (*response.BaseOutput, error) {
@@ -224,7 +284,7 @@ func (svc *ProductService) Delete(ctx *gin.Context, input *models.ProductDeletio
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-product")
-	err = svc.repo.DeleteProductByPK(ctx, tenant.ID, input.ProductID)
+	err = svc.repo.DeleteProductByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.ProductID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

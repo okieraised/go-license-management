@@ -10,9 +10,9 @@ import (
 )
 
 type ProductRegistrationInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	product_attribute.ProductCommonURI
 	product_attribute.ProductAttribute
 }
 
@@ -30,10 +30,9 @@ type ProductRegistrationOutput struct {
 }
 
 type ProductUpdateInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
-	ProductID  *string `json:"product_id" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	product_attribute.ProductCommonURI
 	product_attribute.ProductAttribute
 }
 
@@ -51,17 +50,16 @@ type ProductUpdateOutput struct {
 }
 
 type ProductListInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	product_attribute.ProductCommonURI
 	constants.QueryCommonParam
 }
 
 type ProductRetrievalInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
-	ProductID  *string `json:"product_id" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	product_attribute.ProductCommonURI
 }
 
 type ProductRetrievalOutput struct {
@@ -78,10 +76,9 @@ type ProductRetrievalOutput struct {
 }
 
 type ProductDeletionInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string   `json:"tenant_name" validate:"required" example:"test"`
-	ProductID  uuid.UUID `json:"product_id" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	product_attribute.ProductCommonURI
 }
 
 type ProductTokensInput struct {
