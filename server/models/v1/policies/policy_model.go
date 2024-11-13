@@ -193,25 +193,31 @@ func (req *PolicyListRequest) ToPolicyListInput(ctx context.Context, tracer trac
 }
 
 type PolicyAttachmentRequest struct {
-	policy_attribute.PolicyCommonURI
+	EntitlementID *string `json:"entitlement_id"`
 }
 
 func (req *PolicyAttachmentRequest) Validate() error {
-	if req.PolicyID == nil {
-		return comerrors.ErrPolicyIDIsEmpty
+	if req.EntitlementID == nil {
+		return comerrors.ErrEntitlementIDIsEmpty
 	}
-	return req.PolicyCommonURI.Validate()
+	if _, err := uuid.Parse(utils.DerefPointer(req.EntitlementID)); err != nil {
+		return comerrors.ErrEntitlementIDIsInvalid
+	}
+	return nil
 }
 
 type PolicyDetachmentRequest struct {
-	policy_attribute.PolicyCommonURI
+	EntitlementID *string `json:"entitlement_id"`
 }
 
 func (req *PolicyDetachmentRequest) Validate() error {
-	if req.PolicyID == nil {
-		return comerrors.ErrPolicyIDIsEmpty
+	if req.EntitlementID == nil {
+		return comerrors.ErrEntitlementIDIsEmpty
 	}
-	return req.PolicyCommonURI.Validate()
+	if _, err := uuid.Parse(utils.DerefPointer(req.EntitlementID)); err != nil {
+		return comerrors.ErrEntitlementIDIsInvalid
+	}
+	return nil
 }
 
 type PolicyEntitlementListRequest struct {
