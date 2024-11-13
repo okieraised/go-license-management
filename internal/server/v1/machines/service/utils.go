@@ -7,6 +7,7 @@ import (
 )
 
 func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {
+
 	return nil, nil
 }
 
