@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"github.com/google/uuid"
+	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go.opentelemetry.io/otel/trace"
 	"time"
 )
@@ -18,7 +19,13 @@ type LicenseRegistrationInput struct {
 	Metadata   map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
-type LicenseRegistrationOutput struct {
+type LicenseRetrievalInput struct {
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	license_attribute.LicenseCommonURI
+}
+
+type LicenseInfoOutput struct {
 	ID                            string                 `json:"id"`
 	TenantID                      string                 `json:"tenant_id"`
 	ProductID                     string                 `json:"product_id"`
@@ -66,16 +73,10 @@ type LicenseListInput struct {
 	LicenseID  *string `json:"license_id" validate:"required" example:"test"`
 }
 
-type LicenseRetrievalInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
-}
-
 type LicenseDeletionInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	license_attribute.LicenseCommonURI
 }
 
 type LicenseUpdateInput struct {

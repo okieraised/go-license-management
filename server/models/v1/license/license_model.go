@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go-license-management/internal/server/v1/licenses/models"
 	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/trace"
@@ -68,13 +69,19 @@ func (req *LicenseRegistrationRequest) ToLicenseRegistrationInput(ctx context.Co
 }
 
 type LicenseRetrievalRequest struct {
-	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
-	LicenseID  *string `uri:"license_id" validate:"required" example:"test"`
+	license_attribute.LicenseCommonURI
 }
 
 func (req *LicenseRetrievalRequest) Validate() error {
+	return req.LicenseCommonURI.Validate()
+}
 
-	return nil
+func (req *LicenseRetrievalRequest) ToLicenseRetrievalInput(ctx context.Context, tracer trace.Tracer) *models.LicenseRetrievalInput {
+	return &models.LicenseRetrievalInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		LicenseCommonURI: req.LicenseCommonURI,
+	}
 }
 
 type LicenseActionsRequest struct {
@@ -106,4 +113,20 @@ func (req *LicenseActionsRequest) Validate() error {
 		}
 	}
 	return nil
+}
+
+type LicenseDeletionRequest struct {
+	license_attribute.LicenseCommonURI
+}
+
+func (req *LicenseDeletionRequest) Validate() error {
+	return req.LicenseCommonURI.Validate()
+}
+
+func (req *LicenseDeletionRequest) ToLicenseDeletionInput(ctx context.Context, tracer trace.Tracer) *models.LicenseDeletionInput {
+	return &models.LicenseDeletionInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		LicenseCommonURI: req.LicenseCommonURI,
+	}
 }

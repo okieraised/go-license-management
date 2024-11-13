@@ -237,7 +237,6 @@ func (r *PolicyRouter) delete(ctx *gin.Context) {
 
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
-
 }
 
 // list returns a list of policies. The policies are returned sorted by creation date, with the most recent policies

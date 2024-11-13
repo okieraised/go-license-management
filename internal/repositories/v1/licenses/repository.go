@@ -76,3 +76,33 @@ func (repo *LicenseRepository) InsertNewLicense(ctx context.Context, license *en
 
 	return nil
 }
+
+func (repo *LicenseRepository) SelectLicenseByPK(ctx context.Context, policyID uuid.UUID) (*entities.License, error) {
+	if repo.database == nil {
+		return nil, comerrors.ErrInvalidDatabaseClient
+	}
+
+	license := &entities.License{ID: policyID}
+
+	err := repo.database.NewSelect().Model(license).Relation("Policy").WherePK().Scan(ctx)
+	if err != nil {
+		return license, err
+	}
+
+	return license, nil
+}
+
+func (repo *LicenseRepository) DeleteLicenseByPK(ctx context.Context, policyID uuid.UUID) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	license := &entities.License{ID: policyID}
+
+	_, err := repo.database.NewDelete().Model(license).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

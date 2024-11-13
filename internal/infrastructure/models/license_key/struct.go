@@ -1,6 +1,8 @@
 package license_key
 
-import "time"
+import (
+	"time"
+)
 
 type LicenseKeyContent struct {
 	TenantID  *string                `json:"tenant_id"`
