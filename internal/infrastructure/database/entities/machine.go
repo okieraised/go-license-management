@@ -14,10 +14,8 @@ type Machine struct {
 	Hostname             string                 `bun:"hostname,type:varchar(128)"`
 	Platform             string                 `bun:"platform,type:varchar(128)"`
 	Name                 string                 `bun:"name,type:varchar(128)"`
-	HeartbeatJID         string                 `bun:"heartbeat_jid,type:varchar(128)"`
 	Metadata             map[string]interface{} `bun:"metadata,type:jsonb"`
 	Cores                int                    `bun:"cores,type:integer"`
-	MaxProcessesOverride int                    `bun:"max_processes_override"`
 	LastHeartbeatAt      time.Time              `bun:"last_heartbeat_at"`
 	LastDeathEventSentAt time.Time              `bun:"last_death_event_sent_at"`
 	LastCheckOutAt       time.Time              `bun:"last_check_out_at"`
