@@ -76,6 +76,8 @@ var (
 	ErrMachineLicenseIsEmpty                   = errors.New("machine license is empty")
 	ErrMachineLicenseIsInvalid                 = errors.New("machine license is invalid")
 	ErrMachineFingerprintAssociatedWithLicense = errors.New("machine fingerprint is already associated with a license")
+	ErrMachineActionIsEmpty                    = errors.New("machine action is empty")
+	ErrMachineActionIsInvalid                  = errors.New("machine action is invalid")
 )
 
 var ErrCodeMapper = map[error]string{
@@ -129,6 +131,8 @@ var ErrCodeMapper = map[error]string{
 	ErrMachineLicenseIsEmpty:                   "48003",
 	ErrMachineLicenseIsInvalid:                 "48004",
 	ErrMachineFingerprintAssociatedWithLicense: "48005",
+	ErrMachineActionIsEmpty:                    "48006",
+	ErrMachineActionIsInvalid:                  "48007",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -182,4 +186,6 @@ var ErrMessageMapper = map[error]string{
 	ErrMachineLicenseIsEmpty:                   ErrMachineLicenseIsEmpty.Error(),
 	ErrMachineLicenseIsInvalid:                 ErrMachineLicenseIsInvalid.Error(),
 	ErrMachineFingerprintAssociatedWithLicense: ErrMachineFingerprintAssociatedWithLicense.Error(),
+	ErrMachineActionIsEmpty:                    ErrMachineActionIsEmpty.Error(),
+	ErrMachineActionIsInvalid:                  ErrMachineActionIsInvalid.Error(),
 }

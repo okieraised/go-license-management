@@ -171,7 +171,6 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
-
 }
 
 // update updates the specified machine resource by setting the values of the parameters passed.
@@ -242,5 +241,55 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 // encoded into a machine file certificate that can be decoded and used for licensing offline and air-gapped environments.
 // The algorithm will depend on the license policy's scheme.
 func (r *MachineRouter) action(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
+
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new machine action request")
+
+	// serializer
+	var req machines.MachineActionsRequest
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = req.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.Actions(ctx, req.ToMachineActionsInput(rootCtx, r.tracer))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrProductIDIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+		return
+	}
+	cSpan.End()
+
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	ctx.JSON(http.StatusOK, resp)
 
 }

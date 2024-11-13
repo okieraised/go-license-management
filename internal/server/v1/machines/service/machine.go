@@ -304,5 +304,38 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 }
 
 func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "delete-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	action := utils.DerefPointer(input.MachineCommonURI.MachineAction)
+	switch action {
+	case constants.MachineActionCheckout:
+	case constants.MachineActionResetHeartbeat:
+	case constants.MachineActionPingHeartbeat:
+	default:
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	return resp, nil
 }

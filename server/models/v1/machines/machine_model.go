@@ -77,7 +77,6 @@ func (req *MachineDeletionRequest) ToMachineDeletionInput(ctx context.Context, t
 		Tracer:           tracer,
 		MachineCommonURI: req.MachineCommonURI,
 	}
-
 }
 
 type MachineUpdateRequest struct{}
@@ -96,4 +95,24 @@ type MachineHeartbeatRequest struct{}
 
 func (req *MachineHeartbeatRequest) Validate() error {
 	return nil
+}
+
+type MachineActionsRequest struct {
+	machine_attribute.MachineCommonURI
+}
+
+func (req *MachineActionsRequest) Validate() error {
+	if req.MachineAction == nil {
+		return comerrors.ErrMachineActionIsEmpty
+	}
+
+	return req.MachineCommonURI.Validate()
+}
+
+func (req *MachineActionsRequest) ToMachineActionsInput(ctx context.Context, tracer trace.Tracer) *models.MachineActionsInput {
+	return &models.MachineActionsInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		MachineCommonURI: req.MachineCommonURI,
+	}
 }

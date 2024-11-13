@@ -3,12 +3,14 @@ package machine_attribute
 import (
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/utils"
 )
 
 type MachineCommonURI struct {
-	TenantName *string `uri:"tenant_name"`
-	MachineID  *string `uri:"machine_id"`
+	TenantName    *string `uri:"tenant_name"`
+	MachineID     *string `uri:"machine_id"`
+	MachineAction *string `uri:"machine_action"`
 }
 
 func (req *MachineCommonURI) Validate() error {
@@ -19,6 +21,12 @@ func (req *MachineCommonURI) Validate() error {
 	if req.MachineID != nil {
 		if _, err := uuid.Parse(utils.DerefPointer(req.MachineID)); err != nil {
 			return comerrors.ErrMachineIDIsInvalid
+		}
+	}
+
+	if req.MachineAction != nil {
+		if _, ok := constants.ValidMachineActionsMapper[utils.DerefPointer(req.MachineAction)]; !ok {
+			return comerrors.ErrMachineActionIsInvalid
 		}
 	}
 
