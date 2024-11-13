@@ -80,6 +80,53 @@ func (repo *MachineRepository) DeleteMachineByPK(ctx context.Context, machineID 
 	return nil
 }
 
+func (repo *MachineRepository) DeleteMachineByPKAndUpdateLicense(ctx context.Context, machineID uuid.UUID) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})
+	defer func() {
+		cErr := tx.Commit()
+		if cErr != nil && err == nil {
+			err = cErr
+		}
+	}()
+
+	machine := &entities.Machine{ID: machineID}
+
+	err = tx.NewSelect().Model(machine).WherePK().Scan(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	license := &entities.License{ID: machine.LicenseID}
+	err = tx.NewSelect().Model(license).WherePK().Scan(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	license.UpdatedAt = time.Now()
+	license.MachinesCount -= 1
+	if license.MachinesCount == 0 {
+		license.Status = constants.LicenseStatusInactive
+	}
+	_, err = tx.NewUpdate().Model(license).WherePK().Exec(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	_, err = tx.NewDelete().Model(machine).WherePK().Exec(ctx)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	return nil
+}
+
 func (repo *MachineRepository) CheckLicenseExistByPK(ctx context.Context, licenseID uuid.UUID) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient
@@ -146,7 +193,7 @@ func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Cont
 		return err
 	}
 
-	if license.Status == constants.LicenseStatusNotActivated {
+	if license.Status == constants.LicenseStatusNotActivated || license.Status == constants.LicenseStatusInactive {
 		license.Status = constants.LicenseStatusActive
 		license.UpdatedAt = time.Now()
 		license.MachinesCount += 1

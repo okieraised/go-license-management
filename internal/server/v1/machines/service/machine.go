@@ -162,7 +162,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	}
 	cSpan.End()
 
-	respData := models.MachineRegistrationOutput{
+	respData := models.MachineInfoOutput{
 		ID:                   machine.ID,
 		TenantID:             machine.TenantID,
 		LicenseID:            machine.LicenseID,
@@ -192,14 +192,114 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 }
 
 func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetrievalInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "select-machine")
+	machine, err := svc.repo.SelectMachineByPK(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
+			return resp, comerrors.ErrMachineIDIsInvalid
+		default:
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	respData := &models.MachineInfoOutput{
+		ID:                   machine.ID,
+		TenantID:             machine.TenantID,
+		LicenseID:            machine.LicenseID,
+		Fingerprint:          machine.Fingerprint,
+		IP:                   machine.IP,
+		Hostname:             machine.Hostname,
+		Platform:             machine.Platform,
+		Name:                 machine.Name,
+		Metadata:             machine.Metadata,
+		Cores:                machine.Cores,
+		LastHeartbeatAt:      machine.LastHeartbeatAt,
+		LastDeathEventSentAt: machine.LastDeathEventSentAt,
+		LastCheckOutAt:       machine.LastCheckOutAt,
+		CreatedAt:            machine.CreatedAt,
+		UpdatedAt:            machine.UpdatedAt,
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = respData
+
+	return resp, nil
 }
 
 func (svc *MachineService) Delete(ctx *gin.Context, input *models.MachineDeleteInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "delete-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "delete-product")
+	err = svc.repo.DeleteMachineByPKAndUpdateLicense(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	return resp, nil
 }
 
 func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput) (*response.BaseOutput, error) {
+
 	return nil, nil
 }
 

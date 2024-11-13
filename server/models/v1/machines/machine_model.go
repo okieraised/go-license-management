@@ -51,10 +51,33 @@ func (req *MachineRetrievalRequest) Validate() error {
 	return req.MachineCommonURI.Validate()
 }
 
-type MachineDeletionRequest struct{}
+func (req *MachineRetrievalRequest) ToMachineRetrievalInput(ctx context.Context, tracer trace.Tracer) *models.MachineRetrievalInput {
+	return &models.MachineRetrievalInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		MachineCommonURI: req.MachineCommonURI,
+	}
+
+}
+
+type MachineDeletionRequest struct {
+	machine_attribute.MachineCommonURI
+}
 
 func (req *MachineDeletionRequest) Validate() error {
-	return nil
+	if req.MachineID == nil {
+		return comerrors.ErrMachineIDIsEmpty
+	}
+	return req.MachineCommonURI.Validate()
+}
+
+func (req *MachineDeletionRequest) ToMachineDeletionInput(ctx context.Context, tracer trace.Tracer) *models.MachineDeleteInput {
+	return &models.MachineDeleteInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		MachineCommonURI: req.MachineCommonURI,
+	}
+
 }
 
 type MachineUpdateRequest struct{}

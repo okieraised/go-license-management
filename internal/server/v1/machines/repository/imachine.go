@@ -15,4 +15,5 @@ type IMachine interface {
 	InsertNewMachine(ctx context.Context, machine *entities.Machine) error
 	InsertNewMachineAndUpdateLicense(ctx context.Context, machine *entities.Machine) error
 	DeleteMachineByPK(ctx context.Context, machineID uuid.UUID) error
+	DeleteMachineByPKAndUpdateLicense(ctx context.Context, machineID uuid.UUID) error
 }
