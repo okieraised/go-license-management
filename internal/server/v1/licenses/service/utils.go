@@ -27,6 +27,7 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 		ProductID: product.ID,
 		Key:       licenseKey,
 		Name:      utils.DerefPointer(input.Name),
+		Status:    constants.LicenseStatusNotActivated,
 		Metadata:  input.Metadata,
 		CreatedAt: now,
 		UpdatedAt: now,

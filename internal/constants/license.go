@@ -19,3 +19,14 @@ var ValidLicenseActionMapper = map[string]interface{}{
 	LicenseActionCheckout:  true,
 	LicenseActionCheckin:   true,
 }
+
+//The status of the license to filter by. One of: ACTIVE, INACTIVE, EXPIRED, SUSPENDED, or BANNED.
+
+const (
+	LicenseStatusNotActivated = "not_activated"
+	LicenseStatusActive       = "active"
+	LicenseStatusInactive     = "inactive"
+	LicenseStatusSuspended    = "suspended"
+	LicenseStatusExpired      = "expired"
+	LicenseStatusBanned       = "banned"
+)

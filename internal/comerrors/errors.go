@@ -66,6 +66,11 @@ var (
 	ErrLicenseActionIsInvalid       = errors.New("license action is invalid")
 )
 
+var (
+	ErrMachineIDIsEmpty   = errors.New("machine id is empty")
+	ErrMachineIDIsInvalid = errors.New("machine id is invalid")
+)
+
 var ErrCodeMapper = map[error]string{
 	nil:                                      "00000",
 	ErrGenericInternalServer:                 "50000",
@@ -108,6 +113,8 @@ var ErrCodeMapper = map[error]string{
 	ErrLicenseIDIsInvalid:                    "47006",
 	ErrLicenseActionIsEmpty:                  "47007",
 	ErrLicenseActionIsInvalid:                "47008",
+	ErrMachineIDIsEmpty:                      "48000",
+	ErrMachineIDIsInvalid:                    "48001",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -152,4 +159,6 @@ var ErrMessageMapper = map[error]string{
 	ErrLicenseIDIsInvalid:                    ErrLicenseIDIsInvalid.Error(),
 	ErrLicenseActionIsEmpty:                  ErrLicenseActionIsEmpty.Error(),
 	ErrLicenseActionIsInvalid:                ErrLicenseActionIsInvalid.Error(),
+	ErrMachineIDIsEmpty:                      ErrMachineIDIsEmpty.Error(),
+	ErrMachineIDIsInvalid:                    ErrMachineIDIsInvalid.Error(),
 }

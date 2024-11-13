@@ -8,7 +8,7 @@ import (
 type Machine struct {
 	ID                   uuid.UUID              `bun:"id,pk,type:uuid"`
 	TenantID             uuid.UUID              `bun:"tenant_id,type:uuid,notnull"`
-	LicenseID            uuid.UUID              `bun:"license_id,notnull"`
+	LicenseID            uuid.UUID              `bun:"license_id,type:uuid,notnull"`
 	Fingerprint          string                 `bun:"fingerprint"`
 	IP                   string                 `bun:"ip,type:varchar(64)"`
 	Hostname             string                 `bun:"hostname,type:varchar(128)"`

@@ -84,37 +84,6 @@ func (req *LicenseRetrievalRequest) ToLicenseRetrievalInput(ctx context.Context,
 	}
 }
 
-type LicenseActionsRequest struct {
-	TenantName *string `uri:"tenant_name" validate:"required" example:"test"`
-	LicenseID  *string `uri:"license_id" validate:"required" example:"test"`
-	Action     *string `uri:"action" validate:"required" example:"test"`
-}
-
-func (req *LicenseActionsRequest) Validate() error {
-
-	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
-	}
-
-	if req.LicenseID == nil {
-		return comerrors.ErrLicenseIDIsEmpty
-	} else {
-		_, err := uuid.Parse(utils.DerefPointer(req.LicenseID))
-		if err != nil {
-			return comerrors.ErrLicenseIDIsInvalid
-		}
-	}
-
-	if req.Action == nil {
-		return comerrors.ErrLicenseActionIsEmpty
-	} else {
-		if _, ok := constants.ValidLicenseActionMapper[utils.DerefPointer(req.Action)]; !ok {
-			return comerrors.ErrLicenseActionIsInvalid
-		}
-	}
-	return nil
-}
-
 type LicenseDeletionRequest struct {
 	license_attribute.LicenseCommonURI
 }
@@ -125,6 +94,28 @@ func (req *LicenseDeletionRequest) Validate() error {
 
 func (req *LicenseDeletionRequest) ToLicenseDeletionInput(ctx context.Context, tracer trace.Tracer) *models.LicenseDeletionInput {
 	return &models.LicenseDeletionInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		LicenseCommonURI: req.LicenseCommonURI,
+	}
+}
+
+type LicenseActionsRequest struct {
+	license_attribute.LicenseCommonURI
+}
+
+func (req *LicenseActionsRequest) Validate() error {
+	if req.Action == nil {
+		return comerrors.ErrLicenseActionIsEmpty
+	}
+	if req.LicenseID == nil {
+		return comerrors.ErrLicenseIDIsEmpty
+	}
+	return req.LicenseCommonURI.Validate()
+}
+
+func (req *LicenseActionsRequest) ToLicenseActionsInput(ctx context.Context, tracer trace.Tracer) *models.LicenseActionInput {
+	return &models.LicenseActionInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
 		LicenseCommonURI: req.LicenseCommonURI,

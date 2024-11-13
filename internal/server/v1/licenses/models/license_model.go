@@ -47,6 +47,7 @@ type LicenseInfoOutput struct {
 	OverageStrategy               string                 `json:"overage_strategy"`
 	HeartbeatBasis                string                 `json:"heartbeat_basis"`
 	RenewalBasis                  string                 `json:"renewal_basis"`
+	Status                        string                 `json:"status"`
 	RequireCheckIn                bool                   `json:"require_check_in"`
 	Concurrent                    bool                   `json:"concurrent"`
 	RequireHeartbeat              bool                   `json:"require_heartbeat"`
@@ -86,7 +87,7 @@ type LicenseUpdateInput struct {
 }
 
 type LicenseActionInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	license_attribute.LicenseCommonURI
 }
