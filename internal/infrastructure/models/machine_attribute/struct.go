@@ -64,15 +64,15 @@ type MachineAttributeModel struct {
 
 // MachineLicenseField contains information about the license
 type MachineLicenseField struct {
-	TenantID  string                 `json:"tenant_id"`
-	ProductID string                 `json:"product_id"`
-	PolicyID  string                 `json:"policy_id"`
-	LicenseID string                 `json:"license_id"`
-	MachineID string                 `json:"machine_id"`
-	Metadata  map[string]interface{} `json:"metadata"`
-	TTL       int                    `json:"ttl"`
-	Expiry    time.Time              `json:"expiry"`
-	CreatedAt time.Time              `json:"created_at"`
+	TenantID           string                 `json:"tenant_id"`
+	ProductID          string                 `json:"product_id"`
+	PolicyID           string                 `json:"policy_id"`
+	LicenseID          string                 `json:"license_id"`
+	MachineFingerprint string                 `json:"machine_fingerprint"`
+	Metadata           map[string]interface{} `json:"metadata"`
+	TTL                int                    `json:"ttl"`
+	Expiry             time.Time              `json:"expiry"`
+	CreatedAt          time.Time              `json:"created_at"`
 }
 
 // MachineLicenseFileContent contains information about the license file

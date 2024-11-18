@@ -37,11 +37,11 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	alg := policy.Scheme
 
 	licenseContent := machine_attribute.MachineLicenseField{
-		TenantID:  machine.TenantID.String(),
-		ProductID: policy.ProductID.String(),
-		PolicyID:  policy.ID.String(),
-		LicenseID: license.ID.String(),
-		MachineID: machine.ID.String(),
+		TenantID:           machine.TenantID.String(),
+		ProductID:          policy.ProductID.String(),
+		PolicyID:           policy.ID.String(),
+		LicenseID:          license.ID.String(),
+		MachineFingerprint: machine.Fingerprint,
 		Metadata: map[string]interface{}{
 			"machine": &machine,
 		},

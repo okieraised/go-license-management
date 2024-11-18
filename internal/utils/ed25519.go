@@ -64,7 +64,7 @@ func NewLicenseKeyWithEd25519(signingKey string, data any) (string, error) {
 	encodedData := base64.URLEncoding.EncodeToString(bData)
 
 	// Combine the encoded data and signature to create the license key
-	licenseKey := fmt.Sprintf("%s.%s", encodedData, encodedSignature)
+	licenseKey := fmt.Sprintf("%s.%s", encodedSignature, encodedData)
 
 	return licenseKey, nil
 }
@@ -75,8 +75,8 @@ func VerifyLicenseKeyWithEd25519(verifyKey string, licenseKey string) (bool, []b
 	if len(parts) != 2 {
 		return false, nil, errors.New("invalid license key format")
 	}
-	encodedData := parts[0]
-	encodedSignature := parts[1]
+	encodedData := parts[1]
+	encodedSignature := parts[0]
 
 	data, err := base64.URLEncoding.DecodeString(encodedData)
 	if err != nil {

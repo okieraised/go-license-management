@@ -80,7 +80,7 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	encodedSignature := base64.URLEncoding.EncodeToString(signature)
 
 	// Combine the encoded data and signature to create the license key
-	licenseKey := fmt.Sprintf("%s.%s", encodedData, encodedSignature)
+	licenseKey := fmt.Sprintf("%s.%s", encodedSignature, encodedData)
 
 	return licenseKey, nil
 }
@@ -91,8 +91,8 @@ func VerifyLicenseKeyWithRSA2048PKCS1(verifyKey string, licenseKey string) (bool
 	if len(parts) != 2 {
 		return false, nil, errors.New("invalid license key format")
 	}
-	encodedData := parts[0]
-	encodedSignature := parts[1]
+	encodedData := parts[1]
+	encodedSignature := parts[0]
 
 	data, err := base64.URLEncoding.DecodeString(encodedData)
 	if err != nil {
