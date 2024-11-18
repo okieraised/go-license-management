@@ -109,10 +109,11 @@ func (req *MachineActionsRequest) Validate() error {
 	return req.MachineCommonURI.Validate()
 }
 
-func (req *MachineActionsRequest) ToMachineActionsInput(ctx context.Context, tracer trace.Tracer) *models.MachineActionsInput {
+func (req *MachineActionsRequest) ToMachineActionsInput(ctx context.Context, tracer trace.Tracer, query machine_attribute.MachineActionsQueryParam) *models.MachineActionsInput {
 	return &models.MachineActionsInput{
-		TracerCtx:        ctx,
-		Tracer:           tracer,
-		MachineCommonURI: req.MachineCommonURI,
+		TracerCtx:                ctx,
+		Tracer:                   tracer,
+		MachineCommonURI:         req.MachineCommonURI,
+		MachineActionsQueryParam: query,
 	}
 }

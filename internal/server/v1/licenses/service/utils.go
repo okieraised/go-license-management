@@ -57,8 +57,6 @@ func (svc *LicenseService) generateLicenseKey(ctx *gin.Context, licenseID string
 		licenseKey, err = utils.NewLicenseKeyWithEd25519(policy.PrivateKey, licenseKeyContent)
 	case constants.PolicySchemeRSA2048PKCS1:
 		licenseKey, err = utils.NewLicenseKeyWithRSA2048PKCS1(policy.PrivateKey, licenseKeyContent)
-	case constants.PolicySchemeRSA2048JWTRS256:
-		licenseKey, err = utils.NewLicenseKeyWithJWTRS256(policy.PrivateKey, licenseKeyContent)
 	default:
 		err = comerrors.ErrPolicySchemeIsInvalid
 	}

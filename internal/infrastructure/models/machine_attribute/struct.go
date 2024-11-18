@@ -5,6 +5,7 @@ import (
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/utils"
+	"time"
 )
 
 type MachineCommonURI struct {
@@ -33,6 +34,23 @@ func (req *MachineCommonURI) Validate() error {
 	return nil
 }
 
+type MachineActionsQueryParam struct {
+	TTL *int `form:"ttl"`
+}
+
+func (req *MachineActionsQueryParam) Validate() error {
+	if req.TTL == nil {
+		req.TTL = utils.RefPointer(2592000)
+	} else {
+		ttl := utils.DerefPointer(req.TTL)
+		if ttl < 3600 || ttl > 31556952 {
+			return comerrors.ErrMachineActionCheckoutTTLIsInvalid
+		}
+	}
+
+	return nil
+}
+
 // MachineAttributeModel contains information about the machine. Machines can be used to track and manage where your users are allowed to use your product.
 type MachineAttributeModel struct {
 	Fingerprint *string                `json:"fingerprint"` // The fingerprint of the machine. This can be an arbitrary string, but must be unique within the scope of the license it belongs to.
@@ -44,6 +62,20 @@ type MachineAttributeModel struct {
 	Metadata    map[string]interface{} `json:"metadata"`    // Object containing machine metadata.
 }
 
+// MachineLicenseField contains information about the license
+type MachineLicenseField struct {
+	TenantID  string                 `json:"tenant_id"`
+	ProductID string                 `json:"product_id"`
+	PolicyID  string                 `json:"policy_id"`
+	LicenseID string                 `json:"license_id"`
+	MachineID string                 `json:"machine_id"`
+	Metadata  map[string]interface{} `json:"metadata"`
+	TTL       int                    `json:"ttl"`
+	Expiry    time.Time              `json:"expiry"`
+	CreatedAt time.Time              `json:"created_at"`
+}
+
+// MachineLicenseFileContent contains information about the license file
 type MachineLicenseFileContent struct {
 	Enc string `json:"enc"`
 	Sig string `json:"sig"`

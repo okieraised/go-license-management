@@ -15,19 +15,11 @@ const (
 	// then appended onto the end of the signing data, delimited by the . character,
 	// e.g. key/{URLBASE64URL_KEY}.{URLBASE64URL_SIGNATURE}, resulting in the final key.
 	PolicySchemeRSA2048PKCS1 = "RSA2048PKCS1"
-
-	// PolicySchemeRSA2048JWTRS256 encodes a license claims payload into a JWT using the RS256 algorithm.
-	// The license key must be a valid JWT claims payload (i.e. a JSON encoded string).
-	// The JWT will be signed using your account's 2048-bit RSA private key and
-	// can be verified using your account's public key. The resulting key will be a full JSON Web Token.
-	// We do not modify your claim payload.
-	PolicySchemeRSA2048JWTRS256 = "RSA2048JWTRS256"
 )
 
 var ValidPolicySchemeMapper = map[string]bool{
-	PolicySchemeED25519:         true,
-	PolicySchemeRSA2048PKCS1:    true,
-	PolicySchemeRSA2048JWTRS256: true,
+	PolicySchemeED25519:      true,
+	PolicySchemeRSA2048PKCS1: true,
 }
 
 const (

@@ -1,37 +1,97 @@
 package service
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/models/machine_attribute"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/machines/models"
 	"go-license-management/internal/utils"
+	"strings"
+	"time"
 )
 
 func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActionsInput) (*models.MachineActionCheckoutOutput, error) {
-
 	// query machine info
 	machine, err := svc.repo.SelectMachineByPK(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
 	if err != nil {
 		return nil, err
 	}
-
 	// Query license info
 	license, err := svc.repo.SelectLicenseByPK(ctx, machine.LicenseID)
 	if err != nil {
 		return nil, err
 	}
-
 	// Query policy
 	policy, err := svc.repo.SelectPolicyByPK(ctx, license.PolicyID)
 	if err != nil {
 		return nil, err
 	}
+	ttl := utils.DerefPointer(input.TTL)
+	issuedAt := time.Now()
+	expiredAt := issuedAt.Add(time.Duration(ttl) * time.Second)
+	alg := policy.Scheme
 
-	fmt.Println("machine", machine)
+	licenseContent := machine_attribute.MachineLicenseField{
+		TenantID:  machine.TenantID.String(),
+		ProductID: policy.ProductID.String(),
+		PolicyID:  policy.ID.String(),
+		LicenseID: license.ID.String(),
+		MachineID: machine.ID.String(),
+		Metadata: map[string]interface{}{
+			"machine": &machine,
+		},
+		TTL:       ttl,
+		Expiry:    expiredAt,
+		CreatedAt: issuedAt,
+	}
 
-	return nil, nil
+	var machineLicense string
+	switch alg {
+	case constants.PolicySchemeED25519:
+		machineLicense, err = utils.NewLicenseKeyWithEd25519(policy.PrivateKey, licenseContent)
+	case constants.PolicySchemeRSA2048PKCS1:
+		machineLicense, err = utils.NewLicenseKeyWithRSA2048PKCS1(policy.PrivateKey, licenseContent)
+	}
+	if err != nil {
+		return nil, err
+	}
+	parts := strings.Split(machineLicense, ".")
+	signature := parts[1]
+	encoded := parts[0]
+
+	jsonMachineCert := machine_attribute.MachineLicenseFileContent{
+		Enc: encoded,
+		Sig: signature,
+		Alg: alg,
+	}
+	bMachineCert, err := json.Marshal(jsonMachineCert)
+	if err != nil {
+		return nil, err
+	}
+	b64MachineCert := base64.URLEncoding.EncodeToString(bMachineCert)
+	machineCertificate := fmt.Sprintf(constants.MachineFileFormat, b64MachineCert)
+
+	output := &models.MachineActionCheckoutOutput{
+		ID:          machine.ID,
+		Type:        "machine",
+		Certificate: machineCertificate,
+		TTL:         ttl,
+		IssuedAt:    issuedAt,
+		ExpiresAt:   expiredAt,
+	}
+
+	machine.LastCheckOutAt = time.Now()
+	err = svc.repo.UpdateMachineByPK(ctx, machine)
+	if err != nil {
+		return nil, err
+	}
+
+	return output, nil
 }
 
 func (svc *MachineService) pingHeartbeat(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {

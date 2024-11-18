@@ -228,3 +228,16 @@ func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Cont
 
 	return nil
 }
+
+func (repo *MachineRepository) UpdateMachineByPK(ctx context.Context, machine *entities.Machine) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	machine.UpdatedAt = time.Now()
+	_, err := repo.database.NewUpdate().Model(machine).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}

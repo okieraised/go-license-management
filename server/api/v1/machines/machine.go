@@ -45,7 +45,7 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes.GET("/:machine_id", r.retrieve)
 		routes.PATCH("/:machine_id", r.update)
 		routes.DELETE("/:machine_id", r.deactivate)
-		routes.POST("/:machine_id/actions/:action", r.action)
+		routes.POST("/:machine_id/actions/:machine_action", r.action)
 	}
 }
 
@@ -248,9 +248,18 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new machine action request")
 
 	// serializer
-	var req machines.MachineActionsRequest
+	var uriReq machines.MachineActionsRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.ShouldBindUri(&req)
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	var queryReq machine_attribute.MachineActionsQueryParam
+	err = ctx.ShouldBindQuery(&queryReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -262,7 +271,16 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = uriReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	err = queryReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -274,7 +292,7 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Actions(ctx, req.ToMachineActionsInput(rootCtx, r.tracer))
+	result, err := r.svc.Actions(ctx, uriReq.ToMachineActionsInput(rootCtx, r.tracer, queryReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())

@@ -14,6 +14,7 @@ type IMachine interface {
 	SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error)
 	SelectMachineByPK(ctx context.Context, machineID uuid.UUID) (*entities.Machine, error)
 	InsertNewMachine(ctx context.Context, machine *entities.Machine) error
+	UpdateMachineByPK(ctx context.Context, machine *entities.Machine) error
 	InsertNewMachineAndUpdateLicense(ctx context.Context, machine *entities.Machine) error
 	DeleteMachineByPK(ctx context.Context, machineID uuid.UUID) error
 	DeleteMachineByPKAndUpdateLicense(ctx context.Context, machineID uuid.UUID) error

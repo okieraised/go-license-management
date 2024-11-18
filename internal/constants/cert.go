@@ -6,5 +6,6 @@ const (
 )
 
 const (
+	MachineFileFormat = "-----BEGIN MACHINE FILE-----\n%s\n-----END MACHINE FILE-----"
 	LicenseFileFormat = "-----BEGIN LICENSE FILE-----\n%s\n-----END LICENSE FILE-----"
 )

@@ -60,6 +60,7 @@ type MachineActionsInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
 	machine_attribute.MachineCommonURI
+	machine_attribute.MachineActionsQueryParam
 }
 
 type MachineActionCheckoutOutput struct {

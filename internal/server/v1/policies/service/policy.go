@@ -100,7 +100,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 			return resp, comerrors.ErrGenericInternalServer
 		}
-	case constants.PolicySchemeRSA2048PKCS1, constants.PolicySchemeRSA2048JWTRS256:
+	case constants.PolicySchemeRSA2048PKCS1:
 		privateKey, publicKey, err = utils.NewRSA2048PKCS1KeyPair()
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())

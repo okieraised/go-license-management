@@ -78,6 +78,7 @@ var (
 	ErrMachineFingerprintAssociatedWithLicense = errors.New("machine fingerprint is already associated with a license")
 	ErrMachineActionIsEmpty                    = errors.New("machine action is empty")
 	ErrMachineActionIsInvalid                  = errors.New("machine action is invalid")
+	ErrMachineActionCheckoutTTLIsInvalid       = errors.New("machine license TTL is invalid (must be >= 3600 or <= 31556952 seconds)")
 )
 
 var ErrCodeMapper = map[error]string{
@@ -133,6 +134,7 @@ var ErrCodeMapper = map[error]string{
 	ErrMachineFingerprintAssociatedWithLicense: "48005",
 	ErrMachineActionIsEmpty:                    "48006",
 	ErrMachineActionIsInvalid:                  "48007",
+	ErrMachineActionCheckoutTTLIsInvalid:       "48008",
 }
 
 var ErrMessageMapper = map[error]string{
@@ -188,4 +190,5 @@ var ErrMessageMapper = map[error]string{
 	ErrMachineFingerprintAssociatedWithLicense: ErrMachineFingerprintAssociatedWithLicense.Error(),
 	ErrMachineActionIsEmpty:                    ErrMachineActionIsEmpty.Error(),
 	ErrMachineActionIsInvalid:                  ErrMachineActionIsInvalid.Error(),
+	ErrMachineActionCheckoutTTLIsInvalid:       ErrMachineActionCheckoutTTLIsInvalid.Error(),
 }
