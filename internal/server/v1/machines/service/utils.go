@@ -1,6 +1,7 @@
 package service
 
 import (
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -50,6 +51,7 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 		CreatedAt: issuedAt,
 	}
 
+	svc.logger.GetLogger().Info(fmt.Sprintf("generate new machine file using [%s] scheme", alg))
 	var machineLicense string
 	switch alg {
 	case constants.PolicySchemeED25519:
@@ -73,13 +75,25 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	if err != nil {
 		return nil, err
 	}
+	// convert the cert to base64
 	b64MachineCert := base64.URLEncoding.EncodeToString(bMachineCert)
-	machineCertificate := fmt.Sprintf(constants.MachineFileFormat, b64MachineCert)
 
+	// generate encryption key from hash of signature and machine fingerprint
+	svc.logger.GetLogger().Info("encrypting machine file")
+	h := sha256.New()
+	h.Write([]byte(signature + machine.Fingerprint))
+	sha := h.Sum(nil)
+
+	encryptedMachineCert, err := utils.Encrypt([]byte(b64MachineCert), sha)
+	if err != nil {
+		return nil, err
+	}
+
+	finalCertificate := fmt.Sprintf(constants.MachineFileFormat, base64.URLEncoding.EncodeToString(encryptedMachineCert))
 	output := &models.MachineActionCheckoutOutput{
 		ID:          machine.ID,
 		Type:        "machine",
-		Certificate: machineCertificate,
+		Certificate: finalCertificate,
 		TTL:         ttl,
 		IssuedAt:    issuedAt,
 		ExpiresAt:   expiredAt,
