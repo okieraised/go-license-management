@@ -157,6 +157,21 @@ func (repo *MachineRepository) SelectLicenseByPK(ctx context.Context, licenseID 
 	return license, nil
 }
 
+func (repo *MachineRepository) SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error) {
+	if repo.database == nil {
+		return nil, comerrors.ErrInvalidDatabaseClient
+	}
+
+	policy := &entities.Policy{ID: policyID}
+
+	err := repo.database.NewSelect().Model(policy).WherePK().Scan(ctx)
+	if err != nil {
+		return policy, err
+	}
+
+	return policy, nil
+}
+
 func (repo *MachineRepository) CheckMachineExistByFingerprintAndLicense(ctx context.Context, licenseID uuid.UUID, fingerprint string) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient

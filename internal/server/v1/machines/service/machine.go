@@ -330,6 +330,17 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 	action := utils.DerefPointer(input.MachineCommonURI.MachineAction)
 	switch action {
 	case constants.MachineActionCheckout:
+		_, cSpan = input.Tracer.Start(rootCtx, "action-checkout")
+		respData, err := svc.checkout(ctx, input)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		resp.Data = respData
+		cSpan.End()
 	case constants.MachineActionResetHeartbeat:
 	case constants.MachineActionPingHeartbeat:
 	default:

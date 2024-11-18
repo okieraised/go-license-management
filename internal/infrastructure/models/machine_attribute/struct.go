@@ -43,3 +43,9 @@ type MachineAttributeModel struct {
 	Platform    *string                `json:"platform"`    // The platform of the machine.
 	Metadata    map[string]interface{} `json:"metadata"`    // Object containing machine metadata.
 }
+
+type MachineLicenseFileContent struct {
+	Enc string `json:"enc"`
+	Sig string `json:"sig"`
+	Alg string `json:"alg"`
+}
