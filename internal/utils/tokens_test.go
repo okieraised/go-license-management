@@ -7,6 +7,6 @@ import (
 
 func TestGenerateKey(t *testing.T) {
 	for _ = range 10 {
-		fmt.Println(GenerateKey())
+		fmt.Println(GenerateToken())
 	}
 }

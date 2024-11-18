@@ -44,3 +44,6 @@ An open-source license management written in Go
 | **Floating License**    | Optional        | > 0               | Optional       | Yes             |
 | **Node-locked License** | Optional        | 1                 | Optional       | Yes             |
 | **Feature License**     | Optional        | Optional          | Yes            | Yes             |
+
+### Roadmap
+- [x] Product APIs 

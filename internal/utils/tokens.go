@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func GenerateKey() string {
+func GenerateToken() string {
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 	const segmentLength = 8
 	const totalLength = segmentLength * 5

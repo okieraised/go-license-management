@@ -118,3 +118,15 @@ func (repo *ProductRepository) UpdateProductByPK(ctx context.Context, product *e
 	}
 	return nil
 }
+
+func (repo *ProductRepository) InsertNewProductToken(ctx context.Context, productToken *entities.ProductToken) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	_, err := repo.database.NewInsert().Model(productToken).Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}

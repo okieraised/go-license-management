@@ -307,6 +307,7 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -324,6 +325,7 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-pkc")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying product [%s]", utils.DerefPointer(input.ProductID)))
 	product, err := svc.repo.SelectProductByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.ProductID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -341,6 +343,7 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "update-existing-product")
+	svc.logger.GetLogger().Info(fmt.Sprintf("updating product [%s]", utils.DerefPointer(input.ProductID)))
 	if input.Code != nil {
 		exists, err := svc.repo.CheckProductExistByCode(ctx, utils.DerefPointer(input.Code))
 		if err != nil {
@@ -416,6 +419,7 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	// Check tenant
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
@@ -434,6 +438,7 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 	cSpan.End()
 
 	// Check product
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying product [%s]", input.ProductID))
 	_, cSpan = input.Tracer.Start(rootCtx, "query-product")
 	product, err := svc.repo.SelectProductByPK(ctx, tenant.ID, input.ProductID)
 	if err != nil {
@@ -452,12 +457,29 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 	cSpan.End()
 
 	// Generate token
-	fmt.Println(product)
+	_, cSpan = input.Tracer.Start(rootCtx, "generate-product-token")
+	token := utils.GenerateToken()
+	productToken := &entities.ProductToken{
+		ID:        uuid.New(),
+		TenantID:  tenant.ID,
+		ProductID: product.ID,
+		Token:     token,
+		CreatedAt: time.Now(),
+	}
+	err = svc.repo.InsertNewProductToken(ctx, productToken)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
 	resp.Data = map[string]interface{}{
-		"token": "",
+		"token": token,
 	}
 	return resp, nil
 }
