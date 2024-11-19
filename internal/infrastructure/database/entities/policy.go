@@ -16,6 +16,7 @@ type Policy struct {
 	MaxMachines                   int                    `bun:"max_machines,nullzero"`
 	MaxUses                       int                    `bun:"max_uses,nullzero"`
 	MaxUsers                      int                    `bun:"max_users,nullzero"`
+	MaxRate                       int                    `bun:"max_rate,nullzero"`
 	CheckInIntervalCount          int                    `bun:"check_in_interval_count,nullzero"`
 	HeartbeatDuration             int                    `bun:"heartbeat_duration,nullzero"`
 	Strict                        bool                   `bun:"strict,default:false"`
@@ -37,7 +38,6 @@ type Policy struct {
 	HeartbeatCullStrategy         string                 `bun:"heartbeat_cull_strategy,type:varchar(64),nullzero"`
 	HeartbeatResurrectionStrategy string                 `bun:"heartbeat_resurrection_strategy,type:varchar(64),nullzero"`
 	CheckInInterval               string                 `bun:"check_in_interval,type:varchar(64),nullzero"`
-	TransferStrategy              string                 `bun:"transfer_strategy,type:varchar(64),nullzero"`
 	OverageStrategy               string                 `bun:"overage_strategy,type:varchar(64),nullzero"`
 	HeartbeatBasis                string                 `bun:"heartbeat_basis,type:varchar(64),nullzero"`
 	RenewalBasis                  string                 `bun:"renewal_basis,type:varchar(64),nullzero"`

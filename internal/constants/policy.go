@@ -2,18 +2,11 @@ package constants
 
 const (
 	// PolicySchemeED25519 signs license keys with your account's Ed25519 signing key,
-	// using elliptic curve cryptography and SHA512.
-	// The given license key data will be base64url encoded and then prefixed with key/ before signing,
-	// and the signing data's signature will be base64url encoded and then appended onto the end of
-	// the signing data, delimited by the . character, e.g. key/{URLBASE64URL_KEY}.{URLBASE64URL_SIGNATURE}.
-	// This is our recommended signing scheme, but it may not be supported in your preferred programming language.
+	// using elliptic curve cryptography and SHA512. The given license key data will be base64url encoded.
 	PolicySchemeED25519 = "ED25519"
 
 	// PolicySchemeRSA2048PKCS1 signs license keys with your account's 2048-bit RSA private key using RSA
-	// PKCS1 v1.5 padding, with a SHA256 digest. The provided embedded dataset will be base64url encoded and then
-	// prefixed with key/ before signing, and the signing data's signature will be base64url encoded and
-	// then appended onto the end of the signing data, delimited by the . character,
-	// e.g. key/{URLBASE64URL_KEY}.{URLBASE64URL_SIGNATURE}, resulting in the final key.
+	// PKCS1 v1.5 padding, with a SHA256 digest. The given license key data will be base64url encoded.
 	PolicySchemeRSA2048PKCS1 = "RSA2048PKCS1"
 )
 
@@ -106,15 +99,6 @@ const (
 	PolicyOverageStrategyNoOverage = "no_overage"
 	// PolicyOverageStrategyAlwaysAllow - The license may exceed its limits, and doing so will not affect the license validity.
 	PolicyOverageStrategyAlwaysAllow = "always_allow"
-)
-
-const (
-	// PolicyProcessLeasingStrategyPerMachine - Processes are counted per-machine. This is the default.
-	PolicyProcessLeasingStrategyPerMachine = "per_machine"
-	// PolicyProcessLeasingStrategyPerUser - Processes are counted per-user, per-license.
-	PolicyProcessLeasingStrategyPerUser = "per_user"
-	// PolicyProcessLeasingStrategyPerLicense - Processes are counted per-license.
-	PolicyProcessLeasingStrategyPerLicense = "per_license"
 )
 
 const (

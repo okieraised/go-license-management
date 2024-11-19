@@ -270,7 +270,7 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-account")
-	err = svc.repo.DeleteAccountExistByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
+	err = svc.repo.DeleteAccountByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

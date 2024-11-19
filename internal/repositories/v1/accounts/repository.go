@@ -100,7 +100,7 @@ func (repo *AccountRepository) InsertNewAccount(ctx context.Context, account *en
 	return nil
 }
 
-func (repo *AccountRepository) DeleteAccountExistByPK(ctx context.Context, tenantID uuid.UUID, username string) error {
+func (repo *AccountRepository) DeleteAccountByPK(ctx context.Context, tenantID uuid.UUID, username string) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
 	}

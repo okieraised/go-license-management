@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
 	"time"
 )
@@ -11,6 +12,13 @@ type TenantRegistrationInput struct {
 	Tracer    trace.Tracer
 	Name      *string `json:"name,omitempty" validate:"required" example:"test"`
 	Protected *bool   `json:"protected" validate:"optional" example:"true"`
+}
+
+type TenantRegistrationOutput struct {
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type TenantListInput struct {

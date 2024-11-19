@@ -67,6 +67,7 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 
 	// If not, generate additional required info
 	_, cSpan = input.Tracer.Start(rootCtx, "generate-tenant-key")
+	svc.logger.GetLogger().Info(fmt.Sprintf("generating new private/public key pair for tenant [%s]", utils.DerefPointer(input.Name)))
 	privateKey, publicKey, err := utils.NewEd25519KeyPair()
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -79,15 +80,17 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 
 	// Insert new tenant
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-tenant")
+	svc.logger.GetLogger().Info("inserting new tenant record")
 	tenandID := uuid.New()
+	now := time.Now()
 	tenant := &entities.Tenant{
 		ID:                tenandID,
 		Name:              utils.DerefPointer(input.Name),
 		Protected:         utils.DerefPointer(input.Protected),
 		Ed25519PublicKey:  publicKey,
 		Ed25519PrivateKey: privateKey,
-		CreatedAt:         time.Now(),
-		UpdatedAt:         time.Now(),
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}
 	err = svc.repo.InsertNewTenant(ctx, tenant)
 	if err != nil {
@@ -99,11 +102,16 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	}
 	cSpan.End()
 
+	output := &models.TenantRegistrationOutput{
+		ID:        tenandID,
+		Name:      tenant.Name,
+		CreatedAt: tenant.CreatedAt,
+		UpdatedAt: tenant.UpdatedAt,
+	}
+
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
-	resp.Data = map[string]interface{}{
-		"tenant_name": utils.DerefPointer(input.Name),
-	}
+	resp.Data = output
 
 	return resp, nil
 }
@@ -216,5 +224,4 @@ func (svc *TenantService) Delete(ctx *gin.Context, input *models.TenantDeletionI
 	resp.Message = comerrors.ErrMessageMapper[nil]
 
 	return resp, nil
-
 }
