@@ -67,7 +67,7 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-id")
-	product, err := svc.repo.SelectProductByPK(ctx, tenant.ID, input.ProductID)
+	product, err := svc.repo.SelectProductByPK(ctx, input.ProductID)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -124,7 +124,7 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 
 	respData := models.LicenseInfoOutput{
 		ID:                            license.ID.String(),
-		TenantID:                      tenant.ID.String(),
+		TenantName:                    tenant.Name,
 		ProductID:                     product.ID.String(),
 		PolicyID:                      policy.ID.String(),
 		Name:                          license.Name,
@@ -140,7 +140,6 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 		HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
 		HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
 		CheckInInterval:               policy.CheckInInterval,
-		TransferStrategy:              policy.TransferStrategy,
 		OverageStrategy:               policy.OverageStrategy,
 		HeartbeatBasis:                policy.HeartbeatBasis,
 		RenewalBasis:                  policy.RenewalBasis,
@@ -213,7 +212,7 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 
 	respData := &models.LicenseInfoOutput{
 		ID:                            license.ID.String(),
-		TenantID:                      license.TenantID.String(),
+		TenantName:                    license.Tenant.Name,
 		ProductID:                     license.ProductID.String(),
 		PolicyID:                      license.PolicyID.String(),
 		Name:                          license.Name,
@@ -229,7 +228,6 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 		HeartbeatCullStrategy:         license.Policy.HeartbeatCullStrategy,
 		HeartbeatResurrectionStrategy: license.Policy.HeartbeatResurrectionStrategy,
 		CheckInInterval:               license.Policy.CheckInInterval,
-		TransferStrategy:              license.Policy.TransferStrategy,
 		OverageStrategy:               license.Policy.OverageStrategy,
 		HeartbeatBasis:                license.Policy.HeartbeatBasis,
 		RenewalBasis:                  license.Policy.RenewalBasis,

@@ -18,8 +18,8 @@ type MachineRegistrationInput struct {
 
 type MachineInfoOutput struct {
 	ID                   uuid.UUID              `json:"id"`
-	TenantID             uuid.UUID              `json:"tenant_id"`
 	LicenseID            uuid.UUID              `json:"license_id"`
+	TenantName           string                 `json:"tenant_name"`
 	Fingerprint          string                 `json:"fingerprint"`
 	IP                   string                 `json:"ip"`
 	Hostname             string                 `json:"hostname"`

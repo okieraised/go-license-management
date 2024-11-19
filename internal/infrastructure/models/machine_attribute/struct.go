@@ -64,7 +64,7 @@ type MachineAttributeModel struct {
 
 // MachineLicenseField contains information about the license
 type MachineLicenseField struct {
-	TenantID           string                 `json:"tenant_id"`
+	TenantName         string                 `json:"tenant_name"`
 	ProductID          string                 `json:"product_id"`
 	PolicyID           string                 `json:"policy_id"`
 	LicenseID          string                 `json:"license_id"`

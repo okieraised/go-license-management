@@ -68,7 +68,7 @@ type PolicyRetrievalInput struct {
 
 type PolicyRetrievalOutput struct {
 	ID                            string                 `json:"id"`
-	TenantID                      string                 `json:"tenant_id"`
+	TenantName                    string                 `json:"tenant_name"`
 	ProductID                     string                 `json:"product_id"`
 	PublicKey                     string                 `json:"public_key"`
 	Name                          string                 `json:"name"`

@@ -27,7 +27,7 @@ type LicenseRetrievalInput struct {
 
 type LicenseInfoOutput struct {
 	ID                            string                 `json:"id"`
-	TenantID                      string                 `json:"tenant_id"`
+	TenantName                    string                 `json:"tenant_name"`
 	ProductID                     string                 `json:"product_id"`
 	PolicyID                      string                 `json:"policy_id"`
 	Name                          string                 `json:"name"`
@@ -43,7 +43,6 @@ type LicenseInfoOutput struct {
 	HeartbeatCullStrategy         string                 `json:"heartbeat_cull_strategy"`
 	HeartbeatResurrectionStrategy string                 `json:"heartbeat_resurrection_strategy"`
 	CheckInInterval               string                 `json:"check_in_interval"`
-	TransferStrategy              string                 `json:"transfer_strategy"`
 	OverageStrategy               string                 `json:"overage_strategy"`
 	HeartbeatBasis                string                 `json:"heartbeat_basis"`
 	RenewalBasis                  string                 `json:"renewal_basis"`

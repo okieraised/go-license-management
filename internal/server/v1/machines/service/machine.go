@@ -124,7 +124,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	now := time.Now()
 	machine := &entities.Machine{
 		ID:          machineID,
-		TenantID:    tenant.ID,
+		TenantName:  tenant.Name,
 		LicenseID:   uuid.MustParse(utils.DerefPointer(input.LicenseID)),
 		Fingerprint: utils.DerefPointer(input.Fingerprint),
 		Metadata:    input.Metadata,
@@ -164,7 +164,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 
 	respData := models.MachineInfoOutput{
 		ID:                   machine.ID,
-		TenantID:             machine.TenantID,
+		TenantName:           machine.TenantName,
 		LicenseID:            machine.LicenseID,
 		Fingerprint:          machine.Fingerprint,
 		IP:                   machine.IP,
@@ -235,7 +235,7 @@ func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetri
 
 	respData := &models.MachineInfoOutput{
 		ID:                   machine.ID,
-		TenantID:             machine.TenantID,
+		TenantName:           machine.TenantName,
 		LicenseID:            machine.LicenseID,
 		Fingerprint:          machine.Fingerprint,
 		IP:                   machine.IP,

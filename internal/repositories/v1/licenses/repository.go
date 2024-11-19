@@ -34,12 +34,12 @@ func (repo *LicenseRepository) SelectTenantByName(ctx context.Context, tenantNam
 	return tenant, nil
 }
 
-func (repo *LicenseRepository) SelectProductByPK(ctx context.Context, tenantID, productID uuid.UUID) (*entities.Product, error) {
+func (repo *LicenseRepository) SelectProductByPK(ctx context.Context, productID uuid.UUID) (*entities.Product, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantName: tenantID}
+	product := &entities.Product{ID: productID}
 
 	err := repo.database.NewSelect().Model(product).WherePK().Scan(ctx)
 	if err != nil {

@@ -49,7 +49,7 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -66,7 +66,7 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-account-by-name")
-	exists, err := svc.repo.CheckAccountExistByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
+	exists, err := svc.repo.CheckAccountExistByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -102,7 +102,7 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	now := time.Now()
 	account := &entities.Account{
 		Username:       utils.DerefPointer(input.Username),
-		TenantName:     tenant.ID,
+		TenantName:     tenant.Name,
 		Status:         constants.AccountStatusActive,
 		RoleName:       utils.DerefPointer(input.Role),
 		Email:          utils.DerefPointer(input.Email),
@@ -138,7 +138,7 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -155,7 +155,7 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-accounts")
-	accounts, count, err := svc.repo.SelectAccountsByTenant(ctx, tenant.ID)
+	accounts, count, err := svc.repo.SelectAccountsByTenant(ctx, tenant.Name)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -199,7 +199,7 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -216,7 +216,7 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "select-account")
-	account, err := svc.repo.SelectAccountByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
+	account, err := svc.repo.SelectAccountByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -254,7 +254,7 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -271,7 +271,7 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-account")
-	err = svc.repo.DeleteAccountByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
+	err = svc.repo.DeleteAccountByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -296,7 +296,7 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 
 	// Query tenant
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -314,7 +314,7 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 
 	// Query account
 	_, cSpan = input.Tracer.Start(rootCtx, "query-account")
-	account, err := svc.repo.SelectAccountByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
+	account, err := svc.repo.SelectAccountByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

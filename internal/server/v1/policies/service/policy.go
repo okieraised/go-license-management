@@ -70,7 +70,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 
 	// Check if productID exists
 	_, cSpan = input.Tracer.Start(rootCtx, "check-product-id")
-	exists, err := svc.repo.CheckProductExistByID(ctx, tenant.ID, productID)
+	exists, err := svc.repo.CheckProductExistByID(ctx, tenant.Name, productID)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -81,7 +81,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	cSpan.End()
 
 	if !exists {
-		svc.logger.GetLogger().Info(fmt.Sprintf("product id [%s] does not exist in tenant [%s]", productID.String(), tenant.ID.String()))
+		svc.logger.GetLogger().Info(fmt.Sprintf("product id [%s] does not exist in tenant [%s]", productID.String(), tenant.Name))
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
 		return resp, comerrors.ErrProductIDIsInvalid
@@ -120,7 +120,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	now := time.Now()
 	policy := &entities.Policy{
 		ID:                            policyID,
-		TenantID:                      tenant.ID,
+		TenantName:                    tenant.ID,
 		ProductID:                     productID,
 		Duration:                      int64(utils.DerefPointer(input.Duration)),
 		MaxMachines:                   utils.DerefPointer(input.MaxMachines),
@@ -146,7 +146,6 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		HeartbeatCullStrategy:         utils.DerefPointer(input.HeartbeatCullStrategy),
 		HeartbeatResurrectionStrategy: utils.DerefPointer(input.HeartbeatResurrectionStrategy),
 		CheckInInterval:               utils.DerefPointer(input.CheckInInterval),
-		TransferStrategy:              utils.DerefPointer(input.TransferStrategy),
 		OverageStrategy:               utils.DerefPointer(input.OverageStrategy),
 		HeartbeatBasis:                utils.DerefPointer(input.HeartbeatBasis),
 		RenewalBasis:                  utils.DerefPointer(input.RenewalBasis),
@@ -232,7 +231,7 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-policies")
-	products, total, err := svc.repo.SelectPolicies(ctx, tenant.ID, input.QueryCommonParam)
+	products, total, err := svc.repo.SelectPolicies(ctx, tenant.Name, input.QueryCommonParam)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -252,7 +251,7 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 	for _, policy := range products {
 		policiesOutput = append(policiesOutput, models.PolicyRetrievalOutput{
 			ID:                            policy.ID.String(),
-			TenantID:                      policy.TenantID.String(),
+			TenantName:                    policy.TenantName,
 			ProductID:                     policy.ProductID.String(),
 			PublicKey:                     policy.PublicKey,
 			Name:                          policy.Name,
@@ -263,7 +262,6 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 			HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
 			HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
 			CheckInInterval:               policy.CheckInInterval,
-			TransferStrategy:              policy.TransferStrategy,
 			OverageStrategy:               policy.OverageStrategy,
 			HeartbeatBasis:                policy.HeartbeatBasis,
 			RenewalBasis:                  policy.RenewalBasis,
@@ -339,7 +337,7 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 
 	respData := &models.PolicyRetrievalOutput{
 		ID:                            policy.ID.String(),
-		TenantID:                      policy.TenantID.String(),
+		TenantName:                    policy.TenantName,
 		ProductID:                     policy.ProductID.String(),
 		PublicKey:                     policy.PublicKey,
 		Name:                          policy.Name,
@@ -350,7 +348,6 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 		HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
 		HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
 		CheckInInterval:               policy.CheckInInterval,
-		TransferStrategy:              policy.TransferStrategy,
 		OverageStrategy:               policy.OverageStrategy,
 		HeartbeatBasis:                policy.HeartbeatBasis,
 		RenewalBasis:                  policy.RenewalBasis,

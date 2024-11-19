@@ -2,7 +2,6 @@ package accounts
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/infrastructure/database/entities"
@@ -19,14 +18,14 @@ func NewAccountRepository(ds *models.DataSource) *AccountRepository {
 	}
 }
 
-func (repo *AccountRepository) SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error) {
+func (repo *AccountRepository) SelectTenantByPK(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	tenant := &entities.Tenant{}
+	tenant := &entities.Tenant{Name: tenantName}
 
-	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name").Where("name = ?", tenantName).Scan(ctx)
+	err := repo.database.NewSelect().Model(tenant).WherePK().Scan(ctx)
 	if err != nil {
 		return tenant, err
 	}
@@ -34,14 +33,14 @@ func (repo *AccountRepository) SelectTenantByName(ctx context.Context, tenantNam
 	return tenant, nil
 }
 
-func (repo *AccountRepository) SelectAccountsByTenant(ctx context.Context, tenantID uuid.UUID) ([]entities.Account, int, error) {
+func (repo *AccountRepository) SelectAccountsByTenant(ctx context.Context, tenantName string) ([]entities.Account, int, error) {
 	var count = 0
 	if repo.database == nil {
 		return nil, count, comerrors.ErrInvalidDatabaseClient
 	}
 
 	accounts := make([]entities.Account, 0)
-	count, err := repo.database.NewSelect().Model(new(entities.Account)).Where("tenant_id = ?", tenantID.String()).Order("created_at DESC").ScanAndCount(ctx, &accounts)
+	count, err := repo.database.NewSelect().Model(new(entities.Account)).Where("tenant_name = ?", tenantName).Order("created_at DESC").ScanAndCount(ctx, &accounts)
 	if err != nil {
 		return accounts, count, nil
 	}
@@ -49,12 +48,12 @@ func (repo *AccountRepository) SelectAccountsByTenant(ctx context.Context, tenan
 	return accounts, count, nil
 }
 
-func (repo *AccountRepository) SelectAccountByPK(ctx context.Context, tenantID uuid.UUID, username string) (*entities.Account, error) {
+func (repo *AccountRepository) SelectAccountByPK(ctx context.Context, tenantName, username string) (*entities.Account, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	account := &entities.Account{Username: username, TenantName: tenantID}
+	account := &entities.Account{Username: username, TenantName: tenantName}
 	_, err := repo.database.NewSelect().Model(account).WherePK().Exists(ctx)
 	if err != nil {
 		return account, err
@@ -74,12 +73,12 @@ func (repo *AccountRepository) UpdateAccountByPK(ctx context.Context, account *e
 	return nil
 }
 
-func (repo *AccountRepository) CheckAccountExistByPK(ctx context.Context, tenantID uuid.UUID, username string) (bool, error) {
+func (repo *AccountRepository) CheckAccountExistByPK(ctx context.Context, tenantName, username string) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient
 	}
 
-	account := &entities.Account{Username: username, TenantName: tenantID}
+	account := &entities.Account{Username: username, TenantName: tenantName}
 	exist, err := repo.database.NewSelect().Model(account).WherePK().Exists(ctx)
 	if err != nil {
 		return exist, err
@@ -100,12 +99,12 @@ func (repo *AccountRepository) InsertNewAccount(ctx context.Context, account *en
 	return nil
 }
 
-func (repo *AccountRepository) DeleteAccountByPK(ctx context.Context, tenantID uuid.UUID, username string) error {
+func (repo *AccountRepository) DeleteAccountByPK(ctx context.Context, tenantName, username string) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
 	}
 
-	account := &entities.Account{Username: username, TenantName: tenantID}
+	account := &entities.Account{Username: username, TenantName: tenantName}
 	_, err := repo.database.NewDelete().Model(account).WherePK().Exec(ctx)
 	if err != nil {
 		return err

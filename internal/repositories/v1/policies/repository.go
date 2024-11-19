@@ -66,12 +66,12 @@ func (repo *PolicyRepository) DeletePolicyByPK(ctx context.Context, policyID uui
 	return nil
 }
 
-func (repo *PolicyRepository) CheckProductExistByID(ctx context.Context, tenantID, productID uuid.UUID) (bool, error) {
+func (repo *PolicyRepository) CheckProductExistByID(ctx context.Context, productID uuid.UUID) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantName: tenantID}
+	product := &entities.Product{ID: productID}
 
 	exists, err := repo.database.NewSelect().Model(product).WherePK().Exists(ctx)
 	if err != nil {
@@ -93,7 +93,7 @@ func (repo *PolicyRepository) InsertNewPolicy(ctx context.Context, policy *entit
 	return nil
 }
 
-func (repo *PolicyRepository) SelectPolicies(ctx context.Context, tenantID uuid.UUID, queryParam constants.QueryCommonParam) ([]entities.Policy, int, error) {
+func (repo *PolicyRepository) SelectPolicies(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Policy, int, error) {
 	var total = 0
 	if repo.database == nil {
 		return nil, total, comerrors.ErrInvalidDatabaseClient
@@ -101,7 +101,7 @@ func (repo *PolicyRepository) SelectPolicies(ctx context.Context, tenantID uuid.
 
 	policies := make([]entities.Policy, 0)
 	total, err := repo.database.NewSelect().Model(new(entities.Policy)).
-		Where("tenant_id = ?", tenantID.String()).
+		Where("tenant_name = ?", tenantName).
 		Limit(utils.DerefPointer(queryParam.Limit)).
 		Offset(utils.DerefPointer(queryParam.Offset)).
 		Order("created_at DESC").

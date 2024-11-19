@@ -21,16 +21,16 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 
 	now := time.Now()
 	license := &entities.License{
-		ID:        licenseID,
-		TenantID:  tenant.ID,
-		PolicyID:  policy.ID,
-		ProductID: product.ID,
-		Key:       licenseKey,
-		Name:      utils.DerefPointer(input.Name),
-		Status:    constants.LicenseStatusNotActivated,
-		Metadata:  input.Metadata,
-		CreatedAt: now,
-		UpdatedAt: now,
+		ID:         licenseID,
+		TenantName: tenant.Name,
+		PolicyID:   policy.ID,
+		ProductID:  product.ID,
+		Key:        licenseKey,
+		Name:       utils.DerefPointer(input.Name),
+		Status:     constants.LicenseStatusNotActivated,
+		Metadata:   input.Metadata,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	}
 
 	if input.Expiry != nil {
@@ -43,11 +43,11 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 
 func (svc *LicenseService) generateLicenseKey(ctx *gin.Context, licenseID string, tenant *entities.Tenant, product *entities.Product, policy *entities.Policy) (string, error) {
 	licenseKeyContent := &license_key.LicenseKeyContent{
-		TenantID:  utils.RefPointer(tenant.ID.String()),
-		ProductID: utils.RefPointer(product.ID.String()),
-		PolicyID:  utils.RefPointer(policy.ID.String()),
-		LicenseID: utils.RefPointer(licenseID),
-		CreatedAt: time.Now(),
+		TenantName: utils.RefPointer(tenant.Name),
+		ProductID:  utils.RefPointer(product.ID.String()),
+		PolicyID:   utils.RefPointer(policy.ID.String()),
+		LicenseID:  utils.RefPointer(licenseID),
+		CreatedAt:  time.Now(),
 	}
 
 	var licenseKey = ""

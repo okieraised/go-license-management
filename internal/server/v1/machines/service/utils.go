@@ -38,7 +38,7 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	alg := policy.Scheme
 
 	licenseContent := machine_attribute.MachineLicenseField{
-		TenantID:           machine.TenantID.String(),
+		TenantName:         machine.TenantName,
 		ProductID:          policy.ProductID.String(),
 		PolicyID:           policy.ID.String(),
 		LicenseID:          license.ID.String(),
