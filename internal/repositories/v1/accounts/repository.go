@@ -54,7 +54,7 @@ func (repo *AccountRepository) SelectAccountByPK(ctx context.Context, tenantID u
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	account := &entities.Account{Username: username, TenantID: tenantID}
+	account := &entities.Account{Username: username, TenantName: tenantID}
 	_, err := repo.database.NewSelect().Model(account).WherePK().Exists(ctx)
 	if err != nil {
 		return account, err
@@ -79,7 +79,7 @@ func (repo *AccountRepository) CheckAccountExistByPK(ctx context.Context, tenant
 		return false, comerrors.ErrInvalidDatabaseClient
 	}
 
-	account := &entities.Account{Username: username, TenantID: tenantID}
+	account := &entities.Account{Username: username, TenantName: tenantID}
 	exist, err := repo.database.NewSelect().Model(account).WherePK().Exists(ctx)
 	if err != nil {
 		return exist, err
@@ -105,7 +105,7 @@ func (repo *AccountRepository) DeleteAccountByPK(ctx context.Context, tenantID u
 		return comerrors.ErrInvalidDatabaseClient
 	}
 
-	account := &entities.Account{Username: username, TenantID: tenantID}
+	account := &entities.Account{Username: username, TenantName: tenantID}
 	_, err := repo.database.NewDelete().Model(account).WherePK().Exec(ctx)
 	if err != nil {
 		return err

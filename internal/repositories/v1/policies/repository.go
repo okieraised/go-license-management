@@ -71,7 +71,7 @@ func (repo *PolicyRepository) CheckProductExistByID(ctx context.Context, tenantI
 		return false, comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantID: tenantID}
+	product := &entities.Product{ID: productID, TenantName: tenantID}
 
 	exists, err := repo.database.NewSelect().Model(product).WherePK().Exists(ctx)
 	if err != nil {

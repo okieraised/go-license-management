@@ -39,7 +39,7 @@ func (repo *LicenseRepository) SelectProductByPK(ctx context.Context, tenantID, 
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantID: tenantID}
+	product := &entities.Product{ID: productID, TenantName: tenantID}
 
 	err := repo.database.NewSelect().Model(product).WherePK().Scan(ctx)
 	if err != nil {

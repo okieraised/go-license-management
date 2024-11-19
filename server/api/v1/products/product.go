@@ -371,7 +371,7 @@ func (r *ProductRouter) tokens(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new product token creation request")
 
 	// serializer
-	tenantName := ctx.Param(constants.TenantNameField)
+	tenantName := ctx.Param("tenant_name")
 	if tenantName == "" {
 		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)

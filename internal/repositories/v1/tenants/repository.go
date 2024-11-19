@@ -2,7 +2,6 @@ package tenants
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/infrastructure/database/entities"
@@ -34,26 +33,13 @@ func (repo *TenantRepository) SelectTenants(ctx context.Context) ([]entities.Ten
 	return tenant, count, nil
 }
 
-func (repo *TenantRepository) SelectTenantByName(ctx context.Context, name string) (*entities.Tenant, error) {
-	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
-	}
-
-	tenant := &entities.Tenant{}
-	err := repo.database.NewSelect().Model(tenant).Where("name = ?", name).Scan(ctx)
-	if err != nil {
-		return tenant, err
-	}
-	return tenant, nil
-}
-
-func (repo *TenantRepository) SelectTenantByPK(ctx context.Context, id string) (*entities.Tenant, error) {
+func (repo *TenantRepository) SelectTenantByPK(ctx context.Context, name string) (*entities.Tenant, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{
-		ID: uuid.MustParse(id),
+		Name: name,
 	}
 	err := repo.database.NewSelect().Model(tenant).WherePK().Scan(ctx)
 	if err != nil {
@@ -62,12 +48,14 @@ func (repo *TenantRepository) SelectTenantByPK(ctx context.Context, id string) (
 	return tenant, nil
 }
 
-func (repo *TenantRepository) CheckTenantExistByName(ctx context.Context, name string) (bool, error) {
+func (repo *TenantRepository) CheckTenantExistByPK(ctx context.Context, name string) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient
 	}
 
-	exist, err := repo.database.NewSelect().Model(new(entities.Tenant)).Where("name = ?", name).Exists(ctx)
+	tenant := &entities.Tenant{Name: name}
+
+	exist, err := repo.database.NewSelect().Model(tenant).WherePK().Exists(ctx)
 	if err != nil {
 		return exist, err
 	}
@@ -86,12 +74,14 @@ func (repo *TenantRepository) InsertNewTenant(ctx context.Context, tenant *entit
 	return nil
 }
 
-func (repo *TenantRepository) DeleteTenantByName(ctx context.Context, name string) error {
+func (repo *TenantRepository) DeleteTenantByPK(ctx context.Context, name string) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
 	}
 
-	_, err := repo.database.NewDelete().Model(new(entities.Tenant)).Where("name = ?", name).Exec(ctx)
+	tenant := &entities.Tenant{Name: name}
+
+	_, err := repo.database.NewDelete().Model(tenant).WherePK().Exec(ctx)
 	if err != nil {
 		return err
 	}

@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
@@ -47,7 +46,7 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	exists, err := svc.repo.CheckTenantExistByName(ctx, utils.DerefPointer(input.Name))
+	exists, err := svc.repo.CheckTenantExistByPK(ctx, utils.DerefPointer(input.Name))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -81,12 +80,9 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	// Insert new tenant
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-tenant")
 	svc.logger.GetLogger().Info("inserting new tenant record")
-	tenandID := uuid.New()
 	now := time.Now()
 	tenant := &entities.Tenant{
-		ID:                tenandID,
 		Name:              utils.DerefPointer(input.Name),
-		Protected:         utils.DerefPointer(input.Protected),
 		Ed25519PublicKey:  publicKey,
 		Ed25519PrivateKey: privateKey,
 		CreatedAt:         now,
@@ -103,7 +99,6 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	cSpan.End()
 
 	output := &models.TenantRegistrationOutput{
-		ID:        tenandID,
 		Name:      tenant.Name,
 		CreatedAt: tenant.CreatedAt,
 		UpdatedAt: tenant.UpdatedAt,
@@ -138,17 +133,10 @@ func (svc *TenantService) List(ctx *gin.Context, input *models.TenantListInput) 
 	respData := make([]models.TenantRetrievalOutput, 0)
 	for _, tenant := range tenants {
 		respData = append(respData, models.TenantRetrievalOutput{
-			ID:                             tenant.ID.String(),
-			Name:                           tenant.Name,
-			Protected:                      tenant.Protected,
-			Ed25519PublicKey:               tenant.Ed25519PublicKey,
-			LastLowActivityLifelineSentAt:  tenant.LastLowActivityLifelineSentAt,
-			LastTrialWillEndSentAt:         tenant.LastTrialWillEndSentAt,
-			LastLicenseLimitExceededSentAt: tenant.LastLicenseLimitExceededSentAt,
-			LastRequestLimitExceededSentAt: tenant.LastRequestLimitExceededSentAt,
-			LastPromptForReviewSentAt:      tenant.LastPromptForReviewSentAt,
-			CreatedAt:                      tenant.CreatedAt,
-			UpdatedAt:                      tenant.UpdatedAt,
+			Name:             tenant.Name,
+			Ed25519PublicKey: tenant.Ed25519PublicKey,
+			CreatedAt:        tenant.CreatedAt,
+			UpdatedAt:        tenant.UpdatedAt,
 		})
 	}
 	cSpan.End()
@@ -169,7 +157,7 @@ func (svc *TenantService) Retrieve(ctx *gin.Context, input *models.TenantRetriev
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.Name))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.Name))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -181,17 +169,10 @@ func (svc *TenantService) Retrieve(ctx *gin.Context, input *models.TenantRetriev
 
 	_, cSpan = input.Tracer.Start(rootCtx, "convert-tenant-to-output")
 	respData := models.TenantRetrievalOutput{
-		ID:                             tenant.ID.String(),
-		Name:                           tenant.Name,
-		Protected:                      tenant.Protected,
-		Ed25519PublicKey:               tenant.Ed25519PublicKey,
-		LastLowActivityLifelineSentAt:  tenant.LastLowActivityLifelineSentAt,
-		LastTrialWillEndSentAt:         tenant.LastTrialWillEndSentAt,
-		LastLicenseLimitExceededSentAt: tenant.LastLicenseLimitExceededSentAt,
-		LastRequestLimitExceededSentAt: tenant.LastRequestLimitExceededSentAt,
-		LastPromptForReviewSentAt:      tenant.LastPromptForReviewSentAt,
-		CreatedAt:                      tenant.CreatedAt,
-		UpdatedAt:                      tenant.UpdatedAt,
+		Name:             tenant.Name,
+		Ed25519PublicKey: tenant.Ed25519PublicKey,
+		CreatedAt:        tenant.CreatedAt,
+		UpdatedAt:        tenant.UpdatedAt,
 	}
 	cSpan.End()
 
@@ -210,7 +191,7 @@ func (svc *TenantService) Delete(ctx *gin.Context, input *models.TenantDeletionI
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "delete-tenant-by-name")
-	err := svc.repo.DeleteTenantByName(ctx, utils.DerefPointer(input.Name))
+	err := svc.repo.DeleteTenantByPK(ctx, utils.DerefPointer(input.Name))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

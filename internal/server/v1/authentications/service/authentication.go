@@ -45,7 +45,7 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -62,7 +62,7 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "select-account")
-	account, err := svc.repo.SelectAccountByPK(ctx, tenant.ID, utils.DerefPointer(input.Username))
+	account, err := svc.repo.SelectAccountByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

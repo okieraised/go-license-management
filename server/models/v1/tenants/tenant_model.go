@@ -4,22 +4,16 @@ import (
 	"context"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/server/v1/tenants/models"
-	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/trace"
 )
 
 type TenantRegistrationRequest struct {
-	Name      *string `form:"name" validate:"required" example:"test"`
-	Protected *bool   `form:"protected" validate:"optional" example:"true"`
+	Name *string `form:"name" validate:"required" example:"test"`
 }
 
 func (req *TenantRegistrationRequest) Validate() error {
 	if req.Name == nil {
 		return comerrors.ErrTenantNameIsEmpty
-	}
-
-	if req.Protected == nil {
-		req.Protected = utils.RefPointer(true)
 	}
 
 	return nil
@@ -30,7 +24,6 @@ func (req *TenantRegistrationRequest) ToTenantRegistrationInput(ctx context.Cont
 		TracerCtx: ctx,
 		Tracer:    tracer,
 		Name:      req.Name,
-		Protected: req.Protected,
 	}
 }
 

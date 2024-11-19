@@ -102,7 +102,7 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	now := time.Now()
 	account := &entities.Account{
 		Username:       utils.DerefPointer(input.Username),
-		TenantID:       tenant.ID,
+		TenantName:     tenant.ID,
 		Status:         constants.AccountStatusActive,
 		RoleName:       utils.DerefPointer(input.Role),
 		Email:          utils.DerefPointer(input.Email),

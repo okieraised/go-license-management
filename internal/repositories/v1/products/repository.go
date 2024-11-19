@@ -49,12 +49,12 @@ func (repo *ProductRepository) InsertNewProduct(ctx context.Context, product *en
 	return nil
 }
 
-func (repo *ProductRepository) SelectProductByPK(ctx context.Context, tenantID, productID uuid.UUID) (*entities.Product, error) {
+func (repo *ProductRepository) SelectProductByPK(ctx context.Context, productID uuid.UUID) (*entities.Product, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantID: tenantID}
+	product := &entities.Product{ID: productID}
 	err := repo.database.NewSelect().Model(product).WherePK().Scan(ctx)
 	if err != nil {
 		return product, err
@@ -62,7 +62,7 @@ func (repo *ProductRepository) SelectProductByPK(ctx context.Context, tenantID, 
 	return product, nil
 }
 
-func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantID uuid.UUID, queryParam constants.QueryCommonParam) ([]entities.Product, int, error) {
+func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Product, int, error) {
 	var total = 0
 
 	if repo.database == nil {
@@ -71,7 +71,7 @@ func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantID uuid
 
 	products := make([]entities.Product, 0)
 	total, err := repo.database.NewSelect().Model(new(entities.Product)).
-		Where("tenant_id = ?", tenantID.String()).
+		Where("tenant_name = ?", tenantName).
 		Order("created_at DESC").
 		Limit(utils.DerefPointer(queryParam.Limit)).Offset(utils.DerefPointer(queryParam.Offset)).ScanAndCount(ctx, &products)
 	if err != nil {
@@ -93,12 +93,12 @@ func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code
 	return exist, nil
 }
 
-func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, tenantID, productID uuid.UUID) error {
+func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, productID uuid.UUID) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantID: tenantID}
+	product := &entities.Product{ID: productID}
 	_, err := repo.database.NewDelete().Model(product).WherePK().Exec(ctx)
 	if err != nil {
 		return err

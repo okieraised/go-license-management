@@ -118,7 +118,7 @@ func TestNewPostgresClient_CreateAccountsSchema(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.Account)(nil)).
-		ForeignKey(`("tenant_id") REFERENCES "tenants" ("id") ON DELETE CASCADE`).
+		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
 		ForeignKey(`("role_name") REFERENCES "roles" ("name") ON DELETE CASCADE`).
 		Exec(context.Background())
 	assert.NoError(t, err)
@@ -141,7 +141,7 @@ func TestNewPostgresClient_CreateProductsSchema(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.Product)(nil)).
-		ForeignKey(`("tenant_id") REFERENCES "tenants" ("id") ON DELETE CASCADE`).
+		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
 		Exec(context.Background())
 	assert.NoError(t, err)
 }
@@ -163,7 +163,7 @@ func TestNewPostgresClient_CreateProductsToken(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.ProductToken)(nil)).
-		ForeignKey(`("product_id", "tenant_id") REFERENCES "products" ("id", "tenant_id") ON DELETE CASCADE`).
+		ForeignKey(`("product_id") REFERENCES "products" ("id") ON DELETE CASCADE`).
 		Exec(context.Background())
 	assert.NoError(t, err)
 }
@@ -185,7 +185,7 @@ func TestNewPostgresClient_CreateEntitlementsSchema(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.Entitlement)(nil)).
-		ForeignKey(`("tenant_id") REFERENCES "tenants" ("id") ON DELETE CASCADE`).
+		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
 		Exec(context.Background())
 	assert.NoError(t, err)
 }

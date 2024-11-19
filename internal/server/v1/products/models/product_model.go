@@ -18,7 +18,7 @@ type ProductRegistrationInput struct {
 
 type ProductRegistrationOutput struct {
 	ID                   string                 `json:"id"`
-	TenantID             string                 `json:"tenant_id"`
+	TenantName           string                 `json:"tenant_name"`
 	Name                 string                 `json:"name"`
 	DistributionStrategy string                 `json:"distribution_strategy"`
 	Code                 string                 `json:"code"`
@@ -38,7 +38,7 @@ type ProductUpdateInput struct {
 
 type ProductUpdateOutput struct {
 	ID                   string                 `json:"id"`
-	TenantID             string                 `json:"tenant_id"`
+	TenantName           string                 `json:"tenant_name"`
 	Name                 string                 `json:"name"`
 	DistributionStrategy string                 `json:"distribution_strategy"`
 	Code                 string                 `json:"code"`

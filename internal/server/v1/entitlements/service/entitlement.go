@@ -48,7 +48,7 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -85,13 +85,13 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 	entitlementID := uuid.New()
 	now := time.Now()
 	entitlement := &entities.Entitlement{
-		ID:        entitlementID,
-		TenantID:  tenant.ID,
-		Name:      utils.DerefPointer(input.Name),
-		Code:      utils.DerefPointer(input.Code),
-		Metadata:  input.Metadata,
-		CreatedAt: now,
-		UpdatedAt: now,
+		ID:         entitlementID,
+		TenantName: tenant.Name,
+		Name:       utils.DerefPointer(input.Name),
+		Code:       utils.DerefPointer(input.Code),
+		Metadata:   input.Metadata,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	}
 	err = svc.repo.InsertNewEntitlement(ctx, entitlement)
 	if err != nil {
@@ -119,7 +119,7 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -136,7 +136,7 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-entitlements")
-	accounts, count, err := svc.repo.SelectEntitlementsByTenant(ctx, tenant.ID, utils.DerefPointer(input.Limit), utils.DerefPointer(input.Offset))
+	accounts, count, err := svc.repo.SelectEntitlementsByTenant(ctx, tenant.Name, utils.DerefPointer(input.Limit), utils.DerefPointer(input.Offset))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -177,7 +177,7 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	_, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -194,7 +194,7 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "select-entitlement")
-	entitlement, err := svc.repo.SelectEntitlementByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
+	entitlement, err := svc.repo.SelectEntitlementByPK(ctx, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -229,7 +229,7 @@ func (svc *EntitlementService) Delete(ctx *gin.Context, input *models.Entitlemen
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	_, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -246,7 +246,7 @@ func (svc *EntitlementService) Delete(ctx *gin.Context, input *models.Entitlemen
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-entitlement")
-	err = svc.repo.DeleteEntitlementByPK(ctx, tenant.ID, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
+	err = svc.repo.DeleteEntitlementByPK(ctx, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

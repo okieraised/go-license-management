@@ -1,8 +1,7 @@
-p, *, admin, data1, read
-p, domain1, admin, data1, write
-p, domain2, admin, data1, rea
+p, admin, data1, read
+p, admin, data1, write
+p, viewer, data1, read
 
 
 g, domain1, alice, admin
-g, domain2, alice, admin
 g, test, user1, admin

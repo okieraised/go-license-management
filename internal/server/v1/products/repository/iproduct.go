@@ -13,7 +13,7 @@ type IProduct interface {
 	UpdateProductByPK(ctx context.Context, product *entities.Product) error
 	SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error)
 	CheckProductExistByCode(ctx context.Context, code string) (bool, error)
-	SelectProductByPK(ctx context.Context, tenantID, productID uuid.UUID) (*entities.Product, error)
-	SelectProducts(ctx context.Context, tenantID uuid.UUID, queryParam constants.QueryCommonParam) ([]entities.Product, int, error)
-	DeleteProductByPK(ctx context.Context, tenantID, productID uuid.UUID) error
+	SelectProductByPK(ctx context.Context, productID uuid.UUID) (*entities.Product, error)
+	SelectProducts(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Product, int, error)
+	DeleteProductByPK(ctx context.Context, productID uuid.UUID) error
 }
