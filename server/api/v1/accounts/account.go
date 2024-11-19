@@ -47,7 +47,6 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes.GET("", r.retrieve)
 		routes.PATCH("", r.update)
 		routes.DELETE("", r.delete)
-		routes.POST("/tokens", r.token)
 		routes.POST("/actions/:action_name", r.actions)
 
 	}
@@ -319,5 +318,3 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 }
 
 func (r *AccountRouter) actions(ctx *gin.Context) {}
-
-func (r *AccountRouter) token(ctx *gin.Context) {}

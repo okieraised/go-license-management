@@ -48,6 +48,7 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
