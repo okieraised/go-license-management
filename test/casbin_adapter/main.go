@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	xormadapter "github.com/casbin/xorm-adapter/v3"
-	"go-license-management/internal/constants"
 )
 
 func main() {
@@ -21,19 +20,21 @@ func main() {
 		return
 	}
 
-	// Modify the policy.
-	for _, record := range constants.CreateAdminPermission("test") {
-		_, err := e.AddPolicy(record[1], record[2], record[3], record[4])
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+	fmt.Println(e)
 
-		err = e.SavePolicy()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
+	//// Modify the policy.
+	//for _, record := range constants.CreateAdminPermission("test") {
+	//	_, err := e.AddPolicy(record[1], record[2], record[3], record[4])
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		return
+	//	}
+	//
+	//	err = e.SavePolicy()
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		return
+	//	}
+	//}
 
 }
