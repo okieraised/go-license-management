@@ -157,6 +157,7 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -218,6 +219,7 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -273,6 +275,7 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -327,6 +330,7 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 
 	// Query tenant
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -396,6 +400,7 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 
 	if input.Role != nil {
 		if account.RoleName != utils.DerefPointer(input.Role) {
+			svc.logger.GetLogger().Info("updating current account role")
 			err = svc.casbin.UpdatePolicy(
 				"g",
 				"g",
@@ -408,6 +413,8 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 				return resp, comerrors.ErrGenericInternalServer
 			}
 			account.RoleName = utils.DerefPointer(input.Role)
+		} else {
+			svc.logger.GetLogger().Info("current account role is the same as the update role")
 		}
 	}
 
