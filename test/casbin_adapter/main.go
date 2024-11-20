@@ -20,7 +20,29 @@ func main() {
 		return
 	}
 
-	fmt.Println(e)
+	err = e.LoadPolicy()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//policies, err := e.GetPolicy()
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+	//
+	//fmt.Println(policies)
+
+	//policies, err := e.GetFilteredPolicy(0, "user")
+	//fmt.Println(policies)
+
+	ok, err := e.Enforce("test", "user2", "product", "create")
+	if err != nil {
+		fmt.Printf("Error checking permission: %v\n", err)
+		return
+	}
+	fmt.Println("result", ok)
 
 	//// Modify the policy.
 	//for _, record := range constants.CreateAdminPermission("test") {

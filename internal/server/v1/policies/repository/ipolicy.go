@@ -12,6 +12,6 @@ type IPolicy interface {
 	SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error)
 	SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error)
 	SelectPolicies(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Policy, int, error)
-	CheckProductExistByID(ctx context.Context, tenantName string, productID uuid.UUID) (bool, error)
+	CheckProductExistByID(ctx context.Context, productID uuid.UUID) (bool, error)
 	DeletePolicyByPK(ctx context.Context, policyID uuid.UUID) error
 }

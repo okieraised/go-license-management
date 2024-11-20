@@ -25,7 +25,7 @@ func GetInstance() *bun.DB {
 	return postgresClient
 }
 
-func NewPostgresClient(host, dbname, userName, password string) (*bun.DB, error) {
+func NewPostgresClient(host, port, dbname, userName, password string) (*bun.DB, error) {
 
 	if host == "" || userName == "" || password == "" || dbname == "" {
 		return nil, errors.New("one or more required connection parameters are empty")
@@ -33,7 +33,7 @@ func NewPostgresClient(host, dbname, userName, password string) (*bun.DB, error)
 
 	pgconn := pgdriver.NewConnector(
 		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(host),
+		pgdriver.WithAddr(host+":"+port),
 		pgdriver.WithUser(userName),
 		pgdriver.WithPassword(password),
 		pgdriver.WithDatabase(dbname),

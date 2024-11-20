@@ -70,7 +70,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 
 	// Check if productID exists
 	_, cSpan = input.Tracer.Start(rootCtx, "check-product-id")
-	exists, err := svc.repo.CheckProductExistByID(ctx, tenant.Name, productID)
+	exists, err := svc.repo.CheckProductExistByID(ctx, productID)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -120,7 +120,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	now := time.Now()
 	policy := &entities.Policy{
 		ID:                            policyID,
-		TenantName:                    tenant.ID,
+		TenantName:                    tenant.Name,
 		ProductID:                     productID,
 		Duration:                      int64(utils.DerefPointer(input.Duration)),
 		MaxMachines:                   utils.DerefPointer(input.MaxMachines),
@@ -165,7 +165,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 
 	respData := models.PolicyRegistrationOutput{
 		ID:                            policyID.String(),
-		TenantID:                      tenant.ID.String(),
+		TenantID:                      tenant.Name,
 		ProductID:                     productID.String(),
 		Name:                          policy.Name,
 		Scheme:                        policy.Scheme,
@@ -191,7 +191,6 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
 		HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
 		CheckInInterval:               policy.CheckInInterval,
-		TransferStrategy:              policy.TransferStrategy,
 		OverageStrategy:               policy.OverageStrategy,
 		HeartbeatBasis:                policy.HeartbeatBasis,
 		RenewalBasis:                  policy.RenewalBasis,

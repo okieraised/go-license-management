@@ -1,5 +1,9 @@
 package constants
 
+import (
+	"strings"
+)
+
 const (
 	TenantCreate = "tenant.create"
 	TenantUpdate = "tenant.update"
@@ -387,25 +391,74 @@ var UserPermissionMapper = map[string]bool{
 	MachineHeartbeatReset:     true,
 }
 
-//func CreateAdminPermission(domain string) [][]string {
-//
-//	result := make([][]string, 0)
-//	for key, _ := range AdminPermissions {
-//		parts := strings.Split(key, ".")
-//
-//		object := ""
-//		perm := ""
-//
-//		if len(parts) == 3 {
-//			object = parts[0] + "_" + parts[1]
-//			perm = parts[2]
-//		} else {
-//			object = parts[0]
-//			perm = parts[1]
-//		}
-//
-//		result = append(result, []string{"p", domain, "admin", object, perm})
-//	}
-//
-//	return result
-//}
+func CreateSuperAdminPermission() [][]string {
+	result := make([][]string, 0)
+	for key, val := range SuperAdminPermissionMapper {
+		if !val {
+			continue
+		}
+		parts := strings.Split(key, ".")
+
+		object := ""
+		perm := ""
+
+		if len(parts) == 3 {
+			object = parts[0] + "_" + parts[1]
+			perm = parts[2]
+		} else {
+			object = parts[0]
+			perm = parts[1]
+		}
+
+		result = append(result, []string{"p", "superadmin", object, perm})
+	}
+	return result
+}
+
+func CreateAdminPermission() [][]string {
+	result := make([][]string, 0)
+	for key, val := range AdminPermissionMapper {
+		if !val {
+			continue
+		}
+		parts := strings.Split(key, ".")
+
+		object := ""
+		perm := ""
+
+		if len(parts) == 3 {
+			object = parts[0] + "_" + parts[1]
+			perm = parts[2]
+		} else {
+			object = parts[0]
+			perm = parts[1]
+		}
+
+		result = append(result, []string{"p", "admin", object, perm})
+	}
+	return result
+}
+
+func CreateUserPermission() [][]string {
+	result := make([][]string, 0)
+	for key, val := range UserPermissionMapper {
+		if !val {
+			continue
+		}
+		parts := strings.Split(key, ".")
+
+		object := ""
+		perm := ""
+
+		if len(parts) == 3 {
+			object = parts[0] + "_" + parts[1]
+			perm = parts[2]
+		} else {
+			object = parts[0]
+			perm = parts[1]
+		}
+
+		result = append(result, []string{"p", "user", object, perm})
+	}
+	return result
+}

@@ -3,6 +3,7 @@ package tenants
 import (
 	"context"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/server/v1/tenants/models"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -62,5 +63,22 @@ func (req *TenantDeletionRequest) ToTenantDeletionInput(ctx context.Context, tra
 		TracerCtx: ctx,
 		Tracer:    tracer,
 		Name:      req.TenantName,
+	}
+}
+
+type TenantListRequest struct {
+	constants.QueryCommonParam
+}
+
+func (req *TenantListRequest) Validate() error {
+	req.QueryCommonParam.Validate()
+	return nil
+}
+
+func (req *TenantListRequest) ToTenantListInput(ctx context.Context, tracer trace.Tracer) *models.TenantListInput {
+	return &models.TenantListInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		QueryCommonParam: req.QueryCommonParam,
 	}
 }

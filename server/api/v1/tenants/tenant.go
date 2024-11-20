@@ -2,14 +2,15 @@ package tenants
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
-	"go-license-management/internal/server/v1/tenants/models"
 	"go-license-management/internal/server/v1/tenants/service"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/tenants"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -109,6 +110,7 @@ func (r *TenantRouter) create(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info(fmt.Sprintf("completed creating new tenant [%s]", utils.DerefPointer(req.Name)))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -121,9 +123,34 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 	resp := response.NewResponse(ctx)
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new tenant list request")
 
+	// serializer
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	var req tenants.TenantListRequest
+	err := ctx.ShouldBind(&req)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = req.Validate()
+	if err != nil {
+		r.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+	}
+	cSpan.End()
+
 	// handler
-	_, cSpan := r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.List(ctx, &models.TenantListInput{TracerCtx: rootCtx, Tracer: r.tracer})
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.List(ctx, req.ToTenantListInput(rootCtx, r.tracer))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -133,6 +160,7 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieving tenants info")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -177,11 +205,17 @@ func (r *TenantRouter) retrieve(ctx *gin.Context) {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-		ctx.JSON(http.StatusInternalServerError, resp)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
 		return
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieving tenants info")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -231,6 +265,7 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info(fmt.Sprintf("completed deleting tenant [%s]", utils.DerefPointer(req.TenantName)))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
 	return

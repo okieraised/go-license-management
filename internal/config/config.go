@@ -16,7 +16,13 @@ const (
 
 const (
 	PostgresHost     = "postgres.host"
+	PostgresPort     = "postgres.port"
 	PostgresUsername = "postgres.username"
 	PostgresPassword = "postgres.password"
 	PostgresDatabase = "postgres.database"
+	PostgresCasbin   = "postgres.casbin"
+)
+
+const (
+	AccessTokenTTL = "access_token.ttl"
 )

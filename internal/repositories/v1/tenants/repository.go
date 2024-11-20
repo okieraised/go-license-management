@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models"
 )
 
@@ -18,7 +20,7 @@ func NewTenantRepository(ds *models.DataSource) *TenantRepository {
 	}
 }
 
-func (repo *TenantRepository) SelectTenants(ctx context.Context) ([]entities.Tenant, int, error) {
+func (repo *TenantRepository) SelectTenants(ctx context.Context, queryParam constants.QueryCommonParam) ([]entities.Tenant, int, error) {
 	var count = 0
 
 	if repo.database == nil {
@@ -26,7 +28,11 @@ func (repo *TenantRepository) SelectTenants(ctx context.Context) ([]entities.Ten
 	}
 
 	tenant := make([]entities.Tenant, 0)
-	count, err := repo.database.NewSelect().Model(new(entities.Tenant)).Order("created_at DESC").ScanAndCount(ctx, &tenant)
+	count, err := repo.database.NewSelect().Model(new(entities.Tenant)).
+		Order("created_at DESC").
+		Limit(utils.DerefPointer(queryParam.Limit)).
+		Offset(utils.DerefPointer(queryParam.Offset)).
+		ScanAndCount(ctx, &tenant)
 	if err != nil {
 		return tenant, count, err
 	}

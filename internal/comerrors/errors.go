@@ -27,6 +27,8 @@ var (
 	ErrAccountRoleIsEmpty          = errors.New("account role is empty")
 	ErrAccountRoleIsInvalid        = errors.New("account role is invalid")
 	ErrAccountUsernameAlreadyExist = errors.New("account username already exists")
+	ErrAccountActionIsEmpty        = errors.New("account action is empty")
+	ErrAccountActionIsInvalid      = errors.New("account action is invalid")
 )
 
 var (
@@ -98,6 +100,8 @@ var ErrCodeMapper = map[error]string{
 	ErrAccountRoleIsInvalid:                    "43003",
 	ErrAccountPasswordIsEmpty:                  "43004",
 	ErrAccountUsernameAlreadyExist:             "43005",
+	ErrAccountActionIsEmpty:                    "43006",
+	ErrAccountActionIsInvalid:                  "43007",
 	ErrProductNameIsEmpty:                      "44000",
 	ErrProductCodeIsEmpty:                      "44001",
 	ErrProductDistributionStrategyIsInvalid:    "44002",
@@ -154,6 +158,8 @@ var ErrMessageMapper = map[error]string{
 	ErrAccountRoleIsInvalid:                    ErrAccountRoleIsInvalid.Error(),
 	ErrAccountPasswordIsEmpty:                  ErrAccountPasswordIsEmpty.Error(),
 	ErrAccountUsernameAlreadyExist:             ErrAccountUsernameAlreadyExist.Error(),
+	ErrAccountActionIsEmpty:                    ErrAccountActionIsEmpty.Error(),
+	ErrAccountActionIsInvalid:                  ErrAccountActionIsInvalid.Error(),
 	ErrProductNameIsEmpty:                      ErrProductNameIsEmpty.Error(),
 	ErrProductCodeIsEmpty:                      ErrProductCodeIsEmpty.Error(),
 	ErrProductDistributionStrategyIsInvalid:    ErrProductDistributionStrategyIsInvalid.Error(),

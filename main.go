@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	xormadapter "github.com/casbin/xorm-adapter/v3"
 	"github.com/spf13/viper"
 	"go-license-management/internal/config"
 	"go-license-management/internal/infrastructure/database/postgres"
@@ -66,6 +67,7 @@ func newDataSource() (*models.DataSource, error) {
 	// database
 	dbClient, err := postgres.NewPostgresClient(
 		viper.GetString(config.PostgresHost),
+		viper.GetString(config.PostgresPort),
 		viper.GetString(config.PostgresDatabase),
 		viper.GetString(config.PostgresUsername),
 		viper.GetString(config.PostgresPassword),
@@ -75,6 +77,21 @@ func newDataSource() (*models.DataSource, error) {
 	}
 
 	dataSource.SetDatabase(dbClient)
+
+	// casbin adapter
+	casbinAdapter, err := xormadapter.NewAdapter(
+		"postgres",
+		fmt.Sprintf("dbname=rbac_rules  user=%s password=%s host=%s port=%s sslmode=disable",
+			viper.GetString(config.PostgresUsername),
+			viper.GetString(config.PostgresPassword),
+			viper.GetString(config.PostgresHost),
+			viper.GetString(config.PostgresPort),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+	dataSource.SetCasbin(casbinAdapter)
 
 	return dataSource, nil
 }
@@ -92,7 +109,10 @@ func NewAppService(ds *models.DataSource) *models.AppService {
 	v1.SetAuth(authSvc.NewAuthenticationService(authSvc.WithRepository(authRepo.NewAuthenticationRepository(ds))))
 
 	// account
-	v1.SetAccount(accountSvc.NewAccountService(accountSvc.WithRepository(accountRepo.NewAccountRepository(ds))))
+	v1.SetAccount(accountSvc.NewAccountService(
+		accountSvc.WithRepository(accountRepo.NewAccountRepository(ds)),
+		accountSvc.WithCasbinAdapter(ds.GetCasbin())),
+	)
 
 	// product
 	v1.SetProduct(productSvc.NewProductService(productSvc.WithRepository(productRepo.NewProductRepository(ds))))

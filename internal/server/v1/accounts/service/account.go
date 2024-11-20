@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	xormadapter "github.com/casbin/xorm-adapter/v3"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -19,6 +20,7 @@ import (
 
 type AccountService struct {
 	repo   repository.IAccount
+	casbin *xormadapter.Adapter
 	logger *logging.Logger
 }
 
@@ -37,6 +39,12 @@ func NewAccountService(options ...func(*AccountService)) *AccountService {
 func WithRepository(repo repository.IAccount) func(*AccountService) {
 	return func(c *AccountService) {
 		c.repo = repo
+	}
+}
+
+func WithCasbinAdapter(casbinAdapter *xormadapter.Adapter) func(*AccountService) {
+	return func(c *AccountService) {
+		c.casbin = casbinAdapter
 	}
 }
 
@@ -98,7 +106,6 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 
 	// Insert new account
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-account")
-
 	now := time.Now()
 	account := &entities.Account{
 		Username:       utils.DerefPointer(input.Username),
@@ -115,6 +122,18 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	}
 
 	err = svc.repo.InsertNewAccount(ctx, account)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	// Insert account to casbin
+	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-account-casbin")
+	err = svc.casbin.AddPolicy("g", "g", []string{utils.DerefPointer(input.TenantName), utils.DerefPointer(input.Username), utils.DerefPointer(input.Role)})
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -155,7 +174,7 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-accounts")
-	accounts, count, err := svc.repo.SelectAccountsByTenant(ctx, tenant.Name)
+	accounts, count, err := svc.repo.SelectAccountsByTenant(ctx, tenant.Name, input.QueryCommonParam)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -272,6 +291,18 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-account")
 	err = svc.repo.DeleteAccountByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "delete-account-casbin")
+
+	err = svc.casbin.RemovePolicy("g", "g", []string{utils.DerefPointer(input.TenantName), utils.DerefPointer(input.Username)})
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

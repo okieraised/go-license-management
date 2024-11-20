@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
@@ -119,7 +121,7 @@ func (svc *TenantService) List(ctx *gin.Context, input *models.TenantListInput) 
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant")
-	tenants, count, err := svc.repo.SelectTenants(ctx)
+	tenants, count, err := svc.repo.SelectTenants(ctx, input.QueryCommonParam)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -161,6 +163,11 @@ func (svc *TenantService) Retrieve(ctx *gin.Context, input *models.TenantRetriev
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		}
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 		return resp, comerrors.ErrGenericInternalServer

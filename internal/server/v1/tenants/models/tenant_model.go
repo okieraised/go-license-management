@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"go-license-management/internal/constants"
 	"go.opentelemetry.io/otel/trace"
 	"time"
 )
@@ -21,6 +22,7 @@ type TenantRegistrationOutput struct {
 type TenantListInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
+	constants.QueryCommonParam
 }
 
 type TenantRetrievalInput struct {

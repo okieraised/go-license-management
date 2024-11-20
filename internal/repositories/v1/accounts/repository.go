@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models"
 )
 
@@ -33,14 +35,19 @@ func (repo *AccountRepository) SelectTenantByPK(ctx context.Context, tenantName 
 	return tenant, nil
 }
 
-func (repo *AccountRepository) SelectAccountsByTenant(ctx context.Context, tenantName string) ([]entities.Account, int, error) {
+func (repo *AccountRepository) SelectAccountsByTenant(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Account, int, error) {
 	var count = 0
 	if repo.database == nil {
 		return nil, count, comerrors.ErrInvalidDatabaseClient
 	}
 
 	accounts := make([]entities.Account, 0)
-	count, err := repo.database.NewSelect().Model(new(entities.Account)).Where("tenant_name = ?", tenantName).Order("created_at DESC").ScanAndCount(ctx, &accounts)
+	count, err := repo.database.NewSelect().Model(new(entities.Account)).
+		Where("tenant_name = ?", tenantName).
+		Order("created_at DESC").
+		Limit(utils.DerefPointer(queryParam.Limit)).
+		Offset(utils.DerefPointer(queryParam.Offset)).
+		ScanAndCount(ctx, &accounts)
 	if err != nil {
 		return accounts, count, nil
 	}
@@ -54,7 +61,7 @@ func (repo *AccountRepository) SelectAccountByPK(ctx context.Context, tenantName
 	}
 
 	account := &entities.Account{Username: username, TenantName: tenantName}
-	_, err := repo.database.NewSelect().Model(account).WherePK().Exists(ctx)
+	err := repo.database.NewSelect().Model(account).WherePK().Scan(ctx)
 	if err != nil {
 		return account, err
 	}
