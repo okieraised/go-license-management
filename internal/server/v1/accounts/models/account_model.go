@@ -64,3 +64,9 @@ type AccountListInput struct {
 	account_attribute.AccountCommonURI
 	constants.QueryCommonParam
 }
+
+type AccountActionInput struct {
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	account_attribute.AccountCommonURI
+}

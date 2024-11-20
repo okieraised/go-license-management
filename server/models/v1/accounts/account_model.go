@@ -150,3 +150,30 @@ func (req *AccountListRequest) ToAccountListInput(ctx context.Context, tracer tr
 		QueryCommonParam: req.QueryCommonParam,
 	}
 }
+
+type AccountActionRequest struct {
+	account_attribute.AccountCommonURI
+}
+
+func (req *AccountActionRequest) Validate() error {
+	if req.Username == nil {
+		return comerrors.ErrAccountUsernameIsEmpty
+	}
+
+	if req.Action == nil {
+		return comerrors.ErrAccountActionIsEmpty
+	} else {
+		if _, ok := constants.ValidAccountActionMapper[utils.DerefPointer(req.Action)]; !ok {
+			return comerrors.ErrAccountActionIsInvalid
+		}
+	}
+	return req.AccountCommonURI.Validate()
+}
+
+func (req *AccountActionRequest) ToAccountActionInput(ctx context.Context, tracer trace.Tracer) *models.AccountActionInput {
+	return &models.AccountActionInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		AccountCommonURI: req.AccountCommonURI,
+	}
+}
