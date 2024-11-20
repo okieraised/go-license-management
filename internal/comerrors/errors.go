@@ -29,6 +29,7 @@ var (
 	ErrAccountUsernameAlreadyExist = errors.New("account username already exists")
 	ErrAccountActionIsEmpty        = errors.New("account action is empty")
 	ErrAccountActionIsInvalid      = errors.New("account action is invalid")
+	ErrAccountUsernameIsInvalid    = errors.New("account username is invalid")
 )
 
 var (
@@ -102,6 +103,7 @@ var ErrCodeMapper = map[error]string{
 	ErrAccountUsernameAlreadyExist:             "43005",
 	ErrAccountActionIsEmpty:                    "43006",
 	ErrAccountActionIsInvalid:                  "43007",
+	ErrAccountUsernameIsInvalid:                "43008",
 	ErrProductNameIsEmpty:                      "44000",
 	ErrProductCodeIsEmpty:                      "44001",
 	ErrProductDistributionStrategyIsInvalid:    "44002",
@@ -160,6 +162,7 @@ var ErrMessageMapper = map[error]string{
 	ErrAccountUsernameAlreadyExist:             ErrAccountUsernameAlreadyExist.Error(),
 	ErrAccountActionIsEmpty:                    ErrAccountActionIsEmpty.Error(),
 	ErrAccountActionIsInvalid:                  ErrAccountActionIsInvalid.Error(),
+	ErrAccountUsernameIsInvalid:                ErrAccountUsernameIsInvalid.Error(),
 	ErrProductNameIsEmpty:                      ErrProductNameIsEmpty.Error(),
 	ErrProductCodeIsEmpty:                      ErrProductCodeIsEmpty.Error(),
 	ErrProductDistributionStrategyIsInvalid:    ErrProductDistributionStrategyIsInvalid.Error(),

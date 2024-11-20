@@ -349,9 +349,17 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsInvalid]
+			return resp, comerrors.ErrAccountUsernameIsInvalid
+		default:
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+
 	}
 	cSpan.End()
 
@@ -387,7 +395,20 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 	}
 
 	if input.Role != nil {
-		account.RoleName = utils.DerefPointer(input.Role)
+		if account.RoleName != utils.DerefPointer(input.Role) {
+			err = svc.casbin.UpdatePolicy(
+				"g",
+				"g",
+				[]string{utils.DerefPointer(input.TenantName), utils.DerefPointer(input.Username), account.RoleName},
+				[]string{utils.DerefPointer(input.TenantName), utils.DerefPointer(input.Username), utils.DerefPointer(input.Role)},
+			)
+			if err != nil {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+			account.RoleName = utils.DerefPointer(input.Role)
+		}
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "update-account")

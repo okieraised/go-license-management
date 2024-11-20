@@ -182,26 +182,22 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts deletion request")
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts update request")
 
 	// serializer
-	tenantName := ctx.Param("tenant_name")
-	if tenantName == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
-	}
-
-	username := ctx.Param("account_name")
-	if username == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
-	}
-
-	var req accounts.AccountUpdateRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.ShouldBindUri(&req)
+	var uriReq account_attribute.AccountCommonURI
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var bodyReq accounts.AccountUpdateRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -213,7 +209,17 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = uriReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -225,18 +231,23 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Update(ctx, req.ToAccountUpdateInput(rootCtx, r.tracer, tenantName, username))
+	result, err := r.svc.Update(ctx, bodyReq.ToAccountUpdateInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-		ctx.JSON(http.StatusInternalServerError, resp)
+		switch {
+		case errors.Is(err, comerrors.ErrAccountUsernameIsInvalid), errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
 		return
 	}
 	cSpan.End()
 
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-	ctx.JSON(http.StatusNoContent, resp)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // delete permanently deletes an account. It cannot be undone.

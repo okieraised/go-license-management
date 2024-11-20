@@ -111,9 +111,7 @@ type AccountUpdateRequest struct {
 }
 
 func (req *AccountUpdateRequest) Validate() error {
-	if req.Role == nil {
-		req.Role = utils.RefPointer(constants.RoleUser)
-	} else {
+	if req.Role != nil {
 		if _, ok := constants.ValidRoleMapper[utils.DerefPointer(req.Role)]; !ok {
 			return comerrors.ErrAccountRoleIsInvalid
 		}
@@ -121,18 +119,17 @@ func (req *AccountUpdateRequest) Validate() error {
 	return nil
 }
 
-func (req *AccountUpdateRequest) ToAccountUpdateInput(ctx context.Context, tracer trace.Tracer, tenantName, username string) *models.AccountUpdateInput {
+func (req *AccountUpdateRequest) ToAccountUpdateInput(ctx context.Context, tracer trace.Tracer, accountURI account_attribute.AccountCommonURI) *models.AccountUpdateInput {
 	return &models.AccountUpdateInput{
-		TracerCtx:  ctx,
-		Tracer:     tracer,
-		TenantName: utils.RefPointer(tenantName),
-		Username:   utils.RefPointer(username),
-		Password:   req.Password,
-		FirstName:  req.FirstName,
-		LastName:   req.LastName,
-		Email:      req.Email,
-		Role:       req.Role,
-		Metadata:   req.Metadata,
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		AccountCommonURI: accountURI,
+		Password:         req.Password,
+		FirstName:        req.FirstName,
+		LastName:         req.LastName,
+		Email:            req.Email,
+		Role:             req.Role,
+		Metadata:         req.Metadata,
 	}
 }
 
