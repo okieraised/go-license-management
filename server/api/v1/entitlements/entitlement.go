@@ -117,6 +117,7 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed creating new entitlement")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -162,11 +163,17 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-		ctx.JSON(http.StatusInternalServerError, resp)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid), errors.Is(err, comerrors.ErrEntitlementIDIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
 		return
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieving entitlement info")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -217,6 +224,7 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed deleting entitlement")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
 }
@@ -278,6 +286,7 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed listing entitlements")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return

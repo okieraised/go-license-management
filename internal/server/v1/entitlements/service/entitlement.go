@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
@@ -48,6 +49,7 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -65,6 +67,7 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-entitlement-by-code")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying entitlement code [%s]", utils.DerefPointer(input.Code)))
 	exists, err := svc.repo.CheckEntitlementExistByCode(ctx, utils.DerefPointer(input.Code))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -105,8 +108,14 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
-	resp.Data = map[string]interface{}{
-		"entitlement_id": entitlementID.String(),
+	resp.Data = models.EntitlementRetrievalOutput{
+		ID:         entitlementID,
+		TenantName: tenant.Name,
+		Name:       entitlement.Name,
+		Code:       entitlement.Code,
+		Metadata:   entitlement.Metadata,
+		CreatedAt:  entitlement.CreatedAt,
+		UpdatedAt:  entitlement.UpdatedAt,
 	}
 	return resp, nil
 }
@@ -119,6 +128,7 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -136,7 +146,7 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-entitlements")
-	accounts, count, err := svc.repo.SelectEntitlementsByTenant(ctx, tenant.Name, utils.DerefPointer(input.Limit), utils.DerefPointer(input.Offset))
+	entitlements, count, err := svc.repo.SelectEntitlementsByTenant(ctx, tenant.Name, input.QueryCommonParam)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -148,15 +158,15 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 
 	_, cSpan = input.Tracer.Start(rootCtx, "convert-entitlements-to-output")
 	respData := make([]models.EntitlementRetrievalOutput, 0)
-	for _, entitlement := range accounts {
+	for _, entitlement := range entitlements {
 		respData = append(respData, models.EntitlementRetrievalOutput{
-			ID:        entitlement.ID,
-			TenantID:  entitlement.ID,
-			Name:      entitlement.Name,
-			Code:      entitlement.Code,
-			Metadata:  entitlement.Metadata,
-			CreatedAt: entitlement.CreatedAt,
-			UpdatedAt: entitlement.UpdatedAt,
+			ID:         entitlement.ID,
+			TenantName: tenant.Name,
+			Name:       entitlement.Name,
+			Code:       entitlement.Code,
+			Metadata:   entitlement.Metadata,
+			CreatedAt:  entitlement.CreatedAt,
+			UpdatedAt:  entitlement.UpdatedAt,
 		})
 	}
 	cSpan.End()
@@ -177,7 +187,8 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	_, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -194,24 +205,31 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "select-entitlement")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying entitlement [%s]", utils.DerefPointer(input.EntitlementID)))
 	entitlement, err := svc.repo.SelectEntitlementByPK(ctx, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrEntitlementIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrEntitlementIDIsInvalid]
+			return resp, comerrors.ErrEntitlementIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
 	}
 	cSpan.End()
 
 	respData := &models.EntitlementRetrievalOutput{
-		ID:        entitlement.ID,
-		TenantID:  entitlement.ID,
-		Name:      entitlement.Name,
-		Code:      entitlement.Code,
-		Metadata:  entitlement.Metadata,
-		CreatedAt: entitlement.CreatedAt,
-		UpdatedAt: entitlement.UpdatedAt,
+		ID:         entitlement.ID,
+		TenantName: tenant.Name,
+		Name:       entitlement.Name,
+		Code:       entitlement.Code,
+		Metadata:   entitlement.Metadata,
+		CreatedAt:  entitlement.CreatedAt,
+		UpdatedAt:  entitlement.UpdatedAt,
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
@@ -229,6 +247,7 @@ func (svc *EntitlementService) Delete(ctx *gin.Context, input *models.Entitlemen
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	_, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -246,6 +265,7 @@ func (svc *EntitlementService) Delete(ctx *gin.Context, input *models.Entitlemen
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-entitlement")
+	svc.logger.GetLogger().Info(fmt.Sprintf("deleting entitlement [%s]", utils.DerefPointer(input.EntitlementID)))
 	err = svc.repo.DeleteEntitlementByPK(ctx, uuid.MustParse(utils.DerefPointer(input.EntitlementID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())

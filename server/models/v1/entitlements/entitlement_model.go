@@ -2,7 +2,6 @@ package entitlements
 
 import (
 	"context"
-	"errors"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/entitlement_attribute"
@@ -18,11 +17,11 @@ type EntitlementRegistrationRequest struct {
 
 func (req *EntitlementRegistrationRequest) Validate() error {
 	if req.Name == nil {
-		return errors.New("entitlement name is empty")
+		return comerrors.ErrEntitlementNameIsEmpty
 	}
 
 	if req.Code == nil {
-		return errors.New("entitlement code is empty")
+		return comerrors.ErrEntitlementCodeIsEmpty
 	}
 
 	return nil

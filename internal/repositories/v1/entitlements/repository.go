@@ -5,7 +5,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models"
 )
 
@@ -89,14 +91,19 @@ func (repo *EntitlementRepository) DeleteEntitlementByPK(ctx context.Context, en
 	return nil
 }
 
-func (repo *EntitlementRepository) SelectEntitlementsByTenant(ctx context.Context, tenantName string, limit, offset int) ([]entities.Entitlement, int, error) {
+func (repo *EntitlementRepository) SelectEntitlementsByTenant(ctx context.Context, tenantName string, param constants.QueryCommonParam) ([]entities.Entitlement, int, error) {
 	var total = 0
 	if repo.database == nil {
 		return nil, total, comerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlements := make([]entities.Entitlement, 0)
-	total, err := repo.database.NewSelect().Model(new(entities.Entitlement)).Where("tenant_name = ?", tenantName).Limit(limit).Offset(offset).Order("created_at DESC").ScanAndCount(ctx, &entitlements)
+	total, err := repo.database.NewSelect().Model(new(entities.Entitlement)).
+		Where("tenant_name = ?", tenantName).
+		Limit(utils.DerefPointer(param.Limit)).
+		Offset(utils.DerefPointer(param.Offset)).
+		Order("created_at DESC").
+		ScanAndCount(ctx, &entitlements)
 	if err != nil {
 		return entitlements, total, comerrors.ErrInvalidDatabaseClient
 	}

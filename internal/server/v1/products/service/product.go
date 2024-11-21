@@ -228,9 +228,9 @@ func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
+			return resp, comerrors.ErrProductIDIsInvalid
 		} else {
 			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
