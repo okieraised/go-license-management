@@ -417,7 +417,110 @@ func (svc *PolicyService) Delete(ctx *gin.Context, input *models.PolicyDeletionI
 }
 
 func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "update-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	// Check if tenant exists
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	// Query policy
+	_, cSpan = input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying policy [%s]", utils.DerefPointer(input.PolicyID)))
+	policy, err := svc.repo.SelectPolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
+			return resp, comerrors.ErrPolicyIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	// Update fields
+	policy, err = svc.updatePolicyField(ctx, input, policy)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+
+	// Update existing policy
+	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-policy")
+	svc.logger.GetLogger().Info("updating policy to database")
+	policy.UpdatedAt = time.Now()
+	err = svc.repo.UpdatePolicyByPK(ctx, policy)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	respData := models.PolicyRetrievalOutput{
+		ID:         policy.ID.String(),
+		TenantName: policy.TenantName,
+		PublicKey:  policy.PublicKey,
+		CreatedAt:  policy.CreatedAt,
+		UpdatedAt:  policy.UpdatedAt,
+		PolicyAttributeModel: policy_attribute.PolicyAttributeModel{
+			Name:                   utils.RefPointer(policy.Name),
+			Scheme:                 utils.RefPointer(policy.Scheme),
+			Strict:                 utils.RefPointer(policy.Strict),
+			RateLimited:            utils.RefPointer(policy.RateLimited),
+			Floating:               utils.RefPointer(policy.Floating),
+			UsePool:                utils.RefPointer(policy.UsePool),
+			Encrypted:              utils.RefPointer(policy.Encrypted),
+			Protected:              utils.RefPointer(policy.Protected),
+			RequireCheckIn:         utils.RefPointer(policy.RequireCheckIn),
+			RequireHeartbeat:       utils.RefPointer(policy.RequireHeartbeat),
+			MaxMachines:            utils.RefPointer(policy.MaxMachines),
+			MaxUsers:               utils.RefPointer(policy.MaxUsers),
+			MaxUses:                utils.RefPointer(policy.MaxUses),
+			HeartbeatDuration:      utils.RefPointer(policy.HeartbeatDuration),
+			Duration:               utils.RefPointer(policy.Duration),
+			CheckInInterval:        utils.RefPointer(policy.CheckInInterval),
+			HeartbeatBasis:         utils.RefPointer(policy.HeartbeatBasis),
+			ExpirationStrategy:     utils.RefPointer(policy.ExpirationStrategy),
+			ExpirationBasis:        utils.RefPointer(policy.ExpirationBasis),
+			RenewalBasis:           utils.RefPointer(policy.RenewalBasis),
+			AuthenticationStrategy: utils.RefPointer(policy.AuthenticationStrategy),
+			OverageStrategy:        utils.RefPointer(policy.OverageStrategy),
+			Metadata:               policy.Metadata,
+		},
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = respData
+	return resp, nil
 }
 
 func (svc *PolicyService) Attach(ctx *gin.Context) (*response.BaseOutput, error) {

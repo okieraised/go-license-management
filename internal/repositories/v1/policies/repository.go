@@ -9,6 +9,7 @@ import (
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
 	"go-license-management/server/models"
+	"time"
 )
 
 type PolicyRepository struct {
@@ -87,6 +88,19 @@ func (repo *PolicyRepository) InsertNewPolicy(ctx context.Context, policy *entit
 	}
 
 	_, err := repo.database.NewInsert().Model(policy).Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *PolicyRepository) UpdatePolicyByPK(ctx context.Context, policy *entities.Policy) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	policy.UpdatedAt = time.Now()
+	_, err := repo.database.NewUpdate().Model(policy).WherePK().Exec(ctx)
 	if err != nil {
 		return err
 	}

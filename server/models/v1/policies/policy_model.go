@@ -37,6 +37,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	if req.Floating == nil {
 		req.Floating = utils.RefPointer(false)
 	}
+
 	if req.Scheme == nil {
 		req.Scheme = utils.RefPointer(constants.PolicySchemeED25519)
 	} else {
@@ -119,9 +120,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	}
 	if req.Encrypted == nil {
 		req.Encrypted = utils.RefPointer(false)
-	}
-	if req == nil {
-		req.Protected = utils.RefPointer(false)
 	}
 
 	if req.Duration == nil {
@@ -215,6 +213,54 @@ func (req *PolicyUpdateRequest) Validate() error {
 	if req.MaxUsers != nil {
 		if utils.DerefPointer(req.MaxUsers) < 0 {
 			return comerrors.ErrPolicyMaxUsersIsLessThanZero
+		}
+	}
+
+	if req.Scheme != nil {
+		if _, ok := constants.ValidPolicySchemeMapper[utils.DerefPointer(req.Scheme)]; !ok {
+			return comerrors.ErrPolicySchemeIsInvalid
+		}
+	}
+
+	if req.ExpirationStrategy != nil {
+		if _, ok := constants.ValidPolicyExpirationStrategyMapper[utils.DerefPointer(req.ExpirationStrategy)]; !ok {
+			return comerrors.ErrPolicyInvalidExpirationStrategy
+		}
+	}
+
+	if req.AuthenticationStrategy != nil {
+		if _, ok := constants.ValidPolicyAuthenticationStrategyMap[utils.DerefPointer(req.AuthenticationStrategy)]; !ok {
+			return comerrors.ErrPolicyInvalidAuthenticationStrategy
+		}
+	}
+
+	if req.ExpirationBasis != nil {
+		if _, ok := constants.ValidPolicyExpirationBasisMapper[utils.DerefPointer(req.ExpirationBasis)]; !ok {
+			return comerrors.ErrPolicyInvalidExpirationBasis
+		}
+	}
+
+	if req.OverageStrategy != nil {
+		if _, ok := constants.ValidPolicyOverageStrategyMapper[utils.DerefPointer(req.OverageStrategy)]; !ok {
+			return comerrors.ErrPolicyInvalidOverageStrategy
+		}
+	}
+
+	if req.RenewalBasis != nil {
+		if _, ok := constants.ValidPolicyRenewalBasisMapper[utils.DerefPointer(req.RenewalBasis)]; !ok {
+			return comerrors.ErrPolicyInvalidRenewalBasis
+		}
+	}
+
+	if req.HeartbeatBasis != nil {
+		if _, ok := constants.ValidPolicyHeartbeatBasisMapper[utils.DerefPointer(req.HeartbeatBasis)]; !ok {
+			return comerrors.ErrPolicyInvalidHeartbeatBasis
+		}
+	}
+
+	if req.CheckInInterval != nil {
+		if _, ok := constants.ValidPolicyCheckinIntervalMapper[utils.DerefPointer(req.CheckInInterval)]; !ok {
+			return comerrors.ErrPolicyInvalidCheckinInterval
 		}
 	}
 
