@@ -74,7 +74,7 @@ const (
 	PolicyExpirationBasisFromFirstUse = "from_first_use"
 )
 
-var ValidPolicyExpirationBasisFromCreation = map[string]bool{
+var ValidPolicyExpirationBasisMapper = map[string]bool{
 	PolicyExpirationBasisFromCreation:        true,
 	PolicyExpirationBasisFromFirstActivation: true,
 	PolicyExpirationBasisFromFirstValidation: true,
@@ -91,7 +91,7 @@ const (
 	PolicyRenewalFromNowIfExpired = "from_now_if_expired"
 )
 
-var ValidPolicyRenewalBasisFromExpiry = map[string]bool{
+var ValidPolicyRenewalBasisMapper = map[string]bool{
 	PolicyRenewalBasisFromExpiry:  true,
 	PolicyRenewalFromNow:          true,
 	PolicyRenewalFromNowIfExpired: true,
@@ -138,7 +138,7 @@ const (
 	PolicyOverageStrategyAlwaysAllow = "always_allow"
 )
 
-var ValidPolicyOverageStrategyMap = map[string]bool{
+var ValidPolicyOverageStrategyMapper = map[string]bool{
 	PolicyOverageStrategyNoOverage:   true,
 	PolicyOverageStrategyAlwaysAllow: true,
 }

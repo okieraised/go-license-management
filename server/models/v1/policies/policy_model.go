@@ -44,26 +44,61 @@ func (req *PolicyRegistrationRequest) Validate() error {
 			return comerrors.ErrPolicySchemeIsInvalid
 		}
 	}
+
 	if req.ExpirationStrategy == nil {
 		req.ExpirationStrategy = utils.RefPointer(constants.PolicyExpirationStrategyRevokeAccess)
+	} else {
+		if _, ok := constants.ValidPolicyExpirationStrategyMapper[utils.DerefPointer(req.ExpirationStrategy)]; !ok {
+
+		}
 	}
+
 	if req.AuthenticationStrategy == nil {
 		req.AuthenticationStrategy = utils.RefPointer(constants.PolicyAuthenticationStrategyLicense)
+	} else {
+		if _, ok := constants.ValidPolicyAuthenticationStrategyMap[utils.DerefPointer(req.AuthenticationStrategy)]; !ok {
+
+		}
 	}
+
 	if req.ExpirationBasis == nil {
 		req.ExpirationBasis = utils.RefPointer(constants.PolicyExpirationBasisFromCreation)
+	} else {
+		if _, ok := constants.ValidPolicyExpirationBasisMapper[utils.DerefPointer(req.ExpirationBasis)]; !ok {
+
+		}
 	}
+
 	if req.OverageStrategy == nil {
 		req.OverageStrategy = utils.RefPointer(constants.PolicyOverageStrategyNoOverage)
+	} else {
+		if _, ok := constants.ValidPolicyOverageStrategyMapper[utils.DerefPointer(req.OverageStrategy)]; !ok {
+
+		}
 	}
+
 	if req.RenewalBasis == nil {
 		req.RenewalBasis = utils.RefPointer(constants.PolicyRenewalBasisFromExpiry)
+	} else {
+		if _, ok := constants.ValidPolicyRenewalBasisMapper[utils.DerefPointer(req.RenewalBasis)]; !ok {
+
+		}
 	}
+
 	if req.HeartbeatBasis == nil {
 		req.HeartbeatBasis = utils.RefPointer(constants.PolicyHeartbeatBasisFromCreation)
+	} else {
+		if _, ok := constants.ValidPolicyHeartbeatBasisMapper[utils.DerefPointer(req.HeartbeatBasis)]; !ok {
+
+		}
 	}
+
 	if req.CheckInInterval == nil {
 		req.CheckInInterval = utils.RefPointer(constants.PolicyCheckinIntervalDaily)
+	} else {
+		if _, ok := constants.ValidPolicyCheckinIntervalMapper[utils.DerefPointer(req.CheckInInterval)]; !ok {
+
+		}
 	}
 
 	// Optional

@@ -61,6 +61,13 @@ var (
 	ErrPolicyMaxUsesIsLessThanZero           = errors.New("policy max uses is less than zero")
 	ErrPolicyMaxUsersIsLessThanZero          = errors.New("policy max users is less than zero")
 	ErrPolicyHeartbeatDurationIsLessThanZero = errors.New("policy heartbeat duration is less than zero")
+	ErrPolicyInvalidExpirationStrategy       = errors.New("policy expiration strategy is invalid")
+	ErrPolicyInvalidAuthenticationStrategy   = errors.New("policy authentication strategy is invalid")
+	ErrPolicyInvalidExpirationBasis          = errors.New("policy expiration basis is invalid")
+	ErrPolicyInvalidOverageStrategy          = errors.New("policy overage strategy is invalid")
+	ErrPolicyInvalidRenewalBasis             = errors.New("policy renewal basis is invalid")
+	ErrPolicyInvalidHeartbeatBasis           = errors.New("policy heartbeat basis is invalid")
+	ErrPolicyInvalidCheckinIntervalBasis     = errors.New("policy checkin interval basis is invalid")
 )
 
 var (
@@ -131,6 +138,13 @@ var ErrCodeMapper = map[error]string{
 	ErrPolicyMaxUsesIsLessThanZero:             "46006",
 	ErrPolicyMaxUsersIsLessThanZero:            "46007",
 	ErrPolicyHeartbeatDurationIsLessThanZero:   "46008",
+	ErrPolicyInvalidExpirationStrategy:         "46009",
+	ErrPolicyInvalidAuthenticationStrategy:     "46010",
+	ErrPolicyInvalidExpirationBasis:            "46011",
+	ErrPolicyInvalidOverageStrategy:            "46012",
+	ErrPolicyInvalidRenewalBasis:               "46013",
+	ErrPolicyInvalidHeartbeatBasis:             "46014",
+	ErrPolicyInvalidCheckinIntervalBasis:       "46015",
 	ErrLicenseNameIsEmpty:                      "47001",
 	ErrLicenseProductIDIsEmpty:                 "47002",
 	ErrLicensePolicyIDIsEmpty:                  "47003",
@@ -195,6 +209,13 @@ var ErrMessageMapper = map[error]string{
 	ErrPolicyMaxUsesIsLessThanZero:             ErrPolicyMaxUsesIsLessThanZero.Error(),
 	ErrPolicyMaxUsersIsLessThanZero:            ErrPolicyMaxUsersIsLessThanZero.Error(),
 	ErrPolicyHeartbeatDurationIsLessThanZero:   ErrPolicyHeartbeatDurationIsLessThanZero.Error(),
+	ErrPolicyInvalidExpirationStrategy:         ErrPolicyInvalidExpirationStrategy.Error(),
+	ErrPolicyInvalidAuthenticationStrategy:     ErrPolicyInvalidAuthenticationStrategy.Error(),
+	ErrPolicyInvalidExpirationBasis:            ErrPolicyInvalidExpirationBasis.Error(),
+	ErrPolicyInvalidOverageStrategy:            ErrPolicyInvalidOverageStrategy.Error(),
+	ErrPolicyInvalidRenewalBasis:               ErrPolicyInvalidRenewalBasis.Error(),
+	ErrPolicyInvalidHeartbeatBasis:             ErrPolicyInvalidHeartbeatBasis.Error(),
+	ErrPolicyInvalidCheckinIntervalBasis:       ErrPolicyInvalidCheckinIntervalBasis.Error(),
 	ErrLicenseNameIsEmpty:                      ErrLicenseNameIsEmpty.Error(),
 	ErrLicenseProductIDIsEmpty:                 ErrLicenseProductIDIsEmpty.Error(),
 	ErrLicensePolicyIDIsEmpty:                  ErrLicensePolicyIDIsEmpty.Error(),
