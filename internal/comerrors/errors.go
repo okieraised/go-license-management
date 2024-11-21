@@ -52,10 +52,15 @@ var (
 )
 
 var (
-	ErrPolicyNameIsEmpty     = errors.New("policy name is empty")
-	ErrPolicySchemeIsInvalid = errors.New("policy scheme is invalid")
-	ErrPolicyIDIsEmpty       = errors.New("policy id is empty")
-	ErrPolicyIDIsInvalid     = errors.New("policy id is invalid")
+	ErrPolicyNameIsEmpty                     = errors.New("policy name is empty")
+	ErrPolicySchemeIsInvalid                 = errors.New("policy scheme is invalid")
+	ErrPolicyIDIsEmpty                       = errors.New("policy id is empty")
+	ErrPolicyIDIsInvalid                     = errors.New("policy id is invalid")
+	ErrPolicyDurationIsLessThanZero          = errors.New("policy duration is less than zero")
+	ErrPolicyMaxMachinesIsLessThanZero       = errors.New("policy max machines is less than zero")
+	ErrPolicyMaxUsesIsLessThanZero           = errors.New("policy max uses is less than zero")
+	ErrPolicyMaxUsersIsLessThanZero          = errors.New("policy max users is less than zero")
+	ErrPolicyHeartbeatDurationIsLessThanZero = errors.New("policy heartbeat duration is less than zero")
 )
 
 var (
@@ -121,6 +126,11 @@ var ErrCodeMapper = map[error]string{
 	ErrPolicySchemeIsInvalid:                   "46001",
 	ErrPolicyIDIsEmpty:                         "46002",
 	ErrPolicyIDIsInvalid:                       "46003",
+	ErrPolicyDurationIsLessThanZero:            "46004",
+	ErrPolicyMaxMachinesIsLessThanZero:         "46005",
+	ErrPolicyMaxUsesIsLessThanZero:             "46006",
+	ErrPolicyMaxUsersIsLessThanZero:            "46007",
+	ErrPolicyHeartbeatDurationIsLessThanZero:   "46008",
 	ErrLicenseNameIsEmpty:                      "47001",
 	ErrLicenseProductIDIsEmpty:                 "47002",
 	ErrLicensePolicyIDIsEmpty:                  "47003",
@@ -180,6 +190,11 @@ var ErrMessageMapper = map[error]string{
 	ErrPolicySchemeIsInvalid:                   ErrPolicySchemeIsInvalid.Error(),
 	ErrPolicyIDIsEmpty:                         ErrPolicyIDIsEmpty.Error(),
 	ErrPolicyIDIsInvalid:                       ErrPolicyIDIsInvalid.Error(),
+	ErrPolicyDurationIsLessThanZero:            ErrPolicyDurationIsLessThanZero.Error(),
+	ErrPolicyMaxMachinesIsLessThanZero:         ErrPolicyMaxMachinesIsLessThanZero.Error(),
+	ErrPolicyMaxUsesIsLessThanZero:             ErrPolicyMaxUsesIsLessThanZero.Error(),
+	ErrPolicyMaxUsersIsLessThanZero:            ErrPolicyMaxUsersIsLessThanZero.Error(),
+	ErrPolicyHeartbeatDurationIsLessThanZero:   ErrPolicyHeartbeatDurationIsLessThanZero.Error(),
 	ErrLicenseNameIsEmpty:                      ErrLicenseNameIsEmpty.Error(),
 	ErrLicenseProductIDIsEmpty:                 ErrLicenseProductIDIsEmpty.Error(),
 	ErrLicensePolicyIDIsEmpty:                  ErrLicensePolicyIDIsEmpty.Error(),

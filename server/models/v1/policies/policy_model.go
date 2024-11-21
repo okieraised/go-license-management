@@ -88,20 +88,45 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	if req == nil {
 		req.Protected = utils.RefPointer(false)
 	}
+
 	if req.Duration == nil {
 		req.Duration = utils.RefPointer(int64(0))
+	} else {
+		if utils.DerefPointer(req.Duration) < 0 {
+			return comerrors.ErrPolicyDurationIsLessThanZero
+		}
 	}
+
 	if req.MaxMachines == nil {
 		req.MaxMachines = utils.RefPointer(0)
+	} else {
+		if utils.DerefPointer(req.MaxMachines) < 0 {
+			return comerrors.ErrPolicyMaxMachinesIsLessThanZero
+		}
 	}
+
 	if req.MaxUses == nil {
 		req.MaxUses = utils.RefPointer(0)
+	} else {
+		if utils.DerefPointer(req.MaxUses) < 0 {
+			return comerrors.ErrPolicyMaxUsesIsLessThanZero
+		}
 	}
+
 	if req.HeartbeatDuration == nil {
 		req.HeartbeatDuration = utils.RefPointer(0)
+	} else {
+		if utils.DerefPointer(req.HeartbeatDuration) < 0 {
+			return comerrors.ErrPolicyHeartbeatDurationIsLessThanZero
+		}
 	}
+
 	if req.MaxUsers == nil {
 		req.MaxUsers = utils.RefPointer(0)
+	} else {
+		if utils.DerefPointer(req.MaxUsers) < 0 {
+			return comerrors.ErrPolicyMaxUsersIsLessThanZero
+		}
 	}
 
 	return nil
@@ -122,7 +147,52 @@ type PolicyUpdateRequest struct {
 }
 
 func (req *PolicyUpdateRequest) Validate() error {
+	if req.Scheme != nil {
+		if _, ok := constants.ValidPolicySchemeMapper[utils.DerefPointer(req.Scheme)]; !ok {
+			return comerrors.ErrPolicySchemeIsInvalid
+		}
+	}
+
+	if req.Duration != nil {
+		if utils.DerefPointer(req.Duration) < 0 {
+			return comerrors.ErrPolicyDurationIsLessThanZero
+		}
+	}
+
+	if req.MaxMachines != nil {
+		if utils.DerefPointer(req.MaxMachines) < 0 {
+			return comerrors.ErrPolicyMaxMachinesIsLessThanZero
+		}
+	}
+
+	if req.MaxUses != nil {
+		if utils.DerefPointer(req.MaxUses) < 0 {
+			return comerrors.ErrPolicyMaxUsesIsLessThanZero
+		}
+	}
+
+	if req.HeartbeatDuration != nil {
+		if utils.DerefPointer(req.HeartbeatDuration) < 0 {
+			return comerrors.ErrPolicyHeartbeatDurationIsLessThanZero
+		}
+	}
+
+	if req.MaxUsers != nil {
+		if utils.DerefPointer(req.MaxUsers) < 0 {
+			return comerrors.ErrPolicyMaxUsersIsLessThanZero
+		}
+	}
+
 	return nil
+}
+
+func (req *PolicyUpdateRequest) ToPolicyUpdateInput(ctx context.Context, tracer trace.Tracer, policyURI policy_attribute.PolicyCommonURI) *models.PolicyUpdateInput {
+	return &models.PolicyUpdateInput{
+		TracerCtx:            ctx,
+		Tracer:               tracer,
+		PolicyCommonURI:      policyURI,
+		PolicyAttributeModel: req.PolicyAttributeModel,
+	}
 }
 
 type PolicyDeletionRequest struct {
@@ -195,6 +265,14 @@ func (req *PolicyAttachmentRequest) Validate() error {
 	return nil
 }
 
+func (req *PolicyAttachmentRequest) ToPolicyAttachmentInput(ctx context.Context, tracer trace.Tracer, policyURI policy_attribute.PolicyCommonURI) *models.PolicyAttachmentInput {
+	return &models.PolicyAttachmentInput{
+		TracerCtx:       ctx,
+		Tracer:          tracer,
+		PolicyCommonURI: policyURI,
+	}
+}
+
 type PolicyDetachmentRequest struct {
 	EntitlementID *string `json:"entitlement_id"`
 }
@@ -209,6 +287,14 @@ func (req *PolicyDetachmentRequest) Validate() error {
 	return nil
 }
 
+func (req *PolicyDetachmentRequest) ToPolicyDetachmentInput(ctx context.Context, tracer trace.Tracer, policyURI policy_attribute.PolicyCommonURI) *models.PolicyDetachmentInput {
+	return &models.PolicyDetachmentInput{
+		TracerCtx:       ctx,
+		Tracer:          tracer,
+		PolicyCommonURI: policyURI,
+	}
+}
+
 type PolicyEntitlementListRequest struct {
 	policy_attribute.PolicyCommonURI
 	constants.QueryCommonParam
@@ -221,4 +307,12 @@ func (req *PolicyEntitlementListRequest) Validate() error {
 		return comerrors.ErrPolicyIDIsEmpty
 	}
 	return req.PolicyCommonURI.Validate()
+}
+
+func (req *PolicyEntitlementListRequest) ToPolicyEntitlementListInput(ctx context.Context, tracer trace.Tracer) *models.PolicyEntitlementListInput {
+	return &models.PolicyEntitlementListInput{
+		TracerCtx:       ctx,
+		Tracer:          tracer,
+		PolicyCommonURI: req.PolicyCommonURI,
+	}
 }

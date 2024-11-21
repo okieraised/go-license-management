@@ -39,9 +39,10 @@ type PolicyRetrievalOutput struct {
 }
 
 type PolicyUpdateInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	policy_attribute.PolicyAttributeModel
+	policy_attribute.PolicyCommonURI
 }
 
 type PolicyDeletionInput struct {

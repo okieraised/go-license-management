@@ -38,6 +38,13 @@ const (
 	PolicyExpirationStrategyAllowAccess = "allow"
 )
 
+var ValidPolicyExpirationStrategyMapper = map[string]bool{
+	PolicyExpirationStrategyRestrictAccess: true,
+	PolicyExpirationStrategyRevokeAccess:   true,
+	PolicyExpirationStrategyMaintainAccess: true,
+	PolicyExpirationStrategyAllowAccess:    true,
+}
+
 const (
 	// PolicyCheckinIntervalDaily requires a license implementing the policy checkin at least once every day to remain valid.
 	PolicyCheckinIntervalDaily = "daily"
@@ -48,6 +55,13 @@ const (
 	// PolicyCheckinIntervalYearly requires a license implementing the policy to check-in at least once every year to remain valid.
 	PolicyCheckinIntervalYearly = "yearly"
 )
+
+var ValidPolicyCheckinIntervalMapper = map[string]bool{
+	PolicyCheckinIntervalDaily:   true,
+	PolicyCheckinIntervalWeekly:  true,
+	PolicyCheckinIntervalMonthly: true,
+	PolicyCheckinIntervalYearly:  true,
+}
 
 const (
 	// PolicyExpirationBasisFromCreation - License expirations are set immediately upon creation.
@@ -60,17 +74,28 @@ const (
 	PolicyExpirationBasisFromFirstUse = "from_first_use"
 )
 
+var ValidPolicyExpirationBasisFromCreation = map[string]bool{
+	PolicyExpirationBasisFromCreation:        true,
+	PolicyExpirationBasisFromFirstActivation: true,
+	PolicyExpirationBasisFromFirstValidation: true,
+	PolicyExpirationBasisFromFirstUse:        true,
+}
+
 const (
 	// PolicyRenewalBasisFromExpiry - License expiry is extended from the license's current expiry value,
 	//i.e. license.expiry = license.expiry + policy.duration. This is the default.
 	PolicyRenewalBasisFromExpiry = "from_expiry"
-
 	// PolicyRenewalFromNow - License expiry is extended from the current time, i.e. license.expiry = time.now + policy.duration.
 	PolicyRenewalFromNow = "from_now"
-
 	// PolicyRenewalFromNowIfExpired - Conditionally extend license expiry from the current time if the license is expired, otherwise extend from the license's current expiry value.
 	PolicyRenewalFromNowIfExpired = "from_now_if_expired"
 )
+
+var ValidPolicyRenewalBasisFromExpiry = map[string]bool{
+	PolicyRenewalBasisFromExpiry:  true,
+	PolicyRenewalFromNow:          true,
+	PolicyRenewalFromNowIfExpired: true,
+}
 
 const (
 	// PolicyAuthenticationStrategyToken - Allow licenses to authenticate using a license token. This is the default.
@@ -86,6 +111,13 @@ const (
 	PolicyAuthenticationStrategyNone = "auth_none"
 )
 
+var ValidPolicyAuthenticationStrategyMap = map[string]bool{
+	PolicyAuthenticationStrategyToken:   true,
+	PolicyAuthenticationStrategyLicense: true,
+	PolicyAuthenticationStrategyMixes:   true,
+	PolicyAuthenticationStrategyNone:    true,
+}
+
 const (
 	// PolicyHeartbeatBasisFromCreation - Machine heartbeat is started immediately upon creation.
 	PolicyHeartbeatBasisFromCreation = "from_creation"
@@ -94,12 +126,22 @@ const (
 	PolicyHeartbeatBasisFromFirstPing = "from_first_ping"
 )
 
+var ValidPolicyHeartbeatBasisMapper = map[string]bool{
+	PolicyHeartbeatBasisFromCreation:  true,
+	PolicyHeartbeatBasisFromFirstPing: true,
+}
+
 const (
 	// PolicyOverageStrategyNoOverage - Do not allow overages. Attempts to exceed limits will fail. This is the default.
 	PolicyOverageStrategyNoOverage = "no_overage"
 	// PolicyOverageStrategyAlwaysAllow - The license may exceed its limits, and doing so will not affect the license validity.
 	PolicyOverageStrategyAlwaysAllow = "always_allow"
 )
+
+var ValidPolicyOverageStrategyMap = map[string]bool{
+	PolicyOverageStrategyNoOverage:   true,
+	PolicyOverageStrategyAlwaysAllow: true,
+}
 
 const (
 	// PolicyTransferStrategyResetExpiry resets the transferred license's expiry from the time of transfer.
