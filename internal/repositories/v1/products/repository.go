@@ -22,14 +22,14 @@ func NewProductRepository(ds *models.DataSource) *ProductRepository {
 	}
 }
 
-func (repo *ProductRepository) SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error) {
+func (repo *ProductRepository) SelectTenantByPK(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	tenant := &entities.Tenant{}
+	tenant := &entities.Tenant{Name: tenantName}
 
-	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name, ed25519_private_key").Where("name = ?", tenantName).Scan(ctx)
+	err := repo.database.NewSelect().Model(tenant).WherePK().Scan(ctx)
 	if err != nil {
 		return tenant, err
 	}
@@ -73,7 +73,9 @@ func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantName st
 	total, err := repo.database.NewSelect().Model(new(entities.Product)).
 		Where("tenant_name = ?", tenantName).
 		Order("created_at DESC").
-		Limit(utils.DerefPointer(queryParam.Limit)).Offset(utils.DerefPointer(queryParam.Offset)).ScanAndCount(ctx, &products)
+		Limit(utils.DerefPointer(queryParam.Limit)).
+		Offset(utils.DerefPointer(queryParam.Offset)).
+		ScanAndCount(ctx, &products)
 	if err != nil {
 		return products, total, err
 	}

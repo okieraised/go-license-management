@@ -64,7 +64,7 @@ type ProductRetrievalInput struct {
 
 type ProductRetrievalOutput struct {
 	ID                   uuid.UUID              `json:"id"`
-	TenantID             uuid.UUID              `json:"tenant_id"`
+	TenantName           string                 `json:"tenant_name"`
 	Name                 string                 `json:"name"`
 	DistributionStrategy string                 `json:"distribution_strategy"`
 	Code                 string                 `json:"code"`
@@ -89,4 +89,8 @@ type ProductTokensInput struct {
 	Name        *string   `json:"name" validate:"optional" example:"test"`
 	Expiry      *string   `json:"expiry" validate:"optional" example:"test"`
 	Permissions []string  `json:"permissions" validate:"required" example:"test"`
+}
+
+type ProductTokenOutput struct {
+	Token string `json:"token"`
 }

@@ -2,6 +2,7 @@ package products
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
@@ -11,6 +12,7 @@ import (
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/products/service"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/products"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -120,6 +122,7 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed creating new product")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -175,6 +178,7 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieving product info")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -241,6 +245,7 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info(fmt.Sprintf("completed updating product [%s]", utils.DerefPointer(uriReq.ProductID)))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -292,6 +297,7 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed deleting product")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
 }
@@ -357,6 +363,7 @@ func (r *ProductRouter) list(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed listing products")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -428,6 +435,7 @@ func (r *ProductRouter) tokens(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed creating product tokens")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return

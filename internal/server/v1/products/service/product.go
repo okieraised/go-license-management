@@ -49,7 +49,8 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -86,6 +87,7 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-product")
+	svc.logger.GetLogger().Info("inserting new product to database")
 	productID := uuid.New()
 	now := time.Now()
 	product := &entities.Product{
@@ -140,7 +142,8 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -176,7 +179,7 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 
 	respData := &models.ProductRetrievalOutput{
 		ID:                   product.ID,
-		TenantID:             product.ID,
+		TenantName:           tenant.Name,
 		Name:                 product.Name,
 		DistributionStrategy: product.DistributionStrategy,
 		Code:                 product.Code,
@@ -202,7 +205,8 @@ func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -239,7 +243,7 @@ func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput
 	for _, product := range products {
 		productOutput = append(productOutput, models.ProductRetrievalOutput{
 			ID:                   product.ID,
-			TenantID:             product.ID,
+			TenantName:           tenant.Name,
 			Name:                 product.Name,
 			DistributionStrategy: product.DistributionStrategy,
 			Code:                 product.Code,
@@ -267,7 +271,8 @@ func (svc *ProductService) Delete(ctx *gin.Context, input *models.ProductDeletio
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	_, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -308,7 +313,7 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -421,7 +426,7 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 	// Check tenant
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -478,8 +483,6 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
-	resp.Data = map[string]interface{}{
-		"token": token,
-	}
+	resp.Data = models.ProductTokenOutput{Token: token}
 	return resp, nil
 }
