@@ -49,7 +49,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.ExpirationStrategy = utils.RefPointer(constants.PolicyExpirationStrategyRevokeAccess)
 	} else {
 		if _, ok := constants.ValidPolicyExpirationStrategyMapper[utils.DerefPointer(req.ExpirationStrategy)]; !ok {
-
+			return comerrors.ErrPolicyInvalidExpirationStrategy
 		}
 	}
 
@@ -57,7 +57,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.AuthenticationStrategy = utils.RefPointer(constants.PolicyAuthenticationStrategyLicense)
 	} else {
 		if _, ok := constants.ValidPolicyAuthenticationStrategyMap[utils.DerefPointer(req.AuthenticationStrategy)]; !ok {
-
+			return comerrors.ErrPolicyInvalidAuthenticationStrategy
 		}
 	}
 
@@ -65,7 +65,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.ExpirationBasis = utils.RefPointer(constants.PolicyExpirationBasisFromCreation)
 	} else {
 		if _, ok := constants.ValidPolicyExpirationBasisMapper[utils.DerefPointer(req.ExpirationBasis)]; !ok {
-
+			return comerrors.ErrPolicyInvalidExpirationBasis
 		}
 	}
 
@@ -73,7 +73,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.OverageStrategy = utils.RefPointer(constants.PolicyOverageStrategyNoOverage)
 	} else {
 		if _, ok := constants.ValidPolicyOverageStrategyMapper[utils.DerefPointer(req.OverageStrategy)]; !ok {
-
+			return comerrors.ErrPolicyInvalidOverageStrategy
 		}
 	}
 
@@ -81,7 +81,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.RenewalBasis = utils.RefPointer(constants.PolicyRenewalBasisFromExpiry)
 	} else {
 		if _, ok := constants.ValidPolicyRenewalBasisMapper[utils.DerefPointer(req.RenewalBasis)]; !ok {
-
+			return comerrors.ErrPolicyInvalidRenewalBasis
 		}
 	}
 
@@ -89,7 +89,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.HeartbeatBasis = utils.RefPointer(constants.PolicyHeartbeatBasisFromCreation)
 	} else {
 		if _, ok := constants.ValidPolicyHeartbeatBasisMapper[utils.DerefPointer(req.HeartbeatBasis)]; !ok {
-
+			return comerrors.ErrPolicyInvalidHeartbeatBasis
 		}
 	}
 
@@ -97,7 +97,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.CheckInInterval = utils.RefPointer(constants.PolicyCheckinIntervalDaily)
 	} else {
 		if _, ok := constants.ValidPolicyCheckinIntervalMapper[utils.DerefPointer(req.CheckInInterval)]; !ok {
-
+			return comerrors.ErrPolicyInvalidCheckinInterval
 		}
 	}
 

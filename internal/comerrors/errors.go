@@ -67,7 +67,7 @@ var (
 	ErrPolicyInvalidOverageStrategy          = errors.New("policy overage strategy is invalid")
 	ErrPolicyInvalidRenewalBasis             = errors.New("policy renewal basis is invalid")
 	ErrPolicyInvalidHeartbeatBasis           = errors.New("policy heartbeat basis is invalid")
-	ErrPolicyInvalidCheckinIntervalBasis     = errors.New("policy checkin interval basis is invalid")
+	ErrPolicyInvalidCheckinInterval          = errors.New("policy checkin interval basis is invalid")
 )
 
 var (
@@ -144,7 +144,7 @@ var ErrCodeMapper = map[error]string{
 	ErrPolicyInvalidOverageStrategy:            "46012",
 	ErrPolicyInvalidRenewalBasis:               "46013",
 	ErrPolicyInvalidHeartbeatBasis:             "46014",
-	ErrPolicyInvalidCheckinIntervalBasis:       "46015",
+	ErrPolicyInvalidCheckinInterval:            "46015",
 	ErrLicenseNameIsEmpty:                      "47001",
 	ErrLicenseProductIDIsEmpty:                 "47002",
 	ErrLicensePolicyIDIsEmpty:                  "47003",
@@ -215,7 +215,7 @@ var ErrMessageMapper = map[error]string{
 	ErrPolicyInvalidOverageStrategy:            ErrPolicyInvalidOverageStrategy.Error(),
 	ErrPolicyInvalidRenewalBasis:               ErrPolicyInvalidRenewalBasis.Error(),
 	ErrPolicyInvalidHeartbeatBasis:             ErrPolicyInvalidHeartbeatBasis.Error(),
-	ErrPolicyInvalidCheckinIntervalBasis:       ErrPolicyInvalidCheckinIntervalBasis.Error(),
+	ErrPolicyInvalidCheckinInterval:            ErrPolicyInvalidCheckinInterval.Error(),
 	ErrLicenseNameIsEmpty:                      ErrLicenseNameIsEmpty.Error(),
 	ErrLicenseProductIDIsEmpty:                 ErrLicenseProductIDIsEmpty.Error(),
 	ErrLicensePolicyIDIsEmpty:                  ErrLicensePolicyIDIsEmpty.Error(),
