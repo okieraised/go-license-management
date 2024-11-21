@@ -10,6 +10,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/infrastructure/models/policy_attribute"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/policies/models"
 	"go-license-management/internal/server/v1/policies/repository"
@@ -50,6 +51,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 
 	// Check if tenant exists
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -66,10 +68,10 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	}
 	cSpan.End()
 
-	productID := uuid.MustParse(utils.DerefPointer(input.ProductID))
-
 	// Check if productID exists
 	_, cSpan = input.Tracer.Start(rootCtx, "check-product-id")
+	productID := uuid.MustParse(utils.DerefPointer(input.ProductID))
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying product [%s]", productID))
 	exists, err := svc.repo.CheckProductExistByID(ctx, productID)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -78,19 +80,21 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 		return resp, comerrors.ErrGenericInternalServer
 	}
-	cSpan.End()
 
 	if !exists {
 		svc.logger.GetLogger().Info(fmt.Sprintf("product id [%s] does not exist in tenant [%s]", productID.String(), tenant.Name))
+		cSpan.End()
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
 		return resp, comerrors.ErrProductIDIsInvalid
 	}
+	cSpan.End()
 
 	// Generate new private/public key pair
 	var privateKey = ""
 	var publicKey = ""
 	scheme := utils.DerefPointer(input.Scheme)
+	svc.logger.GetLogger().Info(fmt.Sprintf("generating private/public key pair using [%s] algorithm", scheme))
 	switch scheme {
 	case constants.PolicySchemeED25519:
 		privateKey, publicKey, err = utils.NewEd25519KeyPair()
@@ -109,6 +113,7 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 			return resp, comerrors.ErrGenericInternalServer
 		}
 	default:
+		svc.logger.GetLogger().Error(fmt.Sprintf("invalid supported sheme [%s]", scheme))
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicySchemeIsInvalid]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicySchemeIsInvalid]
 		return resp, comerrors.ErrPolicySchemeIsInvalid
@@ -116,43 +121,42 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 
 	// Insert new policy
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-policy")
+	svc.logger.GetLogger().Info("inserting new policy to database")
 	policyID := uuid.New()
 	now := time.Now()
 	policy := &entities.Policy{
-		ID:                            policyID,
-		TenantName:                    tenant.Name,
-		ProductID:                     productID,
-		Duration:                      int64(utils.DerefPointer(input.Duration)),
-		MaxMachines:                   utils.DerefPointer(input.MaxMachines),
-		MaxUses:                       utils.DerefPointer(input.MaxUses),
-		HeartbeatDuration:             utils.DerefPointer(input.HeartbeatDuration),
-		MaxUsers:                      utils.DerefPointer(input.MaxUsers),
-		Strict:                        utils.DerefPointer(input.Strict),
-		Floating:                      utils.DerefPointer(input.Floating),
-		UsePool:                       utils.DerefPointer(input.UsePool),
-		RateLimited:                   utils.DerefPointer(input.RateLimited),
-		Encrypted:                     utils.DerefPointer(input.Encrypted),
-		Protected:                     utils.DerefPointer(input.Protected),
-		RequireCheckIn:                utils.DerefPointer(input.RequireCheckIn),
-		Concurrent:                    utils.DerefPointer(input.Concurrent),
-		RequireHeartbeat:              utils.DerefPointer(input.RequireHeartbeat),
-		PublicKey:                     publicKey,
-		PrivateKey:                    privateKey,
-		Name:                          utils.DerefPointer(input.Name),
-		Scheme:                        scheme,
-		ExpirationStrategy:            utils.DerefPointer(input.ExpirationStrategy),
-		ExpirationBasis:               utils.DerefPointer(input.ExpirationBasis),
-		AuthenticationStrategy:        utils.DerefPointer(input.AuthenticationStrategy),
-		HeartbeatCullStrategy:         utils.DerefPointer(input.HeartbeatCullStrategy),
-		HeartbeatResurrectionStrategy: utils.DerefPointer(input.HeartbeatResurrectionStrategy),
-		CheckInInterval:               utils.DerefPointer(input.CheckInInterval),
-		OverageStrategy:               utils.DerefPointer(input.OverageStrategy),
-		HeartbeatBasis:                utils.DerefPointer(input.HeartbeatBasis),
-		RenewalBasis:                  utils.DerefPointer(input.RenewalBasis),
-		Metadata:                      input.Metadata,
-		CreatedAt:                     now,
-		UpdatedAt:                     now,
+		ID:                     policyID,
+		ProductID:              productID,
+		TenantName:             tenant.Name,
+		PublicKey:              publicKey,
+		PrivateKey:             privateKey,
+		Name:                   utils.DerefPointer(input.Name),
+		Scheme:                 scheme,
+		ExpirationStrategy:     utils.DerefPointer(input.ExpirationStrategy),
+		ExpirationBasis:        utils.DerefPointer(input.ExpirationBasis),
+		AuthenticationStrategy: utils.DerefPointer(input.AuthenticationStrategy),
+		CheckInInterval:        utils.DerefPointer(input.CheckInInterval),
+		OverageStrategy:        utils.DerefPointer(input.OverageStrategy),
+		HeartbeatBasis:         utils.DerefPointer(input.HeartbeatBasis),
+		RenewalBasis:           utils.DerefPointer(input.RenewalBasis),
+		Duration:               utils.DerefPointer(input.Duration),
+		MaxMachines:            utils.DerefPointer(input.MaxMachines),
+		MaxUses:                utils.DerefPointer(input.MaxUses),
+		MaxUsers:               utils.DerefPointer(input.MaxUsers),
+		HeartbeatDuration:      utils.DerefPointer(input.HeartbeatDuration),
+		Strict:                 utils.DerefPointer(input.Strict),
+		Floating:               utils.DerefPointer(input.Floating),
+		UsePool:                utils.DerefPointer(input.UsePool),
+		RateLimited:            utils.DerefPointer(input.RateLimited),
+		Encrypted:              utils.DerefPointer(input.Encrypted),
+		Protected:              utils.DerefPointer(input.Protected),
+		RequireCheckIn:         utils.DerefPointer(input.RequireCheckIn),
+		RequireHeartbeat:       utils.DerefPointer(input.RequireHeartbeat),
+		Metadata:               input.Metadata,
+		CreatedAt:              now,
+		UpdatedAt:              now,
 	}
+
 	err = svc.repo.InsertNewPolicy(ctx, policy)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -163,40 +167,37 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	}
 	cSpan.End()
 
-	respData := models.PolicyRegistrationOutput{
-		ID:                            policyID.String(),
-		TenantID:                      tenant.Name,
-		ProductID:                     productID.String(),
-		Name:                          policy.Name,
-		Scheme:                        policy.Scheme,
-		Duration:                      policy.Duration,
-		MaxMachines:                   policy.MaxMachines,
-		MaxUses:                       policy.MaxUses,
-		MaxUsers:                      policy.MaxUsers,
-		CheckInIntervalCount:          policy.CheckInIntervalCount,
-		HeartbeatDuration:             policy.HeartbeatDuration,
-		Strict:                        policy.Strict,
-		Floating:                      policy.Floating,
-		UsePool:                       policy.UsePool,
-		RateLimited:                   policy.RateLimited,
-		Encrypted:                     policy.Encrypted,
-		Protected:                     policy.Protected,
-		RequireCheckIn:                policy.RequireCheckIn,
-		Concurrent:                    policy.Concurrent,
-		RequireHeartbeat:              policy.RequireHeartbeat,
-		PublicKey:                     policy.PublicKey,
-		ExpirationStrategy:            policy.ExpirationStrategy,
-		ExpirationBasis:               policy.ExpirationBasis,
-		AuthenticationStrategy:        policy.AuthenticationStrategy,
-		HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
-		HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
-		CheckInInterval:               policy.CheckInInterval,
-		OverageStrategy:               policy.OverageStrategy,
-		HeartbeatBasis:                policy.HeartbeatBasis,
-		RenewalBasis:                  policy.RenewalBasis,
-		Metadata:                      policy.Metadata,
-		CreatedAt:                     policy.CreatedAt,
-		UpdatedAt:                     policy.UpdatedAt,
+	respData := models.PolicyRetrievalOutput{
+		ID:         policyID.String(),
+		TenantName: policy.TenantName,
+		PublicKey:  policy.PublicKey,
+		CreatedAt:  policy.CreatedAt,
+		UpdatedAt:  policy.UpdatedAt,
+		PolicyAttributeModel: policy_attribute.PolicyAttributeModel{
+			Name:                   utils.RefPointer(policy.Name),
+			Scheme:                 utils.RefPointer(policy.Scheme),
+			Strict:                 utils.RefPointer(policy.Strict),
+			RateLimited:            utils.RefPointer(policy.RateLimited),
+			Floating:               utils.RefPointer(policy.Floating),
+			UsePool:                utils.RefPointer(policy.UsePool),
+			Encrypted:              utils.RefPointer(policy.Encrypted),
+			Protected:              utils.RefPointer(policy.Protected),
+			RequireCheckIn:         utils.RefPointer(policy.RequireCheckIn),
+			RequireHeartbeat:       utils.RefPointer(policy.RequireHeartbeat),
+			MaxMachines:            utils.RefPointer(policy.MaxMachines),
+			MaxUsers:               utils.RefPointer(policy.MaxUsers),
+			MaxUses:                utils.RefPointer(policy.MaxUses),
+			HeartbeatDuration:      utils.RefPointer(policy.HeartbeatDuration),
+			Duration:               utils.RefPointer(policy.Duration),
+			CheckInInterval:        utils.RefPointer(policy.CheckInInterval),
+			HeartbeatBasis:         utils.RefPointer(policy.HeartbeatBasis),
+			ExpirationStrategy:     utils.RefPointer(policy.ExpirationStrategy),
+			ExpirationBasis:        utils.RefPointer(policy.ExpirationBasis),
+			RenewalBasis:           utils.RefPointer(policy.RenewalBasis),
+			AuthenticationStrategy: utils.RefPointer(policy.AuthenticationStrategy),
+			OverageStrategy:        utils.RefPointer(policy.OverageStrategy),
+			Metadata:               policy.Metadata,
+		},
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
@@ -213,6 +214,7 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -249,39 +251,36 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 	policiesOutput := make([]models.PolicyRetrievalOutput, 0)
 	for _, policy := range products {
 		policiesOutput = append(policiesOutput, models.PolicyRetrievalOutput{
-			ID:                            policy.ID.String(),
-			TenantName:                    policy.TenantName,
-			ProductID:                     policy.ProductID.String(),
-			PublicKey:                     policy.PublicKey,
-			Name:                          policy.Name,
-			Scheme:                        policy.Scheme,
-			ExpirationStrategy:            policy.ExpirationStrategy,
-			ExpirationBasis:               policy.ExpirationBasis,
-			AuthenticationStrategy:        policy.AuthenticationStrategy,
-			HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
-			HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
-			CheckInInterval:               policy.CheckInInterval,
-			OverageStrategy:               policy.OverageStrategy,
-			HeartbeatBasis:                policy.HeartbeatBasis,
-			RenewalBasis:                  policy.RenewalBasis,
-			Metadata:                      policy.Metadata,
-			Duration:                      policy.Duration,
-			MaxMachines:                   policy.MaxMachines,
-			MaxUses:                       policy.MaxUses,
-			MaxUsers:                      policy.MaxUsers,
-			CheckInIntervalCount:          policy.CheckInIntervalCount,
-			HeartbeatDuration:             policy.HeartbeatDuration,
-			Strict:                        policy.Strict,
-			Floating:                      policy.Floating,
-			UsePool:                       policy.UsePool,
-			RateLimited:                   policy.RateLimited,
-			Encrypted:                     policy.Encrypted,
-			Protected:                     policy.Protected,
-			RequireCheckIn:                policy.RequireCheckIn,
-			Concurrent:                    policy.Concurrent,
-			RequireHeartbeat:              policy.RequireHeartbeat,
-			CreatedAt:                     policy.CreatedAt,
-			UpdatedAt:                     policy.UpdatedAt,
+			ID:         policy.ID.String(),
+			TenantName: policy.TenantName,
+			PublicKey:  policy.PublicKey,
+			CreatedAt:  policy.CreatedAt,
+			UpdatedAt:  policy.UpdatedAt,
+			PolicyAttributeModel: policy_attribute.PolicyAttributeModel{
+				Name:                   utils.RefPointer(policy.Name),
+				Scheme:                 utils.RefPointer(policy.Scheme),
+				Strict:                 utils.RefPointer(policy.Strict),
+				RateLimited:            utils.RefPointer(policy.RateLimited),
+				Floating:               utils.RefPointer(policy.Floating),
+				UsePool:                utils.RefPointer(policy.UsePool),
+				Encrypted:              utils.RefPointer(policy.Encrypted),
+				Protected:              utils.RefPointer(policy.Protected),
+				RequireCheckIn:         utils.RefPointer(policy.RequireCheckIn),
+				RequireHeartbeat:       utils.RefPointer(policy.RequireHeartbeat),
+				MaxMachines:            utils.RefPointer(policy.MaxMachines),
+				MaxUsers:               utils.RefPointer(policy.MaxUsers),
+				MaxUses:                utils.RefPointer(policy.MaxUses),
+				HeartbeatDuration:      utils.RefPointer(policy.HeartbeatDuration),
+				Duration:               utils.RefPointer(policy.Duration),
+				CheckInInterval:        utils.RefPointer(policy.CheckInInterval),
+				HeartbeatBasis:         utils.RefPointer(policy.HeartbeatBasis),
+				ExpirationStrategy:     utils.RefPointer(policy.ExpirationStrategy),
+				ExpirationBasis:        utils.RefPointer(policy.ExpirationBasis),
+				RenewalBasis:           utils.RefPointer(policy.RenewalBasis),
+				AuthenticationStrategy: utils.RefPointer(policy.AuthenticationStrategy),
+				OverageStrategy:        utils.RefPointer(policy.OverageStrategy),
+				Metadata:               policy.Metadata,
+			},
 		})
 	}
 
@@ -300,6 +299,7 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -335,39 +335,36 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 	cSpan.End()
 
 	respData := &models.PolicyRetrievalOutput{
-		ID:                            policy.ID.String(),
-		TenantName:                    policy.TenantName,
-		ProductID:                     policy.ProductID.String(),
-		PublicKey:                     policy.PublicKey,
-		Name:                          policy.Name,
-		Scheme:                        policy.Scheme,
-		ExpirationStrategy:            policy.ExpirationStrategy,
-		ExpirationBasis:               policy.ExpirationBasis,
-		AuthenticationStrategy:        policy.AuthenticationStrategy,
-		HeartbeatCullStrategy:         policy.HeartbeatCullStrategy,
-		HeartbeatResurrectionStrategy: policy.HeartbeatResurrectionStrategy,
-		CheckInInterval:               policy.CheckInInterval,
-		OverageStrategy:               policy.OverageStrategy,
-		HeartbeatBasis:                policy.HeartbeatBasis,
-		RenewalBasis:                  policy.RenewalBasis,
-		Metadata:                      policy.Metadata,
-		Duration:                      policy.Duration,
-		MaxMachines:                   policy.MaxMachines,
-		MaxUses:                       policy.MaxUses,
-		MaxUsers:                      policy.MaxUsers,
-		CheckInIntervalCount:          policy.CheckInIntervalCount,
-		HeartbeatDuration:             policy.HeartbeatDuration,
-		Strict:                        policy.Strict,
-		Floating:                      policy.Floating,
-		UsePool:                       policy.UsePool,
-		RateLimited:                   policy.RateLimited,
-		Encrypted:                     policy.Encrypted,
-		Protected:                     policy.Protected,
-		RequireCheckIn:                policy.RequireCheckIn,
-		Concurrent:                    policy.Concurrent,
-		RequireHeartbeat:              policy.RequireHeartbeat,
-		CreatedAt:                     policy.CreatedAt,
-		UpdatedAt:                     policy.UpdatedAt,
+		ID:         policy.ID.String(),
+		TenantName: policy.TenantName,
+		PublicKey:  policy.PublicKey,
+		CreatedAt:  policy.CreatedAt,
+		UpdatedAt:  policy.UpdatedAt,
+		PolicyAttributeModel: policy_attribute.PolicyAttributeModel{
+			Name:                   utils.RefPointer(policy.Name),
+			Scheme:                 utils.RefPointer(policy.Scheme),
+			Strict:                 utils.RefPointer(policy.Strict),
+			RateLimited:            utils.RefPointer(policy.RateLimited),
+			Floating:               utils.RefPointer(policy.Floating),
+			UsePool:                utils.RefPointer(policy.UsePool),
+			Encrypted:              utils.RefPointer(policy.Encrypted),
+			Protected:              utils.RefPointer(policy.Protected),
+			RequireCheckIn:         utils.RefPointer(policy.RequireCheckIn),
+			RequireHeartbeat:       utils.RefPointer(policy.RequireHeartbeat),
+			MaxMachines:            utils.RefPointer(policy.MaxMachines),
+			MaxUsers:               utils.RefPointer(policy.MaxUsers),
+			MaxUses:                utils.RefPointer(policy.MaxUses),
+			HeartbeatDuration:      utils.RefPointer(policy.HeartbeatDuration),
+			Duration:               utils.RefPointer(policy.Duration),
+			CheckInInterval:        utils.RefPointer(policy.CheckInInterval),
+			HeartbeatBasis:         utils.RefPointer(policy.HeartbeatBasis),
+			ExpirationStrategy:     utils.RefPointer(policy.ExpirationStrategy),
+			ExpirationBasis:        utils.RefPointer(policy.ExpirationBasis),
+			RenewalBasis:           utils.RefPointer(policy.RenewalBasis),
+			AuthenticationStrategy: utils.RefPointer(policy.AuthenticationStrategy),
+			OverageStrategy:        utils.RefPointer(policy.OverageStrategy),
+			Metadata:               policy.Metadata,
+		},
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
@@ -385,6 +382,7 @@ func (svc *PolicyService) Delete(ctx *gin.Context, input *models.PolicyDeletionI
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -402,6 +400,7 @@ func (svc *PolicyService) Delete(ctx *gin.Context, input *models.PolicyDeletionI
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-policy")
+	svc.logger.GetLogger().Info(fmt.Sprintf("deleting policy [%s] and associated licenses", utils.DerefPointer(input.PolicyID)))
 	err = svc.repo.DeletePolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())

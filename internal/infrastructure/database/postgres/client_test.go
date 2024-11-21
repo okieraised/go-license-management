@@ -13,7 +13,7 @@ import (
 
 func TestNewPostgresClient(t *testing.T) {
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -33,7 +33,7 @@ func TestNewPostgresClient(t *testing.T) {
 
 func TestNewPostgresClient_CheckDBExists(t *testing.T) {
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -55,7 +55,7 @@ func TestNewPostgresClient_CheckDBExists(t *testing.T) {
 func TestNewPostgresClient_CreateTenantSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -77,7 +77,7 @@ func TestNewPostgresClient_CreateTenantSchema(t *testing.T) {
 func TestNewPostgresClient_CreateRoleSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -112,7 +112,7 @@ func TestNewPostgresClient_CreateRoleSchema(t *testing.T) {
 func TestNewPostgresClient_CreateAccountsSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -137,7 +137,7 @@ func TestNewPostgresClient_CreateAccountsSchema(t *testing.T) {
 func TestNewPostgresClient_CreateProductsSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -161,7 +161,7 @@ func TestNewPostgresClient_CreateProductsSchema(t *testing.T) {
 func TestNewPostgresClient_CreateProductsToken(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -185,7 +185,7 @@ func TestNewPostgresClient_CreateProductsToken(t *testing.T) {
 func TestNewPostgresClient_CreateEntitlementsSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -209,7 +209,7 @@ func TestNewPostgresClient_CreateEntitlementsSchema(t *testing.T) {
 func TestNewPostgresClient_CreatePolicySchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -224,14 +224,17 @@ func TestNewPostgresClient_CreatePolicySchema(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, dbClient)
 
-	_, err = dbClient.NewCreateTable().Model((*entities.Policy)(nil)).WithForeignKeys().Exec(context.Background())
+	_, err = dbClient.NewCreateTable().Model((*entities.Policy)(nil)).
+		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
+		ForeignKey(`("product_id") REFERENCES "products" ("id") ON DELETE CASCADE`).
+		Exec(context.Background())
 	assert.NoError(t, err)
 }
 
 func TestNewPostgresClient_CreateLicenseSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -253,7 +256,7 @@ func TestNewPostgresClient_CreateLicenseSchema(t *testing.T) {
 func TestNewPostgresClient_CreateKeySchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")
@@ -275,7 +278,7 @@ func TestNewPostgresClient_CreateKeySchema(t *testing.T) {
 func TestNewPostgresClient_CreateMachineSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresHost, "5432")
+	viper.Set(config.PostgresPort, "5432")
 	viper.Set(config.PostgresDatabase, "licenses")
 	viper.Set(config.PostgresUsername, "postgres")
 	viper.Set(config.PostgresPassword, "123qweA#")

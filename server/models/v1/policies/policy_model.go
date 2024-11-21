@@ -47,9 +47,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	if req.ExpirationStrategy == nil {
 		req.ExpirationStrategy = utils.RefPointer(constants.PolicyExpirationStrategyRevokeAccess)
 	}
-	if req.TransferStrategy == nil {
-		req.TransferStrategy = utils.RefPointer(constants.PolicyTransferStrategyResetExpiry)
-	}
 	if req.AuthenticationStrategy == nil {
 		req.AuthenticationStrategy = utils.RefPointer(constants.PolicyAuthenticationStrategyLicense)
 	}
@@ -67,12 +64,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	}
 	if req.CheckInInterval == nil {
 		req.CheckInInterval = utils.RefPointer(constants.PolicyCheckinIntervalDaily)
-	}
-	if req.HeartbeatCullStrategy == nil {
-		req.HeartbeatCullStrategy = utils.RefPointer(constants.PolicyHeartbeatCullPolicyDeactivateDead)
-	}
-	if req.HeartbeatResurrectionStrategy == nil {
-		req.HeartbeatResurrectionStrategy = utils.RefPointer(constants.PolicyHeartbeatResurrectionPolicyNoRevive)
 	}
 
 	// Optional
@@ -98,7 +89,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.Protected = utils.RefPointer(false)
 	}
 	if req.Duration == nil {
-		req.Duration = utils.RefPointer(0)
+		req.Duration = utils.RefPointer(int64(0))
 	}
 	if req.MaxMachines == nil {
 		req.MaxMachines = utils.RefPointer(0)
@@ -111,9 +102,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	}
 	if req.MaxUsers == nil {
 		req.MaxUsers = utils.RefPointer(0)
-	}
-	if req.Concurrent == nil {
-		req.Concurrent = utils.RefPointer(true)
 	}
 
 	return nil
@@ -130,6 +118,7 @@ func (req *PolicyRegistrationRequest) ToPolicyRegistrationInput(ctx context.Cont
 }
 
 type PolicyUpdateRequest struct {
+	policy_attribute.PolicyAttributeModel
 }
 
 func (req *PolicyUpdateRequest) Validate() error {
