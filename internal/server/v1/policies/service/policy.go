@@ -588,6 +588,19 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrEntitlementIDIsInvalid]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrEntitlementIDIsInvalid]
 		return resp, comerrors.ErrEntitlementIDIsInvalid
+	} else {
+		for _, entitlement := range entitlements {
+			exist, err := svc.repo.CheckPolicyEntitlementExistsByPolicyIDAndEntitlementID(ctx, policy.ID, entitlement.ID)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
+			}
+			if exist {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyEntitlementAlreadyExist]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyEntitlementAlreadyExist]
+				return resp, comerrors.ErrPolicyEntitlementAlreadyExist
+			}
+		}
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-policy-entitlement")

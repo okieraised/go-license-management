@@ -68,6 +68,7 @@ var (
 	ErrPolicyInvalidRenewalBasis             = errors.New("policy renewal basis is invalid")
 	ErrPolicyInvalidHeartbeatBasis           = errors.New("policy heartbeat basis is invalid")
 	ErrPolicyInvalidCheckinInterval          = errors.New("policy checkin interval basis is invalid")
+	ErrPolicyEntitlementAlreadyExist         = errors.New("policy entitlement already exists")
 )
 
 var (
@@ -145,6 +146,7 @@ var ErrCodeMapper = map[error]string{
 	ErrPolicyInvalidRenewalBasis:               "46013",
 	ErrPolicyInvalidHeartbeatBasis:             "46014",
 	ErrPolicyInvalidCheckinInterval:            "46015",
+	ErrPolicyEntitlementAlreadyExist:           "46016",
 	ErrLicenseNameIsEmpty:                      "47001",
 	ErrLicenseProductIDIsEmpty:                 "47002",
 	ErrLicensePolicyIDIsEmpty:                  "47003",
@@ -216,6 +218,7 @@ var ErrMessageMapper = map[error]string{
 	ErrPolicyInvalidRenewalBasis:               ErrPolicyInvalidRenewalBasis.Error(),
 	ErrPolicyInvalidHeartbeatBasis:             ErrPolicyInvalidHeartbeatBasis.Error(),
 	ErrPolicyInvalidCheckinInterval:            ErrPolicyInvalidCheckinInterval.Error(),
+	ErrPolicyEntitlementAlreadyExist:           ErrPolicyEntitlementAlreadyExist.Error(),
 	ErrLicenseNameIsEmpty:                      ErrLicenseNameIsEmpty.Error(),
 	ErrLicenseProductIDIsEmpty:                 ErrLicenseProductIDIsEmpty.Error(),
 	ErrLicensePolicyIDIsEmpty:                  ErrLicensePolicyIDIsEmpty.Error(),

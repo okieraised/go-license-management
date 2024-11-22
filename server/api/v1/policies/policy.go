@@ -441,7 +441,8 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 		switch {
 		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
 			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
-			errors.Is(err, comerrors.ErrEntitlementIDIsInvalid):
+			errors.Is(err, comerrors.ErrEntitlementIDIsInvalid),
+			errors.Is(err, comerrors.ErrPolicyEntitlementAlreadyExist):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -528,7 +529,7 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 
 	r.logger.GetLogger().Info("finished detaching entitlement from policy")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusNoContent, resp)
 }
 
 // listEntitlement returns a list of entitlements attached to the policy.

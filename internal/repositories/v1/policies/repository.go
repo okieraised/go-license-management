@@ -52,6 +52,25 @@ func (repo *PolicyRepository) SelectPolicyByPK(ctx context.Context, policyID uui
 	return policy, nil
 }
 
+func (repo *PolicyRepository) CheckPolicyEntitlementExistsByPolicyIDAndEntitlementID(ctx context.Context, policyID, entitlementID uuid.UUID) (bool, error) {
+	var err error
+	exists := false
+
+	if repo.database == nil {
+		return exists, comerrors.ErrInvalidDatabaseClient
+	}
+
+	exists, err = repo.database.NewSelect().
+		Model(new(entities.PolicyEntitlement)).
+		Where("policy_id = ? AND entitlement_id = ?", policyID, entitlementID).
+		Exists(ctx)
+	if err != nil {
+		return exists, err
+	}
+
+	return exists, nil
+}
+
 func (repo *PolicyRepository) SelectEntitlementByPK(ctx context.Context, entitlementID uuid.UUID) (*entities.Entitlement, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
