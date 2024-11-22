@@ -52,6 +52,34 @@ func (repo *PolicyRepository) SelectPolicyByPK(ctx context.Context, policyID uui
 	return policy, nil
 }
 
+func (repo *PolicyRepository) SelectEntitlementByPK(ctx context.Context, entitlementID uuid.UUID) (*entities.Entitlement, error) {
+	if repo.database == nil {
+		return nil, comerrors.ErrInvalidDatabaseClient
+	}
+
+	entitlement := &entities.Entitlement{ID: entitlementID}
+
+	err := repo.database.NewSelect().Model(entitlement).WherePK().Scan(ctx)
+	if err != nil {
+		return entitlement, err
+	}
+
+	return entitlement, nil
+}
+
+func (repo *PolicyRepository) InsertNewPolicyEntitlement(ctx context.Context, policyEntitlement *entities.PolicyEntitlement) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	_, err := repo.database.NewInsert().Model(policyEntitlement).Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repo *PolicyRepository) DeletePolicyByPK(ctx context.Context, policyID uuid.UUID) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
@@ -60,6 +88,21 @@ func (repo *PolicyRepository) DeletePolicyByPK(ctx context.Context, policyID uui
 	policy := &entities.Policy{ID: policyID}
 
 	_, err := repo.database.NewDelete().Model(policy).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *PolicyRepository) DeletePolicyEntitlementByPK(ctx context.Context, policyEntitlementID uuid.UUID) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	policyEntitlement := &entities.PolicyEntitlement{ID: policyEntitlementID}
+
+	_, err := repo.database.NewDelete().Model(policyEntitlement).WherePK().Exec(ctx)
 	if err != nil {
 		return err
 	}
