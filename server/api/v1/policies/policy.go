@@ -435,17 +435,24 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
 	result, err := r.svc.Attach(ctx, bodyReq.ToPolicyAttachmentInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
-		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
+		cSpan.End()
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-		ctx.JSON(http.StatusInternalServerError, resp)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
+			errors.Is(err, comerrors.ErrEntitlementIDIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
 		return
 	}
 	cSpan.End()
 
 	r.logger.GetLogger().Info("finished attaching new entitlement to policy")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-	ctx.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusCreated, resp)
 }
 
 // detach detaches entitlements from a policy. This will immediately be taken into effect for all future license validations.
@@ -504,10 +511,17 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
 	result, err := r.svc.Detach(ctx, bodyReq.ToPolicyDetachmentInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
-		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
+		cSpan.End()
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-		ctx.JSON(http.StatusInternalServerError, resp)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
+			errors.Is(err, comerrors.ErrEntitlementIDIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
 		return
 	}
 	cSpan.End()
@@ -520,5 +534,66 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 // listEntitlement returns a list of entitlements attached to the policy.
 // The entitlements are returned sorted by creation date, with the most recent entitlements appearing first.
 func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
 
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy entitlement list request")
+
+	// serializer
+	var uriReq policy_attribute.PolicyCommonURI
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var bodyReq policies.PolicyEntitlementListRequest
+	err = ctx.ShouldBind(&bodyReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = bodyReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.ListEntitlements(ctx, bodyReq.ToPolicyEntitlementListInput(rootCtx, r.tracer, uriReq))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+		return
+	}
+	cSpan.End()
+
+	r.logger.GetLogger().Info("finished listing policy entitlements")
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
+	ctx.JSON(http.StatusOK, resp)
+	return
 }

@@ -524,7 +524,118 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 }
 
 func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmentInput) (*response.BaseOutput, error) {
-	rootCtx, span := input.Tracer.Start(input.TracerCtx, "delete-handler")
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "attach-policy-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-policy")
+	svc.logger.GetLogger().Info(fmt.Sprintf("querying policy [%s]", utils.DerefPointer(input.PolicyID)))
+	policy, err := svc.repo.SelectPolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
+			return resp, comerrors.ErrPolicyIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-entitlement")
+	svc.logger.GetLogger().Info(fmt.Sprintf("querying entitlements [%s]", input.EntitlementID))
+	entitlementIDs := make([]uuid.UUID, 0)
+	for _, id := range input.EntitlementID {
+		entitlementIDs = append(entitlementIDs, uuid.MustParse(id))
+	}
+
+	entitlements, err := svc.repo.SelectEntitlementsByPK(ctx, entitlementIDs)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	if len(entitlements) == 0 {
+		svc.logger.GetLogger().Error("no entitlement record found")
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrEntitlementIDIsInvalid]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrEntitlementIDIsInvalid]
+		return resp, comerrors.ErrEntitlementIDIsInvalid
+	}
+
+	_, cSpan = input.Tracer.Start(rootCtx, "insert-policy-entitlement")
+	policyEntitlements := make([]entities.PolicyEntitlement, 0)
+	policyEntitlementsOutput := make([]models.PolicyAttachmentOutput, 0)
+	for _, entitlement := range entitlements {
+		policyEntitlementID := uuid.New()
+		now := time.Now()
+		policyEntitlements = append(policyEntitlements, entities.PolicyEntitlement{
+			ID:            policyEntitlementID,
+			TenantName:    tenant.Name,
+			PolicyID:      policy.ID,
+			EntitlementID: entitlement.ID,
+			Metadata:      nil,
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		})
+		policyEntitlementsOutput = append(policyEntitlementsOutput, models.PolicyAttachmentOutput{
+			ID:            policyEntitlementID.String(),
+			TenantName:    tenant.Name,
+			PolicyID:      policy.ID.String(),
+			EntitlementID: entitlement.ID.String(),
+			Metadata:      nil,
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		})
+	}
+
+	err = svc.repo.InsertNewPolicyEntitlements(ctx, policyEntitlements)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = policyEntitlementsOutput
+
+	return resp, nil
+}
+
+func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmentInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "detach-policy-handler")
 	defer span.End()
 
 	resp := &response.BaseOutput{}
@@ -550,7 +661,30 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-policy")
 	svc.logger.GetLogger().Info(fmt.Sprintf("querying policy [%s]", utils.DerefPointer(input.PolicyID)))
-	err = svc.repo.DeletePolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
+	_, err = svc.repo.SelectPolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
+			return resp, comerrors.ErrPolicyIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "delete-policy-entitlement")
+	svc.logger.GetLogger().Info(fmt.Sprintf("deleting policy entitlements [%s]", input.ID))
+	policyEntitlementIDs := make([]uuid.UUID, 0)
+	for _, id := range input.ID {
+		policyEntitlementIDs = append(policyEntitlementIDs, uuid.MustParse(id))
+	}
+
+	err = svc.repo.DeletePolicyEntitlementsByPK(ctx, policyEntitlementIDs)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -563,10 +697,6 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
 	return resp, nil
-}
-
-func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmentInput) (*response.BaseOutput, error) {
-	return nil, nil
 }
 
 func (svc *PolicyService) ListEntitlements(ctx *gin.Context, input *models.PolicyEntitlementListInput) (*response.BaseOutput, error) {

@@ -67,12 +67,42 @@ func (repo *PolicyRepository) SelectEntitlementByPK(ctx context.Context, entitle
 	return entitlement, nil
 }
 
+func (repo *PolicyRepository) SelectEntitlementsByPK(ctx context.Context, entitlementID []uuid.UUID) ([]entities.Entitlement, error) {
+	if repo.database == nil {
+		return nil, comerrors.ErrInvalidDatabaseClient
+	}
+
+	entitlements := make([]entities.Entitlement, 0)
+	for _, id := range entitlementID {
+		entitlements = append(entitlements, entities.Entitlement{ID: id})
+	}
+	err := repo.database.NewSelect().Model(&entitlements).WherePK().Scan(ctx)
+	if err != nil {
+		return entitlements, err
+	}
+
+	return entitlements, nil
+}
+
 func (repo *PolicyRepository) InsertNewPolicyEntitlement(ctx context.Context, policyEntitlement *entities.PolicyEntitlement) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(policyEntitlement).Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *PolicyRepository) InsertNewPolicyEntitlements(ctx context.Context, policyEntitlement []entities.PolicyEntitlement) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	_, err := repo.database.NewInsert().Model(&policyEntitlement).Exec(ctx)
 	if err != nil {
 		return err
 	}
@@ -103,6 +133,24 @@ func (repo *PolicyRepository) DeletePolicyEntitlementByPK(ctx context.Context, p
 	policyEntitlement := &entities.PolicyEntitlement{ID: policyEntitlementID}
 
 	_, err := repo.database.NewDelete().Model(policyEntitlement).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *PolicyRepository) DeletePolicyEntitlementsByPK(ctx context.Context, policyEntitlementID []uuid.UUID) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	policyEntitlements := make([]entities.PolicyEntitlement, 0)
+	for _, id := range policyEntitlementID {
+		policyEntitlements = append(policyEntitlements, entities.PolicyEntitlement{ID: id})
+	}
+
+	_, err := repo.database.NewDelete().Model(&policyEntitlements).WherePK().Exec(ctx)
 	if err != nil {
 		return err
 	}

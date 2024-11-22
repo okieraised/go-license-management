@@ -358,14 +358,14 @@ func (req *PolicyAttachmentRequest) ToPolicyAttachmentInput(ctx context.Context,
 }
 
 type PolicyDetachmentRequest struct {
-	EntitlementID []string `json:"entitlement_id"`
+	ID []string `json:"id"`
 }
 
 func (req *PolicyDetachmentRequest) Validate() error {
-	if req.EntitlementID == nil {
+	if req.ID == nil {
 		return comerrors.ErrEntitlementIDIsEmpty
 	}
-	for _, entitlement := range req.EntitlementID {
+	for _, entitlement := range req.ID {
 		if _, err := uuid.Parse(entitlement); err != nil {
 			return comerrors.ErrEntitlementIDIsInvalid
 		}
@@ -378,28 +378,23 @@ func (req *PolicyDetachmentRequest) ToPolicyDetachmentInput(ctx context.Context,
 		TracerCtx:       ctx,
 		Tracer:          tracer,
 		PolicyCommonURI: policyURI,
-		EntitlementID:   req.EntitlementID,
+		ID:              req.ID,
 	}
 }
 
 type PolicyEntitlementListRequest struct {
-	policy_attribute.PolicyCommonURI
 	constants.QueryCommonParam
 }
 
 func (req *PolicyEntitlementListRequest) Validate() error {
 	req.QueryCommonParam.Validate()
-
-	if req.PolicyID == nil {
-		return comerrors.ErrPolicyIDIsEmpty
-	}
-	return req.PolicyCommonURI.Validate()
+	return nil
 }
 
-func (req *PolicyEntitlementListRequest) ToPolicyEntitlementListInput(ctx context.Context, tracer trace.Tracer) *models.PolicyEntitlementListInput {
+func (req *PolicyEntitlementListRequest) ToPolicyEntitlementListInput(ctx context.Context, tracer trace.Tracer, policyURI policy_attribute.PolicyCommonURI) *models.PolicyEntitlementListInput {
 	return &models.PolicyEntitlementListInput{
 		TracerCtx:       ctx,
 		Tracer:          tracer,
-		PolicyCommonURI: req.PolicyCommonURI,
+		PolicyCommonURI: policyURI,
 	}
 }

@@ -55,5 +55,5 @@ type PolicyEntitlement struct {
 	UpdatedAt     time.Time              `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
 	Tenant        *Tenant                `bun:"rel:belongs-to,join:tenant_name=name"`
 	Policy        *Policy                `bun:"rel:belongs-to,join:policy_id=id"`
-	Entitlement   *Entitlement           `bun:"rel:belongs-to,join:entitlement_id=name"`
+	Entitlement   *Entitlement           `bun:"rel:belongs-to,join:entitlement_id=id"`
 }
