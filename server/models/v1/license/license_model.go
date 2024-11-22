@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
-	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go-license-management/internal/server/v1/licenses/models"
 	"go-license-management/internal/utils"
@@ -47,7 +46,7 @@ func (req *LicenseRegistrationRequest) Validate() error {
 
 	if req.Expiry != nil {
 		if req.Expiry != nil {
-			_, err := time.Parse(constants.DateFormatISO8601Hyphen, utils.DerefPointer(req.Expiry))
+			_, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
 			if err != nil {
 				return comerrors.ErrLicenseExpiryFormatIsInvalid
 			}

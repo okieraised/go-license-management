@@ -21,7 +21,10 @@ type License struct {
 	Suspended                   bool                   `bun:"suspended,default:false"`
 	Uses                        int                    `bun:"uses,type:integer,default:0"`
 	MachinesCount               int                    `bun:"machines_count,type:integer,default:0"`
-	LicenseUsersCount           int                    `bun:"license_users_count,default:0,notnull"`
+	Users                       int                    `bun:"users,default:0,notnull"`
+	MaxMachines                 int                    `bun:"max_machines"`
+	MaxUses                     int                    `bun:"max_uses"`
+	MaxUsers                    int                    `bun:"max_users"`
 	Metadata                    map[string]interface{} `bun:"metadata,type:jsonb"`
 	CreatedAt                   time.Time              `bun:"created_at,nullzero,notnull,default:current_timestamp"`
 	UpdatedAt                   time.Time              `bun:"updated_at,nullzero,notnull,default:current_timestamp"`

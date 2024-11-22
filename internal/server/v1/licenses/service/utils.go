@@ -32,7 +32,7 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 	// Check for license expiration
 	var expiry time.Time
 	if input.Expiry != nil {
-		expiry, _ = time.Parse(constants.DateFormatISO8601Hyphen, utils.DerefPointer(input.Expiry))
+		expiry, _ = time.Parse(time.RFC3339, utils.DerefPointer(input.Expiry))
 	}
 
 	// Check for policy expiration
@@ -46,6 +46,27 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 		}
 	} else {
 		license.Expiry = expiry
+	}
+
+	// Check for license max uses
+	svc.logger.GetLogger().Info("verifying license max uses")
+	license.MaxUses = policy.MaxUses
+	if input.MaxUses != nil {
+		license.MaxUses = utils.DerefPointer(input.MaxUses)
+	}
+
+	// Check for license max machines
+	svc.logger.GetLogger().Info("verifying license max machines")
+	license.MaxMachines = policy.MaxMachines
+	if input.MaxMachines != nil {
+		license.MaxMachines = utils.DerefPointer(input.MaxMachines)
+	}
+
+	// Check for license max users
+	svc.logger.GetLogger().Info("verifying license max users")
+	license.MaxUsers = policy.MaxUsers
+	if input.MaxUsers != nil {
+		license.MaxUsers = utils.DerefPointer(input.MaxUsers)
 	}
 
 	// Generating license key
