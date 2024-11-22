@@ -83,6 +83,9 @@ var (
 	ErrLicenseIsSuspended           = errors.New("license is suspended")
 	ErrLicenseIsExpired             = errors.New("license is expired")
 	ErrLicenseIsBanned              = errors.New("license is banned")
+	ErrLicenseMaxMachinesIsInvalid  = errors.New("license max machines is invalid")
+	ErrLicenseMaxUsesIsInvalid      = errors.New("license max uses is invalid")
+	ErrLicenseMaxUsersIsInvalid     = errors.New("license max users is invalid")
 )
 
 var (
@@ -158,6 +161,9 @@ var ErrCodeMapper = map[error]string{
 	ErrLicenseIsSuspended:                      "47009",
 	ErrLicenseIsExpired:                        "47010",
 	ErrLicenseIsBanned:                         "47011",
+	ErrLicenseMaxMachinesIsInvalid:             "47012",
+	ErrLicenseMaxUsesIsInvalid:                 "47013",
+	ErrLicenseMaxUsersIsInvalid:                "47014",
 	ErrMachineIDIsEmpty:                        "48000",
 	ErrMachineIDIsInvalid:                      "48001",
 	ErrMachineFingerprintIsEmpty:               "48002",
@@ -230,6 +236,9 @@ var ErrMessageMapper = map[error]string{
 	ErrLicenseIsSuspended:                      ErrLicenseIsSuspended.Error(),
 	ErrLicenseIsExpired:                        ErrLicenseIsExpired.Error(),
 	ErrLicenseIsBanned:                         ErrLicenseIsBanned.Error(),
+	ErrLicenseMaxMachinesIsInvalid:             ErrLicenseMaxMachinesIsInvalid.Error(),
+	ErrLicenseMaxUsesIsInvalid:                 ErrLicenseMaxUsesIsInvalid.Error(),
+	ErrLicenseMaxUsersIsInvalid:                ErrLicenseMaxUsersIsInvalid.Error(),
 	ErrMachineIDIsEmpty:                        ErrMachineIDIsEmpty.Error(),
 	ErrMachineIDIsInvalid:                      ErrMachineIDIsInvalid.Error(),
 	ErrMachineFingerprintIsEmpty:               ErrMachineFingerprintIsEmpty.Error(),

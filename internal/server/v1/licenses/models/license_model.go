@@ -2,21 +2,23 @@ package models
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go.opentelemetry.io/otel/trace"
 	"time"
 )
 
 type LicenseRegistrationInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string                `json:"tenant_name" validate:"required" example:"test"`
-	PolicyID   uuid.UUID              `json:"policy_id" validate:"required" example:"test"`
-	ProductID  uuid.UUID              `json:"product_id" validate:"required" example:"test"`
-	Name       *string                `json:"name" validate:"required" example:"test"`
-	Expiry     *string                `json:"expiry" validate:"optional" example:"test"`
-	Metadata   map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	license_attribute.LicenseCommonURI
+	PolicyID    *string                `json:"policy_id" validate:"required" example:"test"`
+	ProductID   *string                `json:"product_id" validate:"required" example:"test"`
+	Name        *string                `json:"name" validate:"required" example:"test"`
+	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"test"`
+	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"test"`
+	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"test"`
+	Expiry      *string                `json:"expiry" validate:"optional" example:"test"`
+	Metadata    map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
 type LicenseRetrievalInput struct {
@@ -62,6 +64,7 @@ type LicenseInfoOutput struct {
 	MaxUsers                      int                    `json:"max_users"`
 	HeartbeatDuration             int                    `json:"heartbeat_duration"`
 	Metadata                      map[string]interface{} `json:"metadata"`
+	Expiry                        time.Time              `json:"expiry"`
 	CreatedAt                     time.Time              `json:"created_at"`
 	UpdatedAt                     time.Time              `json:"updated_at"`
 }

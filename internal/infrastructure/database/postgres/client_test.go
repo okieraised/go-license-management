@@ -275,7 +275,11 @@ func TestNewPostgresClient_CreateLicenseSchema(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, dbClient)
 
-	_, err = dbClient.NewCreateTable().Model((*entities.License)(nil)).WithForeignKeys().Exec(context.Background())
+	_, err = dbClient.NewCreateTable().Model((*entities.License)(nil)).
+		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
+		ForeignKey(`("policy_id") REFERENCES "policies" ("id") ON DELETE CASCADE`).
+		ForeignKey(`("product_id") REFERENCES "products" ("id") ON DELETE CASCADE`).
+		Exec(context.Background())
 	assert.NoError(t, err)
 }
 

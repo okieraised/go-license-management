@@ -24,9 +24,9 @@ func (repo *LicenseRepository) SelectTenantByName(ctx context.Context, tenantNam
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	tenant := &entities.Tenant{}
+	tenant := &entities.Tenant{Name: tenantName}
 
-	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name").Where("name = ?", tenantName).Scan(ctx)
+	err := repo.database.NewSelect().Model(tenant).WherePK().Scan(ctx)
 	if err != nil {
 		return tenant, err
 	}

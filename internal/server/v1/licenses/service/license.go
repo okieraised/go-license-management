@@ -50,6 +50,7 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -67,7 +68,8 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-id")
-	product, err := svc.repo.SelectProductByPK(ctx, input.ProductID)
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying product [%s]", utils.DerefPointer(input.ProductID)))
+	product, err := svc.repo.SelectProductByPK(ctx, uuid.MustParse(utils.DerefPointer(input.ProductID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -84,7 +86,8 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-policy-by-id")
-	policy, err := svc.repo.SelectPolicyByPK(ctx, input.PolicyID)
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying policy [%s]", utils.DerefPointer(input.PolicyID)))
+	policy, err := svc.repo.SelectPolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
 	if err != nil {
 		cSpan.End()
 		svc.logger.GetLogger().Error(err.Error())
@@ -101,6 +104,7 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "generate-new-license")
+	svc.logger.GetLogger().Info("generating new license")
 	license, err := svc.generateLicense(ctx, input, tenant, product, policy)
 	if err != nil {
 		cSpan.End()
@@ -112,6 +116,7 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-license")
+	svc.logger.GetLogger().Info("inserting new license to database")
 	err = svc.repo.InsertNewLicense(ctx, license)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -156,6 +161,7 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 		MaxUsers:               policy.MaxUsers,
 		HeartbeatDuration:      policy.HeartbeatDuration,
 		Metadata:               license.Metadata,
+		Expiry:                 license.Expiry,
 		CreatedAt:              license.CreatedAt,
 		UpdatedAt:              license.UpdatedAt,
 	}
@@ -173,6 +179,7 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -190,6 +197,7 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "select-product")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying license [%s]", utils.DerefPointer(input.LicenseID)))
 	license, err := svc.repo.SelectLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -260,6 +268,7 @@ func (svc *LicenseService) Delete(ctx *gin.Context, input *models.LicenseDeletio
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -277,6 +286,7 @@ func (svc *LicenseService) Delete(ctx *gin.Context, input *models.LicenseDeletio
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-license")
+	svc.logger.GetLogger().Info(fmt.Sprintf("deleting license [%s]", utils.DerefPointer(input.TenantName)))
 	err = svc.repo.DeleteLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())

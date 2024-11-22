@@ -12,7 +12,6 @@ type License struct {
 	ID                          uuid.UUID              `bun:"id,pk,type:uuid"`
 	PolicyID                    uuid.UUID              `bun:"policy_id,type:uuid,notnull"`
 	ProductID                   uuid.UUID              `bun:"product_id,type:uuid,notnull"`
-	AccountID                   uuid.UUID              `bun:"account_id,type:uuid,nullzero"`
 	TenantName                  string                 `bun:"tenant_name,type:varchar(256),notnull"`
 	Key                         string                 `bun:"key,type:varchar(1028),notnull"`
 	Name                        string                 `bun:"name,type:varchar(256),notnull"`
@@ -35,34 +34,6 @@ type License struct {
 	LastCheckOutAt              time.Time              `bun:"last_checkout_at,nullzero"`
 	LastValidatedAt             time.Time              `bun:"last_validated_at,nullzero"`
 	Tenant                      *Tenant                `bun:"rel:belongs-to,join:tenant_name=name"`
-	Product                     *Product               `bun:"rel:belongs-to,join:product_id=id,join:tenant_id=tenant_id"`
+	Product                     *Product               `bun:"rel:belongs-to,join:product_id=id"`
 	Policy                      *Policy                `bun:"rel:belongs-to,join:policy_id=id"`
 }
-
-//
-//type LicenseUser struct {
-//	bun.BaseModel `bun:"table:license_users,alias:lu" swaggerignore:"true"`
-//
-//	ID        uuid.UUID `bun:"id,pk,type:uuid"`
-//	TenantID  uuid.UUID `bun:"tenant_id,type:uuid,nullzero"`
-//	LicenseID uuid.UUID `bun:"license_id,type:uuid,notnull"`
-//	UserID    uuid.UUID `bun:"user_id,type:uuid,notnull"`
-//	CreatedAt time.Time `bun:"created_at,nullzero,notnull,default:current_timestamp"`
-//	UpdatedAt time.Time `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
-//	Tenant    *Tenant   `bun:"rel:belongs-to,join:tenant_id=id"`
-//	License   *License  `bun:"rel:belongs-to,join:license_id=id"`
-//}
-//
-//type LicenseEntitlement struct {
-//	bun.BaseModel `bun:"table:license_entitlements,alias:le" swaggerignore:"true"`
-//
-//	ID            uuid.UUID    `bun:"id,pk,type:uuid"`
-//	TenantID      uuid.UUID    `bun:"environment_id,type:uuid,nullzero"`
-//	LicenseID     uuid.UUID    `bun:"license_id,type:uuid,notnull"`
-//	EntitlementID uuid.UUID    `bun:"entitlement_id,type:uuid,notnull"`
-//	CreatedAt     time.Time    `bun:"created_at,nullzero,notnull,default:current_timestamp"`
-//	UpdatedAt     time.Time    `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
-//	Tenant        *Tenant      `bun:"rel:belongs-to,join:tenant_id=id"`
-//	License       *License     `bun:"rel:belongs-to,join:license_id=id"`
-//	Entitlement   *Entitlement `bun:"rel:belongs-to,join:entitlement_id=id"`
-//}

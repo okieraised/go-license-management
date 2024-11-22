@@ -13,11 +13,14 @@ import (
 )
 
 type LicenseRegistrationRequest struct {
-	PolicyID  *string                `json:"policy_id" validate:"required" example:"test"`
-	ProductID *string                `json:"product_id" validate:"required" example:"test"`
-	Name      *string                `json:"name" validate:"required" example:"test"`
-	Expiry    *string                `json:"expiry" validate:"optional" example:"test"`
-	Metadata  map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	PolicyID    *string                `json:"policy_id" validate:"required" example:"test"`
+	ProductID   *string                `json:"product_id" validate:"required" example:"test"`
+	Name        *string                `json:"name" validate:"required" example:"test"`
+	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"test"`
+	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"test"`
+	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"test"`
+	Expiry      *string                `json:"expiry" validate:"optional" example:"test"`
+	Metadata    map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
 func (req *LicenseRegistrationRequest) Validate() error {
@@ -51,20 +54,41 @@ func (req *LicenseRegistrationRequest) Validate() error {
 		}
 	}
 
+	if req.MaxMachines != nil {
+		if utils.DerefPointer(req.MaxMachines) <= 0 {
+			return comerrors.ErrLicenseMaxMachinesIsInvalid
+		}
+	}
+
+	if req.MaxUses != nil {
+		if utils.DerefPointer(req.MaxUses) <= 0 {
+			return comerrors.ErrLicenseMaxUsesIsInvalid
+		}
+	}
+
+	if req.MaxUsers != nil {
+		if utils.DerefPointer(req.MaxUsers) <= 0 {
+			return comerrors.ErrLicenseMaxUsersIsInvalid
+		}
+	}
+
 	return nil
 }
 
-func (req *LicenseRegistrationRequest) ToLicenseRegistrationInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.LicenseRegistrationInput {
+func (req *LicenseRegistrationRequest) ToLicenseRegistrationInput(ctx context.Context, tracer trace.Tracer, licenseURI license_attribute.LicenseCommonURI) *models.LicenseRegistrationInput {
 
 	return &models.LicenseRegistrationInput{
-		TracerCtx:  ctx,
-		Tracer:     tracer,
-		TenantName: utils.RefPointer(tenantName),
-		PolicyID:   uuid.MustParse(utils.DerefPointer(req.PolicyID)),
-		ProductID:  uuid.MustParse(utils.DerefPointer(req.ProductID)),
-		Name:       req.Name,
-		Expiry:     req.Expiry,
-		Metadata:   req.Metadata,
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		LicenseCommonURI: licenseURI,
+		PolicyID:         req.PolicyID,
+		ProductID:        req.ProductID,
+		Name:             req.Name,
+		MaxMachines:      req.MaxMachines,
+		MaxUsers:         req.MaxUsers,
+		MaxUses:          req.MaxUses,
+		Expiry:           req.Expiry,
+		Metadata:         req.Metadata,
 	}
 }
 

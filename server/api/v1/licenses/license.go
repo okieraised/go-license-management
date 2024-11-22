@@ -10,15 +10,10 @@ import (
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/licenses/service"
-	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/license"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
-)
-
-const (
-	licenseGroup = "license_group"
 )
 
 type LicenseRouter struct {
@@ -28,7 +23,7 @@ type LicenseRouter struct {
 }
 
 func NewLicenseRouter(svc *service.LicenseService) *LicenseRouter {
-	tr := tracer.GetInstance().Tracer(licenseGroup)
+	tr := tracer.GetInstance().Tracer("license_group")
 	logger := logging.NewECSLogger()
 	return &LicenseRouter{
 		svc:    svc,
@@ -97,7 +92,7 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Create(ctx, bodyReq.ToLicenseRegistrationInput(rootCtx, r.tracer, utils.DerefPointer(uriReq.TenantName)))
+	result, err := r.svc.Create(ctx, bodyReq.ToLicenseRegistrationInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -114,6 +109,7 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed generating new license")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return

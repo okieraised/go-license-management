@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
@@ -14,29 +15,46 @@ import (
 
 func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.LicenseRegistrationInput, tenant *entities.Tenant, product *entities.Product, policy *entities.Policy) (*entities.License, error) {
 	licenseID := uuid.New()
-	licenseKey, err := svc.generateLicenseKey(ctx, licenseID.String(), tenant, product, policy)
-	if err != nil {
-		return nil, err
-	}
-
 	now := time.Now()
+
+	// Init new license
 	license := &entities.License{
 		ID:         licenseID,
 		TenantName: tenant.Name,
 		PolicyID:   policy.ID,
 		ProductID:  product.ID,
-		Key:        licenseKey,
 		Name:       utils.DerefPointer(input.Name),
 		Status:     constants.LicenseStatusNotActivated,
-		Metadata:   input.Metadata,
 		CreatedAt:  now,
 		UpdatedAt:  now,
 	}
 
+	// Check for license expiration
+	var expiry time.Time
 	if input.Expiry != nil {
-		expiry, _ := time.Parse(constants.DateFormatISO8601Hyphen, utils.DerefPointer(input.Expiry))
+		expiry, _ = time.Parse(constants.DateFormatISO8601Hyphen, utils.DerefPointer(input.Expiry))
+	}
+
+	// Check for policy expiration
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying policy [%s] duration", policy.ID))
+	policyDuration := policy.Duration
+	if policy.Duration > 0 {
+		if expiry.IsZero() {
+			license.Expiry = now.Add(time.Duration(policyDuration) * time.Second)
+		} else {
+			license.Expiry = expiry.Add(time.Duration(policyDuration) * time.Second)
+		}
+	} else {
 		license.Expiry = expiry
 	}
+
+	// Generating license key
+	svc.logger.GetLogger().Info("generating license key")
+	licenseKey, err := svc.generateLicenseKey(ctx, licenseID.String(), tenant, product, policy)
+	if err != nil {
+		return nil, err
+	}
+	license.Key = licenseKey
 
 	return license, nil
 }
