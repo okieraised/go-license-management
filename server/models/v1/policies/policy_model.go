@@ -333,15 +333,17 @@ func (req *PolicyListRequest) ToPolicyListInput(ctx context.Context, tracer trac
 }
 
 type PolicyAttachmentRequest struct {
-	EntitlementID *string `json:"entitlement_id"`
+	EntitlementID []string `json:"entitlement_id"`
 }
 
 func (req *PolicyAttachmentRequest) Validate() error {
 	if req.EntitlementID == nil {
 		return comerrors.ErrEntitlementIDIsEmpty
 	}
-	if _, err := uuid.Parse(utils.DerefPointer(req.EntitlementID)); err != nil {
-		return comerrors.ErrEntitlementIDIsInvalid
+	for _, entitlement := range req.EntitlementID {
+		if _, err := uuid.Parse(entitlement); err != nil {
+			return comerrors.ErrEntitlementIDIsInvalid
+		}
 	}
 	return nil
 }
@@ -351,19 +353,22 @@ func (req *PolicyAttachmentRequest) ToPolicyAttachmentInput(ctx context.Context,
 		TracerCtx:       ctx,
 		Tracer:          tracer,
 		PolicyCommonURI: policyURI,
+		EntitlementID:   req.EntitlementID,
 	}
 }
 
 type PolicyDetachmentRequest struct {
-	EntitlementID *string `json:"entitlement_id"`
+	EntitlementID []string `json:"entitlement_id"`
 }
 
 func (req *PolicyDetachmentRequest) Validate() error {
 	if req.EntitlementID == nil {
 		return comerrors.ErrEntitlementIDIsEmpty
 	}
-	if _, err := uuid.Parse(utils.DerefPointer(req.EntitlementID)); err != nil {
-		return comerrors.ErrEntitlementIDIsInvalid
+	for _, entitlement := range req.EntitlementID {
+		if _, err := uuid.Parse(entitlement); err != nil {
+			return comerrors.ErrEntitlementIDIsInvalid
+		}
 	}
 	return nil
 }
@@ -373,6 +378,7 @@ func (req *PolicyDetachmentRequest) ToPolicyDetachmentInput(ctx context.Context,
 		TracerCtx:       ctx,
 		Tracer:          tracer,
 		PolicyCommonURI: policyURI,
+		EntitlementID:   req.EntitlementID,
 	}
 }
 

@@ -523,14 +523,14 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 	return resp, nil
 }
 
-func (svc *PolicyService) Attach(ctx *gin.Context) (*response.BaseOutput, error) {
+func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmentInput) (*response.BaseOutput, error) {
 	return nil, nil
 }
 
-func (svc *PolicyService) Detach(ctx *gin.Context) (*response.BaseOutput, error) {
+func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmentInput) (*response.BaseOutput, error) {
 	return nil, nil
 }
 
-func (svc *PolicyService) ListEntitlements(ctx *gin.Context) (*response.BaseOutput, error) {
+func (svc *PolicyService) ListEntitlements(ctx *gin.Context, input *models.PolicyEntitlementListInput) (*response.BaseOutput, error) {
 	return nil, nil
 }

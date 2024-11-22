@@ -42,3 +42,18 @@ type Policy struct {
 	Tenant                 *Tenant                `bun:"rel:belongs-to,join:tenant_name=name"`
 	Product                *Product               `bun:"rel:belongs-to,join:product_id=id"`
 }
+
+type PolicyEntitlement struct {
+	bun.BaseModel `bun:"table:policy_entitlements,alias:pe" swaggerignore:"true"`
+
+	ID            uuid.UUID              `bun:"id,pk,type:uuid"`
+	TenantName    string                 `bun:"tenant_name,type:varchar(256),notnull"`
+	PolicyID      uuid.UUID              `bun:"policy_id,type:uuid,notnull"`
+	EntitlementID uuid.UUID              `bun:"entitlement_id,type:uuid,notnull"`
+	Metadata      map[string]interface{} `bun:"type:jsonb,nullzero"`
+	CreatedAt     time.Time              `bun:"created_at,nullzero,notnull,default:current_timestamp"`
+	UpdatedAt     time.Time              `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
+	Tenant        *Tenant                `bun:"rel:belongs-to,join:tenant_name=name"`
+	Policy        *Policy                `bun:"rel:belongs-to,join:policy_id=id"`
+	Entitlement   *Entitlement           `bun:"rel:belongs-to,join:entitlement_id=name"`
+}

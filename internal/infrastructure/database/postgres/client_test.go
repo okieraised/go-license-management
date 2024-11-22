@@ -231,6 +231,32 @@ func TestNewPostgresClient_CreatePolicySchema(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestNewPostgresClient_CreatePolicyEntitlementSchema(t *testing.T) {
+
+	viper.Set(config.PostgresHost, "127.0.0.1")
+	viper.Set(config.PostgresPort, "5432")
+	viper.Set(config.PostgresDatabase, "licenses")
+	viper.Set(config.PostgresUsername, "postgres")
+	viper.Set(config.PostgresPassword, "123qweA#")
+
+	dbClient, err := NewPostgresClient(
+		viper.GetString(config.PostgresHost),
+		viper.GetString(config.PostgresPort),
+		viper.GetString(config.PostgresDatabase),
+		viper.GetString(config.PostgresUsername),
+		viper.GetString(config.PostgresPassword),
+	)
+	assert.NoError(t, err)
+	assert.NotNil(t, dbClient)
+
+	_, err = dbClient.NewCreateTable().Model((*entities.PolicyEntitlement)(nil)).
+		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
+		ForeignKey(`("policy_id") REFERENCES "policies" ("id") ON DELETE CASCADE`).
+		ForeignKey(`("entitlement_id") REFERENCES "entitlements" ("id") ON DELETE CASCADE`).
+		Exec(context.Background())
+	assert.NoError(t, err)
+}
+
 func TestNewPostgresClient_CreateLicenseSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")

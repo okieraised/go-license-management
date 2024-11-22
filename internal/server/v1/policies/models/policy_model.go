@@ -55,12 +55,14 @@ type PolicyAttachmentInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
 	policy_attribute.PolicyCommonURI
+	EntitlementID []string `json:"entitlement_id"`
 }
 
 type PolicyDetachmentInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
 	policy_attribute.PolicyCommonURI
+	EntitlementID []string `json:"entitlement_id"`
 }
 
 type PolicyEntitlementListInput struct {
