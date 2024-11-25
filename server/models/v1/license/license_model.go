@@ -124,23 +124,44 @@ func (req *LicenseDeletionRequest) ToLicenseDeletionInput(ctx context.Context, t
 }
 
 type LicenseActionsRequest struct {
-	license_attribute.LicenseCommonURI
+	LicenseKey *string `json:"license_key"`
+	Nonce      *int    `json:"nonce"`
+	Increment  *int    `json:"increment"`
+	Decrement  *int    `json:"decrement"`
 }
 
 func (req *LicenseActionsRequest) Validate() error {
-	if req.Action == nil {
-		return comerrors.ErrLicenseActionIsEmpty
+
+	if req.LicenseKey == nil {
+		return comerrors.ErrLicenseKeyIsEmpty
 	}
-	if req.LicenseID == nil {
-		return comerrors.ErrLicenseIDIsEmpty
+
+	if req.Decrement != nil {
+		if utils.DerefPointer(req.Decrement) <= 0 {
+			return comerrors.ErrLicenseDecrementIsInvalid
+		}
+	} else {
+		req.Decrement = utils.RefPointer(1)
 	}
-	return req.LicenseCommonURI.Validate()
+
+	if req.Increment != nil {
+		if utils.DerefPointer(req.Increment) <= 0 {
+		}
+	} else {
+		req.Decrement = utils.RefPointer(1)
+	}
+
+	return nil
 }
 
-func (req *LicenseActionsRequest) ToLicenseActionsInput(ctx context.Context, tracer trace.Tracer) *models.LicenseActionInput {
+func (req *LicenseActionsRequest) ToLicenseActionsInput(ctx context.Context, tracer trace.Tracer, licenseUri license_attribute.LicenseCommonURI) *models.LicenseActionInput {
 	return &models.LicenseActionInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
-		LicenseCommonURI: req.LicenseCommonURI,
+		LicenseCommonURI: licenseUri,
+		LicenseKey:       req.LicenseKey,
+		Nonce:            req.Nonce,
+		Increment:        req.Increment,
+		Decrement:        req.Decrement,
 	}
 }

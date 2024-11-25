@@ -10,6 +10,7 @@ import (
 type LicenseCommonURI struct {
 	TenantName *string `uri:"tenant_name"`
 	LicenseID  *string `uri:"license_id"`
+	LicenseKey *string `uri:"license_key"`
 	Action     *string `uri:"action"`
 }
 
@@ -20,7 +21,7 @@ func (req *LicenseCommonURI) Validate() error {
 
 	if req.LicenseID != nil {
 		if _, err := uuid.Parse(utils.DerefPointer(req.LicenseID)); err != nil {
-			return comerrors.ErrLicenseIDIsEmpty
+			return comerrors.ErrLicenseIDIsInvalid
 		}
 	}
 

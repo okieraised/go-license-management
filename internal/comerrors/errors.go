@@ -86,6 +86,11 @@ var (
 	ErrLicenseMaxMachinesIsInvalid  = errors.New("license max machines is invalid")
 	ErrLicenseMaxUsesIsInvalid      = errors.New("license max uses is invalid")
 	ErrLicenseMaxUsersIsInvalid     = errors.New("license max users is invalid")
+	ErrLicenseKeyIsEmpty            = errors.New("license key is empty")
+	ErrLicenseIncrementIsEmpty      = errors.New("license increment value is empty")
+	ErrLicenseIncrementIsInvalid    = errors.New("license increment value is invalid")
+	ErrLicenseDecrementIsEmpty      = errors.New("license decrement value is empty")
+	ErrLicenseDecrementIsInvalid    = errors.New("license decrement value is invalid")
 )
 
 var (
@@ -164,6 +169,11 @@ var ErrCodeMapper = map[error]string{
 	ErrLicenseMaxMachinesIsInvalid:             "47012",
 	ErrLicenseMaxUsesIsInvalid:                 "47013",
 	ErrLicenseMaxUsersIsInvalid:                "47014",
+	ErrLicenseKeyIsEmpty:                       "47015",
+	ErrLicenseIncrementIsEmpty:                 "47016",
+	ErrLicenseIncrementIsInvalid:               "47017",
+	ErrLicenseDecrementIsEmpty:                 "47018",
+	ErrLicenseDecrementIsInvalid:               "47019",
 	ErrMachineIDIsEmpty:                        "48000",
 	ErrMachineIDIsInvalid:                      "48001",
 	ErrMachineFingerprintIsEmpty:               "48002",
@@ -239,6 +249,11 @@ var ErrMessageMapper = map[error]string{
 	ErrLicenseMaxMachinesIsInvalid:             ErrLicenseMaxMachinesIsInvalid.Error(),
 	ErrLicenseMaxUsesIsInvalid:                 ErrLicenseMaxUsesIsInvalid.Error(),
 	ErrLicenseMaxUsersIsInvalid:                ErrLicenseMaxUsersIsInvalid.Error(),
+	ErrLicenseKeyIsEmpty:                       ErrLicenseKeyIsEmpty.Error(),
+	ErrLicenseIncrementIsEmpty:                 ErrLicenseIncrementIsEmpty.Error(),
+	ErrLicenseIncrementIsInvalid:               ErrLicenseIncrementIsInvalid.Error(),
+	ErrLicenseDecrementIsEmpty:                 ErrLicenseDecrementIsEmpty.Error(),
+	ErrLicenseDecrementIsInvalid:               ErrLicenseDecrementIsInvalid.Error(),
 	ErrMachineIDIsEmpty:                        ErrMachineIDIsEmpty.Error(),
 	ErrMachineIDIsInvalid:                      ErrMachineIDIsInvalid.Error(),
 	ErrMachineFingerprintIsEmpty:               ErrMachineFingerprintIsEmpty.Error(),

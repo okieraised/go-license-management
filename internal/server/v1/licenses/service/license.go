@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/licenses/models"
@@ -128,41 +129,43 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	cSpan.End()
 
 	respData := models.LicenseInfoOutput{
-		LicenseID:              license.ID.String(),
-		ProductID:              product.ID.String(),
-		PolicyID:               policy.ID.String(),
-		Name:                   license.Name,
-		LicenseKey:             license.Key,
-		MD5Checksum:            fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
-		Sha1Checksum:           fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
-		Sha256Checksum:         fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
-		PolicyScheme:           policy.Scheme,
-		PolicyPublicKey:        policy.PublicKey,
-		ExpirationStrategy:     policy.ExpirationStrategy,
-		ExpirationBasis:        policy.ExpirationBasis,
-		AuthenticationStrategy: policy.AuthenticationStrategy,
-		CheckInInterval:        policy.CheckInInterval,
-		OverageStrategy:        policy.OverageStrategy,
-		HeartbeatBasis:         policy.HeartbeatBasis,
-		RenewalBasis:           policy.RenewalBasis,
-		Status:                 license.Status,
-		RequireCheckIn:         policy.RequireCheckIn,
-		RequireHeartbeat:       policy.RequireHeartbeat,
-		Strict:                 policy.Strict,
-		Floating:               policy.Floating,
-		UsePool:                policy.UsePool,
-		RateLimited:            policy.RateLimited,
-		Encrypted:              policy.Encrypted,
-		Protected:              policy.Protected,
-		Duration:               policy.Duration,
-		MaxMachines:            policy.MaxMachines,
-		MaxUses:                policy.MaxUses,
-		MaxUsers:               policy.MaxUsers,
-		HeartbeatDuration:      policy.HeartbeatDuration,
-		Metadata:               license.Metadata,
-		Expiry:                 license.Expiry,
-		CreatedAt:              license.CreatedAt,
-		UpdatedAt:              license.UpdatedAt,
+		LicenseID:      license.ID.String(),
+		ProductID:      product.ID.String(),
+		PolicyID:       policy.ID.String(),
+		Name:           license.Name,
+		LicenseKey:     license.Key,
+		MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
+		Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
+		Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
+		Status:         license.Status,
+		Metadata:       license.Metadata,
+		Expiry:         license.Expiry,
+		CreatedAt:      license.CreatedAt,
+		UpdatedAt:      license.UpdatedAt,
+		LicensePolicy: models.LicensePolicyOutput{
+			PolicyScheme:           policy.Scheme,
+			PolicyPublicKey:        policy.PublicKey,
+			ExpirationStrategy:     policy.ExpirationStrategy,
+			ExpirationBasis:        policy.ExpirationBasis,
+			AuthenticationStrategy: policy.AuthenticationStrategy,
+			CheckInInterval:        policy.CheckInInterval,
+			OverageStrategy:        policy.OverageStrategy,
+			HeartbeatBasis:         policy.HeartbeatBasis,
+			RenewalBasis:           policy.RenewalBasis,
+			RequireCheckIn:         policy.RequireCheckIn,
+			RequireHeartbeat:       policy.RequireHeartbeat,
+			Strict:                 policy.Strict,
+			Floating:               policy.Floating,
+			UsePool:                policy.UsePool,
+			RateLimited:            policy.RateLimited,
+			Encrypted:              policy.Encrypted,
+			Protected:              policy.Protected,
+			Duration:               policy.Duration,
+			MaxMachines:            policy.MaxMachines,
+			MaxUses:                policy.MaxUses,
+			MaxUsers:               policy.MaxUsers,
+			HeartbeatDuration:      policy.HeartbeatDuration,
+		},
 	}
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
@@ -215,40 +218,43 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 	cSpan.End()
 
 	respData := &models.LicenseInfoOutput{
-		LicenseID:              license.ID.String(),
-		ProductID:              license.ProductID.String(),
-		PolicyID:               license.PolicyID.String(),
-		Name:                   license.Name,
-		LicenseKey:             license.Key,
-		MD5Checksum:            fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
-		Sha1Checksum:           fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
-		Sha256Checksum:         fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
-		Status:                 license.Status,
-		PolicyScheme:           license.Policy.Scheme,
-		PolicyPublicKey:        license.Policy.PublicKey,
-		ExpirationStrategy:     license.Policy.ExpirationStrategy,
-		ExpirationBasis:        license.Policy.ExpirationBasis,
-		AuthenticationStrategy: license.Policy.AuthenticationStrategy,
-		CheckInInterval:        license.Policy.CheckInInterval,
-		OverageStrategy:        license.Policy.OverageStrategy,
-		HeartbeatBasis:         license.Policy.HeartbeatBasis,
-		RenewalBasis:           license.Policy.RenewalBasis,
-		RequireCheckIn:         license.Policy.RequireCheckIn,
-		RequireHeartbeat:       license.Policy.RequireHeartbeat,
-		Strict:                 license.Policy.Strict,
-		Floating:               license.Policy.Floating,
-		UsePool:                license.Policy.UsePool,
-		RateLimited:            license.Policy.RateLimited,
-		Encrypted:              license.Policy.Encrypted,
-		Protected:              license.Policy.Protected,
-		Duration:               license.Policy.Duration,
-		MaxMachines:            license.Policy.MaxMachines,
-		MaxUses:                license.Policy.MaxUses,
-		MaxUsers:               license.Policy.MaxUsers,
-		HeartbeatDuration:      license.Policy.HeartbeatDuration,
-		Metadata:               license.Metadata,
-		CreatedAt:              license.CreatedAt,
-		UpdatedAt:              license.UpdatedAt,
+		LicenseID:      license.ID.String(),
+		ProductID:      license.ProductID.String(),
+		PolicyID:       license.PolicyID.String(),
+		Name:           license.Name,
+		LicenseKey:     license.Key,
+		MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
+		Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
+		Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
+		Status:         license.Status,
+		Metadata:       license.Metadata,
+		Expiry:         license.Expiry,
+		CreatedAt:      license.CreatedAt,
+		UpdatedAt:      license.UpdatedAt,
+		LicensePolicy: models.LicensePolicyOutput{
+			PolicyScheme:           license.Policy.Scheme,
+			PolicyPublicKey:        license.Policy.PublicKey,
+			ExpirationStrategy:     license.Policy.ExpirationStrategy,
+			ExpirationBasis:        license.Policy.ExpirationBasis,
+			AuthenticationStrategy: license.Policy.AuthenticationStrategy,
+			CheckInInterval:        license.Policy.CheckInInterval,
+			OverageStrategy:        license.Policy.OverageStrategy,
+			HeartbeatBasis:         license.Policy.HeartbeatBasis,
+			RenewalBasis:           license.Policy.RenewalBasis,
+			RequireCheckIn:         license.Policy.RequireCheckIn,
+			RequireHeartbeat:       license.Policy.RequireHeartbeat,
+			Strict:                 license.Policy.Strict,
+			Floating:               license.Policy.Floating,
+			UsePool:                license.Policy.UsePool,
+			RateLimited:            license.Policy.RateLimited,
+			Encrypted:              license.Policy.Encrypted,
+			Protected:              license.Policy.Protected,
+			Duration:               license.Policy.Duration,
+			MaxMachines:            license.Policy.MaxMachines,
+			MaxUses:                license.Policy.MaxUses,
+			MaxUsers:               license.Policy.MaxUsers,
+			HeartbeatDuration:      license.Policy.HeartbeatDuration,
+		},
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
@@ -284,7 +290,7 @@ func (svc *LicenseService) Delete(ctx *gin.Context, input *models.LicenseDeletio
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-license")
-	svc.logger.GetLogger().Info(fmt.Sprintf("deleting license [%s]", utils.DerefPointer(input.TenantName)))
+	svc.logger.GetLogger().Info(fmt.Sprintf("deleting license [%s]", utils.DerefPointer(input.LicenseID)))
 	err = svc.repo.DeleteLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -305,7 +311,60 @@ func (svc *LicenseService) List(ctx *gin.Context, input *models.LicenseListInput
 	return nil, nil
 }
 
-func (svc *LicenseService) actions(ctx *gin.Context, input *models.LicenseActionInput) (*response.BaseOutput, error) {
+func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseActionInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "action-handler")
+	defer span.End()
 
-	return nil, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.GetLogger().Info(fmt.Sprintf("received action [%s]", utils.DerefPointer(input.Action)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-license")
+	svc.logger.GetLogger().Info(fmt.Sprintf("querying license [%s]", utils.DerefPointer(input.LicenseID)))
+	license, err := svc.repo.SelectLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIDIsInvalid]
+			return resp, comerrors.ErrLicenseIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	fmt.Println("license", license)
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	return resp, nil
+}
+
+// validateLicense validates a license. This will check the following: if the license is suspended, if the license is expired,
+// if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
+func (svc *LicenseService) validateLicense(ctx *gin.Context, input *entities.License) error {
+
+	return nil
 }

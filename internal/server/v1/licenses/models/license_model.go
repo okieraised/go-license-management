@@ -28,42 +28,46 @@ type LicenseRetrievalInput struct {
 }
 
 type LicenseInfoOutput struct {
-	LicenseID              string                 `json:"license_id"`
-	ProductID              string                 `json:"product_id"`
-	PolicyID               string                 `json:"policy_id"`
-	Name                   string                 `json:"name"`
-	LicenseKey             string                 `json:"license_key"`
-	MD5Checksum            string                 `json:"md5_checksum"`
-	Sha1Checksum           string                 `json:"sha1_checksum"`
-	Sha256Checksum         string                 `json:"sha256_checksum"`
-	PolicyPublicKey        string                 `json:"policy_public_key"`
-	PolicyScheme           string                 `json:"policy_scheme"`
-	ExpirationStrategy     string                 `json:"expiration_strategy"`
-	ExpirationBasis        string                 `json:"expiration_basis"`
-	AuthenticationStrategy string                 `json:"authentication_strategy"`
-	CheckInInterval        string                 `json:"check_in_interval"`
-	OverageStrategy        string                 `json:"overage_strategy"`
-	HeartbeatBasis         string                 `json:"heartbeat_basis"`
-	RenewalBasis           string                 `json:"renewal_basis"`
-	Status                 string                 `json:"status"`
-	RequireCheckIn         bool                   `json:"require_check_in"`
-	Concurrent             bool                   `json:"concurrent"`
-	RequireHeartbeat       bool                   `json:"require_heartbeat"`
-	Strict                 bool                   `json:"strict"`
-	Floating               bool                   `json:"floating"`
-	UsePool                bool                   `json:"use_pool"`
-	RateLimited            bool                   `json:"rate_limited"`
-	Encrypted              bool                   `json:"encrypted"`
-	Protected              bool                   `json:"protected"`
-	Duration               int64                  `json:"duration"`
-	MaxMachines            int                    `json:"max_machines"`
-	MaxUses                int                    `json:"max_uses"`
-	MaxUsers               int                    `json:"max_users"`
-	HeartbeatDuration      int                    `json:"heartbeat_duration"`
-	Metadata               map[string]interface{} `json:"metadata"`
-	Expiry                 time.Time              `json:"expiry"`
-	CreatedAt              time.Time              `json:"created_at"`
-	UpdatedAt              time.Time              `json:"updated_at"`
+	LicenseID      string                 `json:"license_id"`
+	ProductID      string                 `json:"product_id"`
+	PolicyID       string                 `json:"policy_id"`
+	Name           string                 `json:"name"`
+	LicenseKey     string                 `json:"license_key"`
+	MD5Checksum    string                 `json:"md5_checksum"`
+	Sha1Checksum   string                 `json:"sha1_checksum"`
+	Sha256Checksum string                 `json:"sha256_checksum"`
+	Status         string                 `json:"status"`
+	Metadata       map[string]interface{} `json:"metadata"`
+	Expiry         time.Time              `json:"expiry"`
+	CreatedAt      time.Time              `json:"created_at"`
+	UpdatedAt      time.Time              `json:"updated_at"`
+	LicensePolicy  LicensePolicyOutput    `json:"license_policy"`
+}
+
+type LicensePolicyOutput struct {
+	PolicyPublicKey        string `json:"policy_public_key"`
+	PolicyScheme           string `json:"policy_scheme"`
+	ExpirationStrategy     string `json:"expiration_strategy"`
+	ExpirationBasis        string `json:"expiration_basis"`
+	AuthenticationStrategy string `json:"authentication_strategy"`
+	CheckInInterval        string `json:"check_in_interval"`
+	OverageStrategy        string `json:"overage_strategy"`
+	HeartbeatBasis         string `json:"heartbeat_basis"`
+	RenewalBasis           string `json:"renewal_basis"`
+	RequireCheckIn         bool   `json:"require_check_in"`
+	Concurrent             bool   `json:"concurrent"`
+	RequireHeartbeat       bool   `json:"require_heartbeat"`
+	Strict                 bool   `json:"strict"`
+	Floating               bool   `json:"floating"`
+	UsePool                bool   `json:"use_pool"`
+	RateLimited            bool   `json:"rate_limited"`
+	Encrypted              bool   `json:"encrypted"`
+	Protected              bool   `json:"protected"`
+	Duration               int64  `json:"duration"`
+	MaxMachines            int    `json:"max_machines"`
+	MaxUses                int    `json:"max_uses"`
+	MaxUsers               int    `json:"max_users"`
+	HeartbeatDuration      int    `json:"heartbeat_duration"`
 }
 
 type LicenseListInput struct {
@@ -89,4 +93,8 @@ type LicenseActionInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
 	license_attribute.LicenseCommonURI
+	LicenseKey *string `json:"license_key"`
+	Nonce      *int    `json:"nonce"`
+	Increment  *int    `json:"increment"`
+	Decrement  *int    `json:"decrement"`
 }

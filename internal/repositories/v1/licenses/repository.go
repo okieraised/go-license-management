@@ -77,12 +77,12 @@ func (repo *LicenseRepository) InsertNewLicense(ctx context.Context, license *en
 	return nil
 }
 
-func (repo *LicenseRepository) SelectLicenseByPK(ctx context.Context, policyID uuid.UUID) (*entities.License, error) {
+func (repo *LicenseRepository) SelectLicenseByPK(ctx context.Context, licenseID uuid.UUID) (*entities.License, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	license := &entities.License{ID: policyID}
+	license := &entities.License{ID: licenseID}
 
 	err := repo.database.NewSelect().Model(license).Relation("Policy").WherePK().Scan(ctx)
 	if err != nil {
@@ -92,12 +92,27 @@ func (repo *LicenseRepository) SelectLicenseByPK(ctx context.Context, policyID u
 	return license, nil
 }
 
-func (repo *LicenseRepository) DeleteLicenseByPK(ctx context.Context, policyID uuid.UUID) error {
+func (repo *LicenseRepository) SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error) {
+	if repo.database == nil {
+		return nil, comerrors.ErrInvalidDatabaseClient
+	}
+
+	license := &entities.License{Key: licenseKey}
+
+	err := repo.database.NewSelect().Model(license).Relation("Policy").Where("key = ?", licenseKey).Scan(ctx)
+	if err != nil {
+		return license, err
+	}
+
+	return license, nil
+}
+
+func (repo *LicenseRepository) DeleteLicenseByPK(ctx context.Context, licenseID uuid.UUID) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
 	}
 
-	license := &entities.License{ID: policyID}
+	license := &entities.License{ID: licenseID}
 
 	_, err := repo.database.NewDelete().Model(license).WherePK().Exec(ctx)
 	if err != nil {
