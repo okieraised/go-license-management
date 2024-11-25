@@ -17,12 +17,12 @@ type ProductToken struct {
 	Product    *Product  `bun:"rel:belongs-to,join:product_id=id"`
 }
 
-type LicenseToken struct {
-	bun.BaseModel `bun:"table:license_tokens,alias:lt" swaggerignore:"true"`
-
-	Token      string    `bun:"token,pk,type:varchar(256)"`
-	TenantName string    `bun:"tenant_name,type:varchar(256),notnull"`
-	LicenseID  uuid.UUID `bun:"license_id,type:uuid,notnull"`
-	CreatedAt  time.Time `bun:"created_at,nullzero,notnull,default:current_timestamp"`
-	License    *License  `bun:"rel:belongs-to,join:license_id=id"`
-}
+//type LicenseToken struct {
+//	bun.BaseModel `bun:"table:license_tokens,alias:lt" swaggerignore:"true"`
+//
+//	Token      string    `bun:"token,pk,type:varchar(256)"`
+//	TenantName string    `bun:"tenant_name,type:varchar(256),notnull"`
+//	LicenseID  uuid.UUID `bun:"license_id,type:uuid,notnull"`
+//	CreatedAt  time.Time `bun:"created_at,nullzero,notnull,default:current_timestamp"`
+//	License    *License  `bun:"rel:belongs-to,join:license_id=id"`
+//}

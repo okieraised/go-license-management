@@ -28,17 +28,16 @@ type LicenseRetrievalInput struct {
 }
 
 type LicenseInfoOutput struct {
-	ID                     string                 `json:"id"`
-	TenantName             string                 `json:"tenant_name"`
+	LicenseID              string                 `json:"license_id"`
 	ProductID              string                 `json:"product_id"`
 	PolicyID               string                 `json:"policy_id"`
 	Name                   string                 `json:"name"`
-	Key                    string                 `json:"key"`
-	MD5                    string                 `json:"md5"`
-	Sha1                   string                 `json:"sha1"`
-	Sha256                 string                 `json:"sha256"`
-	PublicKey              string                 `json:"public_key"`
-	Scheme                 string                 `json:"scheme"`
+	LicenseKey             string                 `json:"license_key"`
+	MD5Checksum            string                 `json:"md5_checksum"`
+	Sha1Checksum           string                 `json:"sha1_checksum"`
+	Sha256Checksum         string                 `json:"sha256_checksum"`
+	PolicyPublicKey        string                 `json:"policy_public_key"`
+	PolicyScheme           string                 `json:"policy_scheme"`
 	ExpirationStrategy     string                 `json:"expiration_strategy"`
 	ExpirationBasis        string                 `json:"expiration_basis"`
 	AuthenticationStrategy string                 `json:"authentication_strategy"`
