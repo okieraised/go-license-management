@@ -20,10 +20,9 @@ type ProductToken struct {
 type LicenseToken struct {
 	bun.BaseModel `bun:"table:license_tokens,alias:lt" swaggerignore:"true"`
 
-	ID         uuid.UUID `bun:"id,pk,type:uuid"`
+	Token      string    `bun:"token,pk,type:varchar(256)"`
 	TenantName string    `bun:"tenant_name,type:varchar(256),notnull"`
 	LicenseID  uuid.UUID `bun:"license_id,type:uuid,notnull"`
-	Token      string    `bun:"token,type:varchar(128)"`
 	CreatedAt  time.Time `bun:"created_at,nullzero,notnull,default:current_timestamp"`
 	License    *License  `bun:"rel:belongs-to,join:license_id=id"`
 }

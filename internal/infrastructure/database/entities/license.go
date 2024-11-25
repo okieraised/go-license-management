@@ -13,7 +13,7 @@ type License struct {
 	PolicyID                    uuid.UUID              `bun:"policy_id,type:uuid,notnull"`
 	ProductID                   uuid.UUID              `bun:"product_id,type:uuid,notnull"`
 	TenantName                  string                 `bun:"tenant_name,type:varchar(256),notnull"`
-	Key                         string                 `bun:"key,type:varchar(1028),notnull"`
+	Key                         string                 `bun:"key,type:varchar(256),notnull"`
 	Name                        string                 `bun:"name,type:varchar(256),notnull"`
 	LastValidatedChecksum       string                 `bun:"last_validated_checksum,type:varchar(1028),notnull"`
 	LastValidatedVersion        string                 `bun:"last_validated_version,type:varchar(1028),notnull"`
