@@ -16,7 +16,6 @@ type License struct {
 	Key                         string                 `bun:"key,type:varchar(256),notnull"`
 	Name                        string                 `bun:"name,type:varchar(256),notnull"`
 	LastValidatedChecksum       string                 `bun:"last_validated_checksum,type:varchar(1028),notnull"`
-	LastValidatedVersion        string                 `bun:"last_validated_version,type:varchar(1028),notnull"`
 	Status                      string                 `bun:"status,type:varchar(64),notnull"`
 	Suspended                   bool                   `bun:"suspended,default:false"`
 	Uses                        int                    `bun:"uses,type:integer,default:0"`

@@ -339,7 +339,7 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-license")
 	svc.logger.GetLogger().Info(fmt.Sprintf("querying license [%s]", utils.DerefPointer(input.LicenseID)))
-	license, err := svc.repo.SelectLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
+	license, err := svc.repo.SelectLicenseByLicenseKey(ctx, utils.DerefPointer(input.LicenseKey))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -364,7 +364,22 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 
 // validateLicense validates a license. This will check the following: if the license is suspended, if the license is expired,
 // if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
-func (svc *LicenseService) validateLicense(ctx *gin.Context, input *entities.License) error {
+func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.License) error {
+	if license.Status == constants.LicenseStatusNotActivated {
 
+	}
+
+	return nil
+}
+
+func (svc *LicenseService) revokeLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.License) error {
 	return nil
 }

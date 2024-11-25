@@ -98,3 +98,8 @@ type LicenseActionInput struct {
 	Increment  *int    `json:"increment"`
 	Decrement  *int    `json:"decrement"`
 }
+
+type LicenseValidationOutput struct {
+	Valid bool   `json:"valid"`
+	Code  string `json:"code"`
+}
