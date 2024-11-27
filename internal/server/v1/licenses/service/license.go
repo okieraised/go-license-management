@@ -364,12 +364,17 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 
 // validateLicense validates a license. This will check the following: if the license is suspended, if the license is expired,
 // if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
-func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.License) error {
+func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.License) (*models.LicenseValidationOutput, error) {
+	resp := &models.LicenseValidationOutput{}
 	if license.Status == constants.LicenseStatusNotActivated {
-
+		resp.Valid = true
+		if license.MachinesCount == 0 && license.Policy.MaxMachines == 1 {
+			resp.Code = constants.LicenseValidationStatusNoMachine
+		} else {
+			resp.Code = constants.LicenseValidationStatusNoMachine
+		}
 	}
-
-	return nil
+	return resp, nil
 }
 
 func (svc *LicenseService) revokeLicense(ctx *gin.Context, license *entities.License) error {

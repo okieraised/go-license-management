@@ -236,9 +236,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 
 // action Actions for the license resource.
 //
-//   - Validate: Action to validate a license. This will check the following: if the license is suspended,
-//     if the license is expired, if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
-//   - Validate-key: Action to validate a license key. This will look up the license by its key and check the following:
+//   - Validate: Action to validate a license key. This will look up the license by its key and check the following:
 //     if the license is suspended, if the license is expired, if the license is overdue for check-in, and
 //     if the license meets its machine requirements (if strict).
 //   - suspend: Action to temporarily suspend (ban) a license. This will cause the license to fail validation until reinstated.
