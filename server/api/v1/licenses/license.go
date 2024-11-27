@@ -2,7 +2,6 @@ package licenses
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -306,25 +305,23 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	fmt.Println("req", *uriReq.Action)
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.Actions(ctx, bodyReq.ToLicenseActionsInput(rootCtx, r.tracer, uriReq))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+		return
+	}
+	cSpan.End()
 
-	//// handler
-	//_, cSpan = r.tracer.Start(rootCtx, "handler")
-	//result, err := r.svc.Actions(ctx, req.ToLicenseActionsInput(rootCtx, r.tracer))
-	//if err != nil {
-	//	cSpan.End()
-	//	r.logger.GetLogger().Error(err.Error())
-	//	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-	//	switch {
-	//	case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
-	//		ctx.JSON(http.StatusBadRequest, resp)
-	//	default:
-	//		ctx.JSON(http.StatusInternalServerError, resp)
-	//	}
-	//	return
-	//}
-	//cSpan.End()
-	//
-	//resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }

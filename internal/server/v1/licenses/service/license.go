@@ -338,7 +338,6 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-license")
-	svc.logger.GetLogger().Info(fmt.Sprintf("querying license [%s]", utils.DerefPointer(input.LicenseID)))
 	license, err := svc.repo.SelectLicenseByLicenseKey(ctx, utils.DerefPointer(input.LicenseKey))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -355,7 +354,21 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	}
 	cSpan.End()
 
-	fmt.Println("license", license)
+	licenseAction := utils.DerefPointer(input.Action)
+	switch licenseAction {
+	case constants.LicenseActionValidate:
+		validated, err := svc.validateLicense(ctx, license)
+		if err != nil {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		resp.Data = validated
+	case constants.LicenseActionCheckout:
+	case constants.LicenseActionCheckin:
+	case constants.AccountActionBan:
+	case constants.AccountActionUnban:
+	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
@@ -366,14 +379,32 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 // if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
 func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.License) (*models.LicenseValidationOutput, error) {
 	resp := &models.LicenseValidationOutput{}
-	if license.Status == constants.LicenseStatusNotActivated {
-		resp.Valid = true
+
+	switch license.Status {
+	case constants.LicenseStatusNotActivated:
+		resp.Valid = false
 		if license.MachinesCount == 0 && license.Policy.MaxMachines == 1 {
 			resp.Code = constants.LicenseValidationStatusNoMachine
 		} else {
 			resp.Code = constants.LicenseValidationStatusNoMachine
 		}
+	case constants.LicenseStatusActive:
+		resp.Valid = true
+		resp.Code = constants.LicenseValidationStatusValid
+	case constants.LicenseStatusInactive:
+		resp.Valid = true
+		resp.Code = constants.LicenseValidationStatusValid
+	case constants.LicenseStatusBanned:
+		resp.Valid = false
+		resp.Code = constants.LicenseValidationStatusBanned
+	case constants.LicenseStatusExpired:
+		resp.Valid = false
+		resp.Code = constants.LicenseValidationStatusExpired
+	case constants.LicenseStatusSuspended:
+		resp.Valid = false
+		resp.Code = constants.LicenseValidationStatusSuspended
 	}
+
 	return resp, nil
 }
 
@@ -386,5 +417,27 @@ func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.Li
 }
 
 func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) renewLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) checkinLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities.License) error {
 	return nil
 }
