@@ -9,8 +9,9 @@ import (
 type IMachine interface {
 	SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error)
 	CheckLicenseExistByPK(ctx context.Context, licenseID uuid.UUID) (bool, error)
-	CheckMachineExistByFingerprintAndLicense(ctx context.Context, licenseID uuid.UUID, fingerprint string) (bool, error)
+	CheckMachineExistByFingerprintAndLicense(ctx context.Context, licenseKey, fingerprint string) (bool, error)
 	SelectLicenseByPK(ctx context.Context, licenseID uuid.UUID) (*entities.License, error)
+	SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error)
 	SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error)
 	SelectMachineByPK(ctx context.Context, machineID uuid.UUID) (*entities.Machine, error)
 	InsertNewMachine(ctx context.Context, machine *entities.Machine) error

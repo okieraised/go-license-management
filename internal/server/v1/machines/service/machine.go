@@ -66,7 +66,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-license-id")
-	license, err := svc.repo.SelectLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
+	license, err := svc.repo.SelectLicenseByLicenseKey(ctx, utils.DerefPointer(input.LicenseKey))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -102,7 +102,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-machine-by-fingerprint")
-	mExists, err := svc.repo.CheckMachineExistByFingerprintAndLicense(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)), utils.DerefPointer(input.Fingerprint))
+	mExists, err := svc.repo.CheckMachineExistByFingerprintAndLicense(ctx, utils.DerefPointer(input.LicenseKey), utils.DerefPointer(input.Fingerprint))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -113,7 +113,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	cSpan.End()
 
 	if mExists {
-		svc.logger.GetLogger().Info(fmt.Sprintf("machine fingerprint [%s] is already associated with license [%s]", utils.DerefPointer(input.Fingerprint), utils.DerefPointer(input.LicenseID)))
+		svc.logger.GetLogger().Info(fmt.Sprintf("machine fingerprint [%s] is already associated with license [%s]", utils.DerefPointer(input.Fingerprint), utils.DerefPointer(input.LicenseKey)))
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineFingerprintAssociatedWithLicense]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineFingerprintAssociatedWithLicense]
 		return resp, comerrors.ErrMachineFingerprintAssociatedWithLicense
@@ -125,7 +125,8 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	machine := &entities.Machine{
 		ID:          machineID,
 		TenantName:  tenant.Name,
-		LicenseID:   uuid.MustParse(utils.DerefPointer(input.LicenseID)),
+		LicenseID:   license.ID,
+		LicenseKey:  utils.DerefPointer(input.LicenseKey),
 		Fingerprint: utils.DerefPointer(input.Fingerprint),
 		Metadata:    input.Metadata,
 		CreatedAt:   now,
@@ -165,7 +166,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	respData := models.MachineInfoOutput{
 		ID:                   machine.ID,
 		TenantName:           machine.TenantName,
-		LicenseID:            machine.LicenseID,
+		LicenseKey:           machine.LicenseKey,
 		Fingerprint:          machine.Fingerprint,
 		IP:                   machine.IP,
 		Hostname:             machine.Hostname,
@@ -236,7 +237,7 @@ func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetri
 	respData := &models.MachineInfoOutput{
 		ID:                   machine.ID,
 		TenantName:           machine.TenantName,
-		LicenseID:            machine.LicenseID,
+		LicenseKey:           machine.LicenseKey,
 		Fingerprint:          machine.Fingerprint,
 		IP:                   machine.IP,
 		Hostname:             machine.Hostname,

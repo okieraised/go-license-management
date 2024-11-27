@@ -13,12 +13,11 @@ type MachineRegistrationInput struct {
 	Tracer    trace.Tracer
 	machine_attribute.MachineCommonURI
 	machine_attribute.MachineAttributeModel
-	LicenseID *string `json:"license_id"`
 }
 
 type MachineInfoOutput struct {
 	ID                   uuid.UUID              `json:"id"`
-	LicenseID            uuid.UUID              `json:"license_id"`
+	LicenseKey           string                 `json:"license_key"`
 	TenantName           string                 `json:"tenant_name"`
 	Fingerprint          string                 `json:"fingerprint"`
 	IP                   string                 `json:"ip"`
@@ -37,6 +36,8 @@ type MachineInfoOutput struct {
 type MachineUpdateInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
+	machine_attribute.MachineCommonURI
+	machine_attribute.MachineAttributeModel
 }
 
 type MachineRetrievalInput struct {

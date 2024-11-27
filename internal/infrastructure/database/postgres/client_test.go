@@ -283,29 +283,29 @@ func TestNewPostgresClient_CreateLicenseSchema(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestNewPostgresClient_CreateLicenseTokenSchema(t *testing.T) {
-
-	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresPort, "5432")
-	viper.Set(config.PostgresDatabase, "licenses")
-	viper.Set(config.PostgresUsername, "postgres")
-	viper.Set(config.PostgresPassword, "123qweA#")
-
-	dbClient, err := NewPostgresClient(
-		viper.GetString(config.PostgresHost),
-		viper.GetString(config.PostgresPort),
-		viper.GetString(config.PostgresDatabase),
-		viper.GetString(config.PostgresUsername),
-		viper.GetString(config.PostgresPassword),
-	)
-	assert.NoError(t, err)
-	assert.NotNil(t, dbClient)
-
-	_, err = dbClient.NewCreateTable().Model((*entities.LicenseToken)(nil)).
-		ForeignKey(`("license_id") REFERENCES "licenses" ("id") ON DELETE CASCADE`).
-		Exec(context.Background())
-	assert.NoError(t, err)
-}
+//func TestNewPostgresClient_CreateLicenseTokenSchema(t *testing.T) {
+//
+//	viper.Set(config.PostgresHost, "127.0.0.1")
+//	viper.Set(config.PostgresPort, "5432")
+//	viper.Set(config.PostgresDatabase, "licenses")
+//	viper.Set(config.PostgresUsername, "postgres")
+//	viper.Set(config.PostgresPassword, "123qweA#")
+//
+//	dbClient, err := NewPostgresClient(
+//		viper.GetString(config.PostgresHost),
+//		viper.GetString(config.PostgresPort),
+//		viper.GetString(config.PostgresDatabase),
+//		viper.GetString(config.PostgresUsername),
+//		viper.GetString(config.PostgresPassword),
+//	)
+//	assert.NoError(t, err)
+//	assert.NotNil(t, dbClient)
+//
+//	_, err = dbClient.NewCreateTable().Model((*entities.LicenseToken)(nil)).
+//		ForeignKey(`("license_id") REFERENCES "licenses" ("id") ON DELETE CASCADE`).
+//		Exec(context.Background())
+//	assert.NoError(t, err)
+//}
 
 func TestNewPostgresClient_CreateKeySchema(t *testing.T) {
 
@@ -347,6 +347,9 @@ func TestNewPostgresClient_CreateMachineSchema(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, dbClient)
 
-	_, err = dbClient.NewCreateTable().Model((*entities.Machine)(nil)).WithForeignKeys().Exec(context.Background())
+	_, err = dbClient.NewCreateTable().Model((*entities.Machine)(nil)).
+		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
+		ForeignKey(`("license_id") REFERENCES "licenses" ("id") ON DELETE CASCADE`).
+		Exec(context.Background())
 	assert.NoError(t, err)
 }

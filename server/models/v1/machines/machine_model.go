@@ -2,7 +2,6 @@ package machines
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/infrastructure/models/machine_attribute"
 	"go-license-management/internal/server/v1/machines/models"
@@ -12,7 +11,6 @@ import (
 
 type MachineRegistrationRequest struct {
 	machine_attribute.MachineAttributeModel
-	LicenseID *string `json:"license_id"`
 }
 
 func (req *MachineRegistrationRequest) Validate() error {
@@ -20,10 +18,10 @@ func (req *MachineRegistrationRequest) Validate() error {
 		return comerrors.ErrMachineFingerprintIsEmpty
 	}
 
-	if req.LicenseID == nil {
+	if req.LicenseKey == nil {
 		return comerrors.ErrMachineLicenseIsEmpty
 	} else {
-		if _, err := uuid.Parse(utils.DerefPointer(req.LicenseID)); err != nil {
+		if len(utils.DerefPointer(req.LicenseKey)) != 44 {
 			return comerrors.ErrMachineLicenseIsInvalid
 		}
 	}
@@ -34,9 +32,30 @@ func (req *MachineRegistrationRequest) ToMachineRegistrationInput(ctx context.Co
 	return &models.MachineRegistrationInput{
 		TracerCtx:             ctx,
 		Tracer:                tracer,
-		LicenseID:             req.LicenseID,
 		MachineCommonURI:      machineURI,
 		MachineAttributeModel: req.MachineAttributeModel,
+	}
+}
+
+type MachineUpdateRequest struct {
+	machine_attribute.MachineAttributeModel
+	LicenseKey *string `json:"license_key"`
+}
+
+func (req *MachineUpdateRequest) Validate() error {
+	if req.LicenseKey != nil {
+		if len(utils.DerefPointer(req.LicenseKey)) != 44 {
+			return comerrors.ErrMachineLicenseIsInvalid
+		}
+	}
+	return nil
+}
+
+func (req *MachineUpdateRequest) ToMachineUpdateInput(ctx context.Context, tracer trace.Tracer, machineURI machine_attribute.MachineCommonURI) *models.MachineUpdateInput {
+
+	return &models.MachineUpdateInput{
+		TracerCtx: ctx,
+		Tracer:    tracer,
 	}
 }
 
@@ -77,12 +96,6 @@ func (req *MachineDeletionRequest) ToMachineDeletionInput(ctx context.Context, t
 		Tracer:           tracer,
 		MachineCommonURI: req.MachineCommonURI,
 	}
-}
-
-type MachineUpdateRequest struct{}
-
-func (req *MachineUpdateRequest) Validate() error {
-	return nil
 }
 
 type MachineDeactivateRequest struct{}

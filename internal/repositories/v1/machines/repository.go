@@ -27,9 +27,9 @@ func (repo *MachineRepository) SelectTenantByName(ctx context.Context, tenantNam
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	tenant := &entities.Tenant{}
+	tenant := &entities.Tenant{Name: tenantName}
 
-	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name").Where("name = ?", tenantName).Scan(ctx)
+	err := repo.database.NewSelect().Model(tenant).WherePK().Scan(ctx)
 	if err != nil {
 		return tenant, err
 	}
@@ -157,6 +157,21 @@ func (repo *MachineRepository) SelectLicenseByPK(ctx context.Context, licenseID 
 	return license, nil
 }
 
+func (repo *MachineRepository) SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error) {
+	if repo.database == nil {
+		return nil, comerrors.ErrInvalidDatabaseClient
+	}
+
+	license := &entities.License{Key: licenseKey}
+
+	err := repo.database.NewSelect().Model(license).Where("key = ?", licenseKey).Scan(ctx)
+	if err != nil {
+		return license, err
+	}
+
+	return license, nil
+}
+
 func (repo *MachineRepository) SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
@@ -172,13 +187,13 @@ func (repo *MachineRepository) SelectPolicyByPK(ctx context.Context, policyID uu
 	return policy, nil
 }
 
-func (repo *MachineRepository) CheckMachineExistByFingerprintAndLicense(ctx context.Context, licenseID uuid.UUID, fingerprint string) (bool, error) {
+func (repo *MachineRepository) CheckMachineExistByFingerprintAndLicense(ctx context.Context, licenseKey, fingerprint string) (bool, error) {
 	if repo.database == nil {
 		return false, comerrors.ErrInvalidDatabaseClient
 	}
 
 	exists, err := repo.database.NewSelect().Model(new(entities.Machine)).
-		Where("license_id = ?", licenseID).
+		Where("license_key = ?", licenseKey).
 		Where("fingerprint = ?", fingerprint).
 		Exists(ctx)
 	if err != nil {
