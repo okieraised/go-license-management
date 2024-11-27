@@ -39,7 +39,6 @@ func (req *MachineRegistrationRequest) ToMachineRegistrationInput(ctx context.Co
 
 type MachineUpdateRequest struct {
 	machine_attribute.MachineAttributeModel
-	LicenseKey *string `json:"license_key"`
 }
 
 func (req *MachineUpdateRequest) Validate() error {
@@ -54,8 +53,10 @@ func (req *MachineUpdateRequest) Validate() error {
 func (req *MachineUpdateRequest) ToMachineUpdateInput(ctx context.Context, tracer trace.Tracer, machineURI machine_attribute.MachineCommonURI) *models.MachineUpdateInput {
 
 	return &models.MachineUpdateInput{
-		TracerCtx: ctx,
-		Tracer:    tracer,
+		TracerCtx:             ctx,
+		Tracer:                tracer,
+		MachineCommonURI:      machineURI,
+		MachineAttributeModel: req.MachineAttributeModel,
 	}
 }
 
