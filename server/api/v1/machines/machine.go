@@ -16,10 +16,6 @@ import (
 	"net/http"
 )
 
-const (
-	machineGroup = "machine_group"
-)
-
 type MachineRouter struct {
 	svc    *service.MachineService
 	logger *logging.Logger
@@ -27,7 +23,7 @@ type MachineRouter struct {
 }
 
 func NewMachineRouter(svc *service.MachineService) *MachineRouter {
-	tr := tracer.GetInstance().Tracer(machineGroup)
+	tr := tracer.GetInstance().Tracer("machine_group")
 	logger := logging.NewECSLogger()
 	return &MachineRouter{
 		svc:    svc,
