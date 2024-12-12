@@ -99,6 +99,8 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	h.Write([]byte(signature + machine.Fingerprint))
 	sha := h.Sum(nil)
 
+	// (FE) public key -> sign request body -> server decrypt
+
 	encryptedMachineCert, err := utils.Encrypt([]byte(b64MachineCert), sha)
 	if err != nil {
 		return nil, err
@@ -139,6 +141,8 @@ func (svc *MachineService) pingHeartbeat(ctx *gin.Context, input *models.Machine
 	if err != nil {
 		return nil, err
 	}
+
+	//
 
 	return nil, nil
 }

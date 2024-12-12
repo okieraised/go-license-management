@@ -33,8 +33,9 @@ func TestVerifyLicenseKeyWithEd25519(t *testing.T) {
 
 	fmt.Println(licenseKey)
 
-	valid, _, err := VerifyLicenseKeyWithEd25519(verifyKey, licenseKey)
+	valid, data, err := VerifyLicenseKeyWithEd25519(verifyKey, licenseKey)
 	assert.NoError(t, err)
 
 	fmt.Println(valid)
+	fmt.Println(data, string(data))
 }
