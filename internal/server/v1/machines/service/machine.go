@@ -542,15 +542,61 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			switch {
+			case errors.Is(err, sql.ErrNoRows):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
+				return resp, comerrors.ErrMachineIDIsInvalid
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+
 		}
 		resp.Data = respData
 		cSpan.End()
 	case constants.MachineActionResetHeartbeat:
+		respData, err := svc.resetHeartbeat(ctx, input)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			switch {
+			case errors.Is(err, sql.ErrNoRows):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
+				return resp, comerrors.ErrMachineIDIsInvalid
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
+		resp.Data = respData
+		cSpan.End()
 	case constants.MachineActionPingHeartbeat:
+		respData, err := svc.pingHeartbeat(ctx, input)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			switch {
+			case errors.Is(err, sql.ErrNoRows):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
+				return resp, comerrors.ErrMachineIDIsInvalid
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
+		resp.Data = respData
+		cSpan.End()
 	default:
+		svc.logger.GetLogger().Error(fmt.Sprintf("invalid machine action [%s]", utils.DerefPointer(input.MachineAction)))
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineActionIsInvalid]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineActionIsInvalid]
+		return resp, comerrors.ErrMachineActionIsInvalid
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]

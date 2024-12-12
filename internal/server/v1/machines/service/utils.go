@@ -2,8 +2,10 @@ package service
 
 import (
 	"crypto/sha256"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,21 +18,34 @@ import (
 	"time"
 )
 
+// checkout checkouts a license for the machine
 func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActionsInput) (*models.MachineActionCheckoutOutput, error) {
 	// query machine info
 	machine, err := svc.repo.SelectMachineByPK(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		} else {
+			return nil, err
+		}
 	}
 	// Query license info
 	license, err := svc.repo.SelectLicenseByPK(ctx, machine.LicenseID)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		} else {
+			return nil, err
+		}
 	}
 	// Query policy
 	policy, err := svc.repo.SelectPolicyByPK(ctx, license.PolicyID)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		} else {
+			return nil, err
+		}
 	}
 	ttl := utils.DerefPointer(input.TTL)
 	issuedAt := time.Now()
@@ -79,7 +94,7 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	b64MachineCert := base64.URLEncoding.EncodeToString(bMachineCert)
 
 	// generate encryption key from hash of signature and machine fingerprint
-	svc.logger.GetLogger().Info("encrypting machine file")
+	svc.logger.GetLogger().Info(fmt.Sprintf("encrypting machine file for machine [%s]", machine.ID.String()))
 	h := sha256.New()
 	h.Write([]byte(signature + machine.Fingerprint))
 	sha := h.Sum(nil)
@@ -109,9 +124,41 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 }
 
 func (svc *MachineService) pingHeartbeat(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {
+	// query machine info
+	machine, err := svc.repo.SelectMachineByPK(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		} else {
+			return nil, err
+		}
+	}
+
+	machine.LastHeartbeatAt = time.Now()
+	err = svc.repo.UpdateMachineByPK(ctx, machine)
+	if err != nil {
+		return nil, err
+	}
+
 	return nil, nil
 }
 
 func (svc *MachineService) resetHeartbeat(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {
+	// query machine info
+	machine, err := svc.repo.SelectMachineByPK(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		} else {
+			return nil, err
+		}
+	}
+
+	machine.LastHeartbeatAt = time.Time{}
+	err = svc.repo.UpdateMachineByPK(ctx, machine)
+	if err != nil {
+		return nil, err
+	}
+
 	return nil, nil
 }
