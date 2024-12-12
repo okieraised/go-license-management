@@ -3,6 +3,7 @@ package machines
 import (
 	"context"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/machine_attribute"
 	"go-license-management/internal/server/v1/machines/models"
 	"go-license-management/internal/utils"
@@ -78,6 +79,24 @@ func (req *MachineRetrievalRequest) ToMachineRetrievalInput(ctx context.Context,
 		MachineCommonURI: req.MachineCommonURI,
 	}
 
+}
+
+type MachineListRequest struct {
+	constants.QueryCommonParam
+}
+
+func (req *MachineListRequest) Validate() error {
+	req.QueryCommonParam.Validate()
+	return nil
+}
+
+func (req *MachineListRequest) ToMachineListInput(ctx context.Context, tracer trace.Tracer, machineURI machine_attribute.MachineCommonURI) *models.MachineListInput {
+	return &models.MachineListInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		MachineCommonURI: machineURI,
+		QueryCommonParam: req.QueryCommonParam,
+	}
 }
 
 type MachineDeletionRequest struct {

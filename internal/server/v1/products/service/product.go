@@ -198,7 +198,7 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 }
 
 func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput) (*response.BaseOutput, error) {
-	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
 	defer span.End()
 
 	resp := &response.BaseOutput{}

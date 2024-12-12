@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models"
 	"time"
 )
@@ -63,6 +64,26 @@ func (repo *MachineRepository) InsertNewMachine(ctx context.Context, machine *en
 	}
 
 	return nil
+}
+
+func (repo *MachineRepository) SelectMachines(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Machine, int, error) {
+	var total = 0
+
+	if repo.database == nil {
+		return nil, total, comerrors.ErrInvalidDatabaseClient
+	}
+
+	machines := make([]entities.Machine, 0)
+	total, err := repo.database.NewSelect().Model(new(entities.Machine)).
+		Where("tenant_name = ?", tenantName).
+		Order("created_at DESC").
+		Limit(utils.DerefPointer(queryParam.Limit)).
+		Offset(utils.DerefPointer(queryParam.Offset)).
+		ScanAndCount(ctx, &machines)
+	if err != nil {
+		return machines, total, err
+	}
+	return machines, total, nil
 }
 
 func (repo *MachineRepository) DeleteMachineByPK(ctx context.Context, machineID uuid.UUID) error {

@@ -439,8 +439,75 @@ func (svc *MachineService) Delete(ctx *gin.Context, input *models.MachineDeleteI
 }
 
 func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
 
-	return nil, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-pkc")
+	machines, total, err := svc.repo.SelectMachines(ctx, tenant.Name, input.QueryCommonParam)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
+			return resp, comerrors.ErrProductIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	productOutput := make([]models.MachineListOutput, 0)
+	for _, machine := range machines {
+		productOutput = append(productOutput, models.MachineListOutput{
+			ID:                   machine.ID,
+			LicenseID:            machine.LicenseID,
+			LicenseKey:           machine.LicenseKey,
+			TenantName:           machine.TenantName,
+			Fingerprint:          machine.Fingerprint,
+			IP:                   machine.IP,
+			Hostname:             machine.Hostname,
+			Platform:             machine.Platform,
+			Name:                 machine.Name,
+			Metadata:             machine.Metadata,
+			Cores:                machine.Cores,
+			LastHeartbeatAt:      machine.LastHeartbeatAt,
+			LastDeathEventSentAt: machine.LastDeathEventSentAt,
+			LastCheckOutAt:       machine.LastCheckOutAt,
+			CreatedAt:            machine.CreatedAt,
+			UpdatedAt:            machine.UpdatedAt,
+		})
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Count = total
+	resp.Data = productOutput
+
+	return resp, nil
 }
 
 func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {
