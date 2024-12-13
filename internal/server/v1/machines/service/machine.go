@@ -480,9 +480,9 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 	}
 	cSpan.End()
 
-	productOutput := make([]models.MachineListOutput, 0)
+	machineOutput := make([]models.MachineListOutput, 0)
 	for _, machine := range machines {
-		productOutput = append(productOutput, models.MachineListOutput{
+		machineOutput = append(machineOutput, models.MachineListOutput{
 			ID:                   machine.ID,
 			LicenseID:            machine.LicenseID,
 			LicenseKey:           machine.LicenseKey,
@@ -505,7 +505,7 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
 	resp.Count = total
-	resp.Data = productOutput
+	resp.Data = machineOutput
 
 	return resp, nil
 }

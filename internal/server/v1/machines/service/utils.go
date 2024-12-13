@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/machine_attribute"
-	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/machines/models"
 	"go-license-management/internal/utils"
 	"strings"
@@ -125,7 +124,7 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	return output, nil
 }
 
-func (svc *MachineService) pingHeartbeat(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {
+func (svc *MachineService) pingHeartbeat(ctx *gin.Context, input *models.MachineActionsInput) (*models.MachineInfoOutput, error) {
 	// query machine info
 	machine, err := svc.repo.SelectMachineByPK(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
 	if err != nil {
@@ -142,12 +141,26 @@ func (svc *MachineService) pingHeartbeat(ctx *gin.Context, input *models.Machine
 		return nil, err
 	}
 
-	//
-
-	return nil, nil
+	return &models.MachineInfoOutput{
+		ID:                   machine.ID,
+		TenantName:           machine.TenantName,
+		LicenseKey:           machine.LicenseKey,
+		Fingerprint:          machine.Fingerprint,
+		IP:                   machine.IP,
+		Hostname:             machine.Hostname,
+		Platform:             machine.Platform,
+		Name:                 machine.Name,
+		Metadata:             machine.Metadata,
+		Cores:                machine.Cores,
+		LastHeartbeatAt:      machine.LastHeartbeatAt,
+		LastDeathEventSentAt: machine.LastDeathEventSentAt,
+		LastCheckOutAt:       machine.LastCheckOutAt,
+		CreatedAt:            machine.CreatedAt,
+		UpdatedAt:            machine.UpdatedAt,
+	}, nil
 }
 
-func (svc *MachineService) resetHeartbeat(ctx *gin.Context, input *models.MachineActionsInput) (*response.BaseOutput, error) {
+func (svc *MachineService) resetHeartbeat(ctx *gin.Context, input *models.MachineActionsInput) (*models.MachineInfoOutput, error) {
 	// query machine info
 	machine, err := svc.repo.SelectMachineByPK(ctx, uuid.MustParse(utils.DerefPointer(input.MachineID)))
 	if err != nil {
@@ -164,5 +177,21 @@ func (svc *MachineService) resetHeartbeat(ctx *gin.Context, input *models.Machin
 		return nil, err
 	}
 
-	return nil, nil
+	return &models.MachineInfoOutput{
+		ID:                   machine.ID,
+		TenantName:           machine.TenantName,
+		LicenseKey:           machine.LicenseKey,
+		Fingerprint:          machine.Fingerprint,
+		IP:                   machine.IP,
+		Hostname:             machine.Hostname,
+		Platform:             machine.Platform,
+		Name:                 machine.Name,
+		Metadata:             machine.Metadata,
+		Cores:                machine.Cores,
+		LastHeartbeatAt:      machine.LastHeartbeatAt,
+		LastDeathEventSentAt: machine.LastDeathEventSentAt,
+		LastCheckOutAt:       machine.LastCheckOutAt,
+		CreatedAt:            machine.CreatedAt,
+		UpdatedAt:            machine.UpdatedAt,
+	}, nil
 }
