@@ -9,6 +9,7 @@ import (
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
 	"go-license-management/server/models"
+	"time"
 )
 
 type LicenseRepository struct {
@@ -137,6 +138,20 @@ func (repo *LicenseRepository) DeleteLicenseByPK(ctx context.Context, licenseID 
 	license := &entities.License{ID: licenseID}
 
 	_, err := repo.database.NewDelete().Model(license).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *LicenseRepository) UpdateLicenseByPK(ctx context.Context, license *entities.License) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	license.UpdatedAt = time.Now()
+	_, err := repo.database.NewUpdate().Model(license).WherePK().Exec(ctx)
 	if err != nil {
 		return err
 	}

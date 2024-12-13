@@ -16,4 +16,5 @@ type ILicense interface {
 	SelectLicenses(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.License, int, error)
 	SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error)
 	DeleteLicenseByPK(ctx context.Context, licenseID uuid.UUID) error
+	UpdateLicenseByPK(ctx context.Context, license *entities.License) error
 }
