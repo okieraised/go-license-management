@@ -74,3 +74,70 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 
 	return license, nil
 }
+
+// validateLicense validates a license. This will check the following: if the license is suspended, if the license is expired,
+// if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
+func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.License) (*models.LicenseValidationOutput, error) {
+	resp := &models.LicenseValidationOutput{}
+
+	switch license.Status {
+	case constants.LicenseStatusNotActivated:
+		resp.Valid = false
+		if license.MachinesCount == 0 && license.Policy.MaxMachines == 1 {
+			resp.Code = constants.LicenseValidationStatusNoMachine
+		} else {
+			resp.Code = constants.LicenseValidationStatusNoMachine
+		}
+	case constants.LicenseStatusActive:
+		resp.Valid = true
+		resp.Code = constants.LicenseValidationStatusValid
+	case constants.LicenseStatusInactive:
+		resp.Valid = true
+		resp.Code = constants.LicenseValidationStatusValid
+	case constants.LicenseStatusBanned:
+		resp.Valid = false
+		resp.Code = constants.LicenseValidationStatusBanned
+	case constants.LicenseStatusExpired:
+		resp.Valid = false
+		resp.Code = constants.LicenseValidationStatusExpired
+	case constants.LicenseStatusSuspended:
+		resp.Valid = false
+		resp.Code = constants.LicenseValidationStatusSuspended
+	}
+
+	return resp, nil
+}
+
+func (svc *LicenseService) revokeLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) renewLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) checkinLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+
+func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}
+func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities.License) error {
+	return nil
+}

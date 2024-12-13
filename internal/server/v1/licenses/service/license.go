@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
-	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/licenses/models"
@@ -307,8 +306,72 @@ func (svc *LicenseService) Delete(ctx *gin.Context, input *models.LicenseDeletio
 }
 
 func (svc *LicenseService) List(ctx *gin.Context, input *models.LicenseListInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
 
-	return nil, nil
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-product-by-pkc")
+	licenses, total, err := svc.repo.SelectLicenses(ctx, tenant.Name, input.QueryCommonParam)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
+			return resp, comerrors.ErrProductIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	licenseOutput := make([]models.LicenseInfoOutput, 0)
+	for _, license := range licenses {
+		licenseOutput = append(licenseOutput, models.LicenseInfoOutput{
+			LicenseID:      license.ID.String(),
+			ProductID:      license.ProductID.String(),
+			PolicyID:       license.PolicyID.String(),
+			Name:           license.Name,
+			LicenseKey:     license.Key,
+			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
+			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
+			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
+			Status:         license.Status,
+			Metadata:       license.Metadata,
+			Expiry:         license.Expiry,
+			CreatedAt:      license.CreatedAt,
+			UpdatedAt:      license.UpdatedAt,
+		})
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Count = total
+	resp.Data = licenseOutput
+
+	return resp, nil
 }
 
 func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseActionInput) (*response.BaseOutput, error) {
@@ -373,71 +436,4 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
 	return resp, nil
-}
-
-// validateLicense validates a license. This will check the following: if the license is suspended, if the license is expired,
-// if the license is overdue for check-in, and if the license meets its machine requirements (if strict).
-func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.License) (*models.LicenseValidationOutput, error) {
-	resp := &models.LicenseValidationOutput{}
-
-	switch license.Status {
-	case constants.LicenseStatusNotActivated:
-		resp.Valid = false
-		if license.MachinesCount == 0 && license.Policy.MaxMachines == 1 {
-			resp.Code = constants.LicenseValidationStatusNoMachine
-		} else {
-			resp.Code = constants.LicenseValidationStatusNoMachine
-		}
-	case constants.LicenseStatusActive:
-		resp.Valid = true
-		resp.Code = constants.LicenseValidationStatusValid
-	case constants.LicenseStatusInactive:
-		resp.Valid = true
-		resp.Code = constants.LicenseValidationStatusValid
-	case constants.LicenseStatusBanned:
-		resp.Valid = false
-		resp.Code = constants.LicenseValidationStatusBanned
-	case constants.LicenseStatusExpired:
-		resp.Valid = false
-		resp.Code = constants.LicenseValidationStatusExpired
-	case constants.LicenseStatusSuspended:
-		resp.Valid = false
-		resp.Code = constants.LicenseValidationStatusSuspended
-	}
-
-	return resp, nil
-}
-
-func (svc *LicenseService) revokeLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-
-func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-
-func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-
-func (svc *LicenseService) renewLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-
-func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-
-func (svc *LicenseService) checkinLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-
-func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
-func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
 }

@@ -5,7 +5,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models"
 )
 
@@ -90,6 +92,26 @@ func (repo *LicenseRepository) SelectLicenseByPK(ctx context.Context, licenseID 
 	}
 
 	return license, nil
+}
+
+func (repo *LicenseRepository) SelectLicenses(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.License, int, error) {
+	var total = 0
+
+	if repo.database == nil {
+		return nil, total, comerrors.ErrInvalidDatabaseClient
+	}
+
+	licenses := make([]entities.License, 0)
+	total, err := repo.database.NewSelect().Model(new(entities.License)).
+		Where("tenant_name = ?", tenantName).
+		Order("created_at DESC").
+		Limit(utils.DerefPointer(queryParam.Limit)).
+		Offset(utils.DerefPointer(queryParam.Offset)).
+		ScanAndCount(ctx, &licenses)
+	if err != nil {
+		return licenses, total, err
+	}
+	return licenses, total, nil
 }
 
 func (repo *LicenseRepository) SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error) {

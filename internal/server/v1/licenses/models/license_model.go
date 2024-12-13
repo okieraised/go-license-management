@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go.opentelemetry.io/otel/trace"
 	"time"
@@ -71,10 +72,10 @@ type LicensePolicyOutput struct {
 }
 
 type LicenseListInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
-	LicenseID  *string `json:"license_id" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	license_attribute.LicenseCommonURI
+	constants.QueryCommonParam
 }
 
 type LicenseDeletionInput struct {

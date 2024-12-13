@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go-license-management/internal/server/v1/licenses/models"
 	"go-license-management/internal/utils"
@@ -104,6 +105,24 @@ func (req *LicenseRetrievalRequest) ToLicenseRetrievalInput(ctx context.Context,
 		TracerCtx:        ctx,
 		Tracer:           tracer,
 		LicenseCommonURI: req.LicenseCommonURI,
+	}
+}
+
+type LicenseListRequest struct {
+	constants.QueryCommonParam
+}
+
+func (req *LicenseListRequest) Validate() error {
+	req.QueryCommonParam.Validate()
+	return nil
+}
+
+func (req *LicenseListRequest) ToLicenseListInput(ctx context.Context, tracer trace.Tracer, licenseURI license_attribute.LicenseCommonURI) *models.LicenseListInput {
+	return &models.LicenseListInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		LicenseCommonURI: licenseURI,
+		QueryCommonParam: req.QueryCommonParam,
 	}
 }
 
