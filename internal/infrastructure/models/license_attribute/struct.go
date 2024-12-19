@@ -33,3 +33,10 @@ func (req *LicenseCommonURI) Validate() error {
 
 	return nil
 }
+
+// LicenseFileContent contains information about the license file
+type LicenseFileContent struct {
+	Enc string `json:"enc"`
+	Sig string `json:"sig"`
+	Alg string `json:"alg"`
+}

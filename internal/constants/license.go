@@ -1,6 +1,12 @@
 package constants
 
 const (
+	DefaultLicenseTTL = 2629746
+	MinimumLicenseTTL = 3600
+	MaximumLicenseTTL = 31556952
+)
+
+const (
 	LicenseActionValidate  = "validate"
 	LicenseActionSuspend   = "suspend"
 	LicenseActionReinstate = "reinstate"

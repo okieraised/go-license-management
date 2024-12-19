@@ -38,6 +38,7 @@ const (
 	ContentLengthHeader             = "Content-Length"
 	ContentTypeHeader               = "Content-Type"
 	ContentDispositionHeader        = "Content-Disposition"
+	ContentDigestHeader             = "Content-Digest"
 	ContentTransferEncodingHeader   = "Content-Transfer-Encoding"
 	ContentDescriptionHeader        = "Content-Description"
 	OriginHeader                    = "Origin"

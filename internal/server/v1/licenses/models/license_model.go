@@ -104,3 +104,10 @@ type LicenseValidationOutput struct {
 	Valid bool   `json:"valid"`
 	Code  string `json:"code"`
 }
+
+type LicenseActionCheckoutOutput struct {
+	Certificate string    `json:"certificate"`
+	TTL         int       `json:"ttl"`
+	Expiry      time.Time `json:"expiry"`
+	Issued      time.Time `json:"issued"`
+}

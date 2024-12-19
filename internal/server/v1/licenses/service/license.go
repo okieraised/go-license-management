@@ -422,6 +422,8 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	case constants.LicenseActionValidate:
 		validated, err := svc.validateLicense(ctx, license)
 		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
 			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 			return resp, comerrors.ErrGenericInternalServer
@@ -430,31 +432,21 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	case constants.LicenseActionCheckout:
 		output, err := svc.checkoutLicense(ctx, license)
 		if err != nil {
-			resp.Code = comerrors.ErrCodeMapper[err]
-			resp.Message = comerrors.ErrMessageMapper[err]
-			return resp, err
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
 		}
-		resp.Data = models.LicenseInfoOutput{
-			LicenseID:      output.ID.String(),
-			ProductID:      output.ProductID.String(),
-			PolicyID:       output.PolicyID.String(),
-			Name:           output.Name,
-			LicenseKey:     output.Key,
-			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
-			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
-			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
-			Status:         output.Status,
-			Metadata:       output.Metadata,
-			Expiry:         output.Expiry,
-			CreatedAt:      output.CreatedAt,
-			UpdatedAt:      output.UpdatedAt,
-		}
+		resp.Data = output
 	case constants.LicenseActionCheckin:
 		output, err := svc.checkinLicense(ctx, license)
 		if err != nil {
-			resp.Code = comerrors.ErrCodeMapper[err]
-			resp.Message = comerrors.ErrMessageMapper[err]
-			return resp, err
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
 		}
 		resp.Data = models.LicenseInfoOutput{
 			LicenseID:      output.ID.String(),
@@ -477,9 +469,18 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	case constants.LicenseActionSuspend:
 		output, err := svc.suspendLicense(ctx, license)
 		if err != nil {
-			resp.Code = comerrors.ErrCodeMapper[err]
-			resp.Message = comerrors.ErrMessageMapper[err]
-			return resp, err
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			switch {
+			case errors.Is(err, comerrors.ErrLicenseNotActivated):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseNotActivated]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseNotActivated]
+				return resp, comerrors.ErrLicenseNotActivated
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
 		}
 		resp.Data = models.LicenseInfoOutput{
 			LicenseID:      output.ID.String(),
@@ -499,9 +500,18 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	case constants.LicenseActionReinstate:
 		output, err := svc.reinstateLicense(ctx, license)
 		if err != nil {
-			resp.Code = comerrors.ErrCodeMapper[err]
-			resp.Message = comerrors.ErrMessageMapper[err]
-			return resp, err
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			switch {
+			case errors.Is(err, comerrors.ErrLicenseStatusInvalidToReinstate):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
+				return resp, comerrors.ErrLicenseStatusInvalidToReinstate
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
 		}
 		resp.Data = models.LicenseInfoOutput{
 			LicenseID:      output.ID.String(),
@@ -521,9 +531,11 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	case constants.LicenseActionRenew:
 		output, err := svc.renewLicense(ctx, license)
 		if err != nil {
-			resp.Code = comerrors.ErrCodeMapper[err]
-			resp.Message = comerrors.ErrMessageMapper[err]
-			return resp, err
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
 		}
 		resp.Data = models.LicenseInfoOutput{
 			LicenseID:      output.ID.String(),
