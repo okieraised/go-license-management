@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/server/v1/licenses/models"
@@ -11,6 +12,7 @@ import (
 	"time"
 )
 
+// generateLicense creates new license with required information for validation embedded
 func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.LicenseRegistrationInput, tenant *entities.Tenant, product *entities.Product, policy *entities.Policy) (*entities.License, error) {
 	licenseID := uuid.New()
 	now := time.Now()
@@ -108,28 +110,99 @@ func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.L
 	return resp, nil
 }
 
-func (svc *LicenseService) revokeLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+// suspendLicense updates the active license status to `suspended`
+func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
+	if license.Status == constants.LicenseStatusNotActivated {
+		return nil, comerrors.ErrLicenseNotActivated
+	}
+
+	license.Status = constants.LicenseStatusSuspended
+	license.Suspended = false
+	svc.logger.GetLogger().Info(fmt.Sprintf("suspending license [%s]", license.ID))
+
+	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
+	return license, nil
 }
 
-func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+// reinstateLicense updates the license status back to `active`
+func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
+	if license.Status != constants.LicenseStatusSuspended && !license.Suspended {
+		svc.logger.GetLogger().Info(fmt.Sprintf("license [%s] has status [%s]", license.ID.String(), license.Status))
+		return nil, comerrors.ErrLicenseStatusInvalidToReinstate
+	}
+
+	license.Status = constants.LicenseStatusActive
+	license.Suspended = false
+
+	svc.logger.GetLogger().Info(fmt.Sprintf("reinstating license [%s]", license.ID))
+	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
+	return license, nil
 }
 
-func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+// renewLicense extends license expiry by the policy's duration, according to the policy's renewal basis.
+// Renewals take the license's current expiry datetime and add, in seconds, the policy's duration,
+func (svc *LicenseService) renewLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
+	policy := license.Policy
+
+	// If the license does not have an expiration, skip
+	if license.Expiry.IsZero() {
+		svc.logger.GetLogger().Info(fmt.Sprintf("license [%s] does not expiry, skipping", license.ID.String()))
+		return license, nil
+	}
+
+	svc.logger.GetLogger().Info(fmt.Sprintf("reinstating license [%s]", license.ID))
+	if policy.Duration != 0 {
+		switch policy.RenewalBasis {
+		case constants.PolicyRenewalBasisFromExpiry:
+			license.Expiry = license.Expiry.Add(time.Duration(policy.Duration) * time.Second)
+		case constants.PolicyRenewalFromNow:
+			license.Expiry = time.Now().Add(time.Duration(policy.Duration) * time.Second)
+		case constants.PolicyRenewalFromNowIfExpired:
+			if time.Now().After(license.Expiry) {
+				license.Expiry = time.Now().Add(time.Duration(policy.Duration) * time.Second)
+			} else {
+				license.Expiry = license.Expiry.Add(time.Duration(policy.Duration) * time.Second)
+			}
+		}
+	} else {
+		license.Expiry = time.Time{}
+	}
+
+	svc.logger.GetLogger().Info(fmt.Sprintf("renewing license [%s]", license.ID))
+	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
+	return license, nil
 }
 
-func (svc *LicenseService) renewLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+// checkoutLicense check-outs a license. This will generate a snapshot of the license at time of checkout,
+// encoded into a license file certificate that can be decoded and used for licensing offline and air-gapped
+// environments. The algorithm will depend on the policy's scheme.
+func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
+	return license, nil
 }
 
-func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
-}
+// checkinLicense check-ins a license. Sets the license's LastCheckInAt to the current time,
+func (svc *LicenseService) checkinLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
+	license.LastCheckInAt = time.Now()
 
-func (svc *LicenseService) checkinLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+	svc.logger.GetLogger().Info(fmt.Sprintf("updating license [%s]'s last checked in time", license.ID))
+	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
+	return license, nil
 }
 func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, license *entities.License) error {
 	return nil

@@ -83,7 +83,7 @@ var ValidPolicyExpirationBasisMapper = map[string]bool{
 
 const (
 	// PolicyRenewalBasisFromExpiry - License expiry is extended from the license's current expiry value,
-	//i.e. license.expiry = license.expiry + policy.duration. This is the default.
+	// i.e. license.expiry = license.expiry + policy.duration. This is the default.
 	PolicyRenewalBasisFromExpiry = "from_expiry"
 	// PolicyRenewalFromNow - License expiry is extended from the current time, i.e. license.expiry = time.now + policy.duration.
 	PolicyRenewalFromNow = "from_now"

@@ -96,9 +96,9 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	}
 
 	if license.Status == constants.LicenseStatusExpired {
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsExpired]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsExpired]
-		return resp, comerrors.ErrLicenseIsExpired
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseHasExpired]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseHasExpired]
+		return resp, comerrors.ErrLicenseHasExpired
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-machine-by-fingerprint")
@@ -288,9 +288,9 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 		}
 
 		if license.Status == constants.LicenseStatusExpired {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsExpired]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsExpired]
-			return resp, comerrors.ErrLicenseIsExpired
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseHasExpired]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseHasExpired]
+			return resp, comerrors.ErrLicenseHasExpired
 		}
 
 		machine.LicenseKey = utils.DerefPointer(input.LicenseKey)

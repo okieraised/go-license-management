@@ -374,10 +374,10 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
-			ctx.JSON(http.StatusBadRequest, resp)
-		default:
+		case errors.Is(err, comerrors.ErrGenericInternalServer):
 			ctx.JSON(http.StatusInternalServerError, resp)
+		default:
+			ctx.JSON(http.StatusBadRequest, resp)
 		}
 		return
 	}

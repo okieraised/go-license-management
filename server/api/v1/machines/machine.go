@@ -101,7 +101,7 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 			errors.Is(err, comerrors.ErrMachineFingerprintAssociatedWithLicense),
 			errors.Is(err, comerrors.ErrLicenseIsSuspended),
 			errors.Is(err, comerrors.ErrLicenseIsBanned),
-			errors.Is(err, comerrors.ErrLicenseIsExpired):
+			errors.Is(err, comerrors.ErrLicenseHasExpired):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -173,7 +173,7 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 			errors.Is(err, comerrors.ErrMachineFingerprintAssociatedWithLicense),
 			errors.Is(err, comerrors.ErrLicenseIsSuspended),
 			errors.Is(err, comerrors.ErrLicenseIsBanned),
-			errors.Is(err, comerrors.ErrLicenseIsExpired):
+			errors.Is(err, comerrors.ErrLicenseHasExpired):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
