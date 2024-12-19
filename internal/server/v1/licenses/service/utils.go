@@ -126,7 +126,7 @@ func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.Li
 	license.Suspended = false
 	svc.logger.GetLogger().Info(fmt.Sprintf("suspending license [%s]", license.ID))
 
-	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	license, err := svc.repo.UpdateLicenseByPK(ctx, license)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.
 	license.Suspended = false
 
 	svc.logger.GetLogger().Info(fmt.Sprintf("reinstating license [%s]", license.ID))
-	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	license, err := svc.repo.UpdateLicenseByPK(ctx, license)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (svc *LicenseService) renewLicense(ctx *gin.Context, license *entities.Lice
 	}
 
 	svc.logger.GetLogger().Info(fmt.Sprintf("renewing license [%s]", license.ID))
-	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	license, err := svc.repo.UpdateLicenseByPK(ctx, license)
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +267,7 @@ func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.L
 	expiry := issued.Add(time.Duration(ttl) * time.Second)
 
 	license.LastCheckOutAt = issued
-	err = svc.repo.UpdateLicenseByPK(ctx, license)
+	license, err = svc.repo.UpdateLicenseByPK(ctx, license)
 	if err != nil {
 		return nil, err
 	}
@@ -285,20 +285,47 @@ func (svc *LicenseService) checkinLicense(ctx *gin.Context, license *entities.Li
 	license.LastCheckInAt = time.Now()
 
 	svc.logger.GetLogger().Info(fmt.Sprintf("updating license [%s]'s last checked in time", license.ID))
-	err := svc.repo.UpdateLicenseByPK(ctx, license)
+	license, err := svc.repo.UpdateLicenseByPK(ctx, license)
 	if err != nil {
 		return nil, err
 	}
 
 	return license, nil
 }
-func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+
+// incrementUsageLicense increments a license's uses attribute in accordance with its policy's maxUses attribute.
+// When the policy's maxUses limit is exceeded, the increment attempt will fail.
+// When the policy's maxUses is set to null, there is no limit on usage.
+// The uses attribute cannot be incremented more than the maximum value of a 4 byte integer, 2,147,483,647.
+func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, increment int, license *entities.License) (*entities.License, error) {
+	license.Uses = license.Uses + increment
+	if license.MaxUses != 0 && license.Uses > license.MaxUses {
+		return nil, comerrors.ErrLicenseMaxUsesExceeded
+	}
+
+	svc.logger.GetLogger().Info(fmt.Sprintf("incrementing license [%s] uses", license.ID.String()))
+	license, err := svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
+	return license, nil
 }
 
-func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+// decrementUsageLicense decrements a license's uses attribute in accordance with its policy's maxUses attribute.
+func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, decrement int, license *entities.License) (*entities.License, error) {
+	license.Uses = license.Uses - decrement
+	if license.Uses < 0 {
+		return nil, comerrors.ErrLicenseIncrementIsInvalid
+	}
+	svc.logger.GetLogger().Info(fmt.Sprintf("decrementing license [%s] uses", license.ID.String()))
+	license, err := svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
+	return license, nil
 }
-func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities.License) error {
-	return nil
+func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
+	return license, nil
 }

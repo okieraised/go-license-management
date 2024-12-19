@@ -463,9 +463,6 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			CreatedAt:      output.CreatedAt,
 			UpdatedAt:      output.UpdatedAt,
 		}
-	case constants.AccountActionBan:
-	case constants.AccountActionUnban:
-
 	case constants.LicenseActionSuspend:
 		output, err := svc.suspendLicense(ctx, license)
 		if err != nil {
@@ -552,6 +549,70 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			CreatedAt:      output.CreatedAt,
 			UpdatedAt:      output.UpdatedAt,
 		}
+	case constants.LicenseActionIncrementUsage:
+		output, err := svc.incrementUsageLicense(ctx, utils.DerefPointer(input.Increment), license)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			switch {
+			case errors.Is(err, comerrors.ErrLicenseMaxUsesExceeded):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxUsesExceeded]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxUsesExceeded]
+				return resp, comerrors.ErrLicenseMaxUsesExceeded
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
+		resp.Data = models.LicenseInfoOutput{
+			LicenseID:      output.ID.String(),
+			ProductID:      output.ProductID.String(),
+			PolicyID:       output.PolicyID.String(),
+			Name:           output.Name,
+			LicenseKey:     output.Key,
+			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
+			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
+			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
+			Status:         output.Status,
+			Metadata:       output.Metadata,
+			Expiry:         output.Expiry,
+			CreatedAt:      output.CreatedAt,
+			UpdatedAt:      output.UpdatedAt,
+		}
+	case constants.LicenseActionDecrementUsage:
+		output, err := svc.decrementUsageLicense(ctx, utils.DerefPointer(input.Decrement), license)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			switch {
+			case errors.Is(err, comerrors.ErrLicenseIncrementIsInvalid):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIncrementIsInvalid]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIncrementIsInvalid]
+				return resp, comerrors.ErrLicenseIncrementIsInvalid
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
+		resp.Data = models.LicenseInfoOutput{
+			LicenseID:      output.ID.String(),
+			ProductID:      output.ProductID.String(),
+			PolicyID:       output.PolicyID.String(),
+			Name:           output.Name,
+			LicenseKey:     output.Key,
+			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
+			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
+			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
+			Status:         output.Status,
+			Metadata:       output.Metadata,
+			Expiry:         output.Expiry,
+			CreatedAt:      output.CreatedAt,
+			UpdatedAt:      output.UpdatedAt,
+		}
+	case constants.LicenseActionResetUsage:
+
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]

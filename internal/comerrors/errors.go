@@ -93,6 +93,7 @@ var (
 	ErrLicenseDecrementIsInvalid       = errors.New("license decrement value is invalid")
 	ErrLicenseNotActivated             = errors.New("license has not been activated")
 	ErrLicenseStatusInvalidToReinstate = errors.New("invalid license status to be reinstated")
+	ErrLicenseMaxUsesExceeded          = errors.New("license maximum uses exceeded")
 )
 
 var (
@@ -178,6 +179,7 @@ var ErrCodeMapper = map[error]string{
 	ErrLicenseDecrementIsInvalid:             "47019",
 	ErrLicenseNotActivated:                   "47020",
 	ErrLicenseStatusInvalidToReinstate:       "47021",
+	ErrLicenseMaxUsesExceeded:                "47022",
 
 	ErrMachineIDIsEmpty:                        "48000",
 	ErrMachineIDIsInvalid:                      "48001",
@@ -261,6 +263,7 @@ var ErrMessageMapper = map[error]string{
 	ErrLicenseDecrementIsInvalid:             ErrLicenseDecrementIsInvalid.Error(),
 	ErrLicenseNotActivated:                   ErrLicenseNotActivated.Error(),
 	ErrLicenseStatusInvalidToReinstate:       ErrLicenseStatusInvalidToReinstate.Error(),
+	ErrLicenseMaxUsesExceeded:                ErrLicenseMaxUsesExceeded.Error(),
 
 	ErrMachineIDIsEmpty:                        ErrMachineIDIsEmpty.Error(),
 	ErrMachineIDIsInvalid:                      ErrMachineIDIsInvalid.Error(),

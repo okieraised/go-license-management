@@ -7,21 +7,27 @@ const (
 )
 
 const (
-	LicenseActionValidate  = "validate"
-	LicenseActionSuspend   = "suspend"
-	LicenseActionReinstate = "reinstate"
-	LicenseActionRenew     = "renew"
-	LicenseActionCheckout  = "checkout"
-	LicenseActionCheckin   = "checkin"
+	LicenseActionValidate       = "validate"
+	LicenseActionSuspend        = "suspend"
+	LicenseActionReinstate      = "reinstate"
+	LicenseActionRenew          = "renew"
+	LicenseActionCheckout       = "checkout"
+	LicenseActionCheckin        = "checkin"
+	LicenseActionIncrementUsage = "increment-usage"
+	LicenseActionDecrementUsage = "decrement-usage"
+	LicenseActionResetUsage     = "reset-usage"
 )
 
 var ValidLicenseActionMapper = map[string]interface{}{
-	LicenseActionValidate:  true,
-	LicenseActionSuspend:   true,
-	LicenseActionReinstate: true,
-	LicenseActionRenew:     true,
-	LicenseActionCheckout:  true,
-	LicenseActionCheckin:   true,
+	LicenseActionValidate:       true,
+	LicenseActionSuspend:        true,
+	LicenseActionReinstate:      true,
+	LicenseActionRenew:          true,
+	LicenseActionCheckout:       true,
+	LicenseActionCheckin:        true,
+	LicenseActionIncrementUsage: true,
+	LicenseActionDecrementUsage: true,
+	LicenseActionResetUsage:     true,
 }
 
 //The status of the license to filter by. One of: ACTIVE, INACTIVE, EXPIRED, SUSPENDED, or BANNED.

@@ -145,16 +145,16 @@ func (repo *LicenseRepository) DeleteLicenseByPK(ctx context.Context, licenseID 
 	return nil
 }
 
-func (repo *LicenseRepository) UpdateLicenseByPK(ctx context.Context, license *entities.License) error {
+func (repo *LicenseRepository) UpdateLicenseByPK(ctx context.Context, license *entities.License) (*entities.License, error) {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return license, comerrors.ErrInvalidDatabaseClient
 	}
 
 	license.UpdatedAt = time.Now()
 	_, err := repo.database.NewUpdate().Model(license).WherePK().Exec(ctx)
 	if err != nil {
-		return err
+		return license, err
 	}
 
-	return nil
+	return license, nil
 }
