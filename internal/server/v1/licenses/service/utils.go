@@ -327,5 +327,13 @@ func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, decrement int
 	return license, nil
 }
 func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
+
+	license.Uses = 0
+	svc.logger.GetLogger().Info(fmt.Sprintf("reseting license [%s] uses", license.ID.String()))
+	license, err := svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
 	return license, nil
 }

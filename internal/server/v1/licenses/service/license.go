@@ -612,7 +612,29 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			UpdatedAt:      output.UpdatedAt,
 		}
 	case constants.LicenseActionResetUsage:
-
+		output, err := svc.resetUsageLicense(ctx, license)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		resp.Data = models.LicenseInfoOutput{
+			LicenseID:      output.ID.String(),
+			ProductID:      output.ProductID.String(),
+			PolicyID:       output.PolicyID.String(),
+			Name:           output.Name,
+			LicenseKey:     output.Key,
+			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
+			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
+			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
+			Status:         output.Status,
+			Metadata:       output.Metadata,
+			Expiry:         output.Expiry,
+			CreatedAt:      output.CreatedAt,
+			UpdatedAt:      output.UpdatedAt,
+		}
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
