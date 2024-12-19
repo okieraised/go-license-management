@@ -99,18 +99,28 @@ func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.L
 	case constants.LicenseStatusActive:
 		resp.Valid = true
 		resp.Code = constants.LicenseValidationStatusValid
+		return resp, nil
 	case constants.LicenseStatusInactive:
 		resp.Valid = true
 		resp.Code = constants.LicenseValidationStatusValid
+		return resp, nil
 	case constants.LicenseStatusBanned:
 		resp.Valid = false
 		resp.Code = constants.LicenseValidationStatusBanned
+		return resp, nil
 	case constants.LicenseStatusExpired:
 		resp.Valid = false
 		resp.Code = constants.LicenseValidationStatusExpired
+		return resp, nil
 	case constants.LicenseStatusSuspended:
 		resp.Valid = false
 		resp.Code = constants.LicenseValidationStatusSuspended
+		return resp, nil
+	}
+
+	if license.MachinesCount > license.MaxMachines {
+		resp.Valid = false
+		resp.Code = constants.LicenseValidationStatusTooManyMachine
 	}
 
 	return resp, nil
