@@ -87,7 +87,7 @@ func (repo *LicenseRepository) SelectLicenseByPK(ctx context.Context, licenseID 
 
 	license := &entities.License{ID: licenseID}
 
-	err := repo.database.NewSelect().Model(license).Relation("Policy").WherePK().Scan(ctx)
+	err := repo.database.NewSelect().Model(license).Relation("Policy").Relation("Product").WherePK().Scan(ctx)
 	if err != nil {
 		return license, err
 	}
@@ -122,7 +122,7 @@ func (repo *LicenseRepository) SelectLicenseByLicenseKey(ctx context.Context, li
 
 	license := &entities.License{Key: licenseKey}
 
-	err := repo.database.NewSelect().Model(license).Relation("Policy").Where("key = ?", licenseKey).Scan(ctx)
+	err := repo.database.NewSelect().Model(license).Relation("Policy").Relation("Product").Where("key = ?", licenseKey).Scan(ctx)
 	if err != nil {
 		return license, err
 	}
