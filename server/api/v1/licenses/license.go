@@ -40,10 +40,8 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes.GET("/:license_id", r.retrieve)
 		routes.PATCH("/:license_id", r.update)
 		routes.DELETE("/:license_id", r.delete)
-		routes.POST("/delete", r.delete)
 		routes.GET("", r.list)
 		routes.POST("/actions/:action", r.action)
-
 	}
 }
 
@@ -302,8 +300,6 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 //   - suspend: Action to temporarily suspend (ban) a license. This will cause the license to fail validation until reinstated.
 //   - reinstate: Action to reinstate a suspended license.
 //   - renew: Action to renew a license. Extends license expiry by the policy's duration, according to the policy's renewal basis.
-//   - revoke: Action to revoke (delete) a license. This cannot be undone. This action also immediately deletes
-//     any machines that the license is associated with.
 //   - checkout: Action to check out a license. This will generate a snapshot of the license at time of checkout,
 //     encoded into a license file certificate that can be decoded and used for licensing offline and air-gapped
 //     environments. The algorithm will depend on the policy's scheme.
