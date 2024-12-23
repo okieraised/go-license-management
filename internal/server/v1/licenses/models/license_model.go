@@ -22,6 +22,20 @@ type LicenseRegistrationInput struct {
 	Metadata    map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
+type LicenseUpdateInput struct {
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	license_attribute.LicenseCommonURI
+	PolicyID    *string                `json:"policy_id" validate:"required" example:"test"`
+	ProductID   *string                `json:"product_id" validate:"required" example:"test"`
+	Name        *string                `json:"name" validate:"required" example:"test"`
+	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"test"`
+	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"test"`
+	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"test"`
+	Expiry      *string                `json:"expiry" validate:"optional" example:"test"`
+	Metadata    map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+}
+
 type LicenseRetrievalInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
@@ -82,12 +96,6 @@ type LicenseDeletionInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
 	license_attribute.LicenseCommonURI
-}
-
-type LicenseUpdateInput struct {
-	TracerCtx  context.Context
-	Tracer     trace.Tracer
-	TenantName *string `json:"tenant_name" validate:"required" example:"test"`
 }
 
 type LicenseActionInput struct {

@@ -46,11 +46,9 @@ func (req *LicenseRegistrationRequest) Validate() error {
 	}
 
 	if req.Expiry != nil {
-		if req.Expiry != nil {
-			_, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
-			if err != nil {
-				return comerrors.ErrLicenseExpiryFormatIsInvalid
-			}
+		_, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
+		if err != nil {
+			return comerrors.ErrLicenseExpiryFormatIsInvalid
 		}
 	}
 
@@ -78,6 +76,76 @@ func (req *LicenseRegistrationRequest) Validate() error {
 func (req *LicenseRegistrationRequest) ToLicenseRegistrationInput(ctx context.Context, tracer trace.Tracer, licenseURI license_attribute.LicenseCommonURI) *models.LicenseRegistrationInput {
 
 	return &models.LicenseRegistrationInput{
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		LicenseCommonURI: licenseURI,
+		PolicyID:         req.PolicyID,
+		ProductID:        req.ProductID,
+		Name:             req.Name,
+		MaxMachines:      req.MaxMachines,
+		MaxUsers:         req.MaxUsers,
+		MaxUses:          req.MaxUses,
+		Expiry:           req.Expiry,
+		Metadata:         req.Metadata,
+	}
+}
+
+type LicenseUpdateRequest struct {
+	PolicyID    *string                `json:"policy_id" validate:"required" example:"test"`
+	ProductID   *string                `json:"product_id" validate:"required" example:"test"`
+	Name        *string                `json:"name" validate:"required" example:"test"`
+	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"test"`
+	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"test"`
+	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"test"`
+	Expiry      *string                `json:"expiry" validate:"optional" example:"test"`
+	Metadata    map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+}
+
+func (req *LicenseUpdateRequest) Validate() error {
+	if req.ProductID != nil {
+		_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
+		if err != nil {
+			return comerrors.ErrProductIDIsInvalid
+		}
+	}
+
+	if req.PolicyID != nil {
+		_, err := uuid.Parse(utils.DerefPointer(req.PolicyID))
+		if err != nil {
+			return comerrors.ErrPolicyIDIsInvalid
+		}
+	}
+
+	if req.Expiry != nil {
+		_, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
+		if err != nil {
+			return comerrors.ErrLicenseExpiryFormatIsInvalid
+		}
+	}
+
+	if req.MaxMachines != nil {
+		if utils.DerefPointer(req.MaxMachines) <= 0 {
+			return comerrors.ErrLicenseMaxMachinesIsInvalid
+		}
+	}
+
+	if req.MaxUses != nil {
+		if utils.DerefPointer(req.MaxUses) <= 0 {
+			return comerrors.ErrLicenseMaxUsesIsInvalid
+		}
+	}
+
+	if req.MaxUsers != nil {
+		if utils.DerefPointer(req.MaxUsers) <= 0 {
+			return comerrors.ErrLicenseMaxUsersIsInvalid
+		}
+	}
+
+	return nil
+}
+
+func (req *LicenseUpdateRequest) ToLicenseUpdateInput(ctx context.Context, tracer trace.Tracer, licenseURI license_attribute.LicenseCommonURI) *models.LicenseUpdateInput {
+	return &models.LicenseUpdateInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
 		LicenseCommonURI: licenseURI,

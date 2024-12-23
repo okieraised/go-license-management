@@ -171,6 +171,71 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 // Any parameters not provided will be left unchanged.
 func (r *LicenseRouter) update(ctx *gin.Context) {
 
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	defer span.End()
+
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received license update request")
+
+	// serializer
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	var uriReq license_attribute.LicenseCommonURI
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var bodyReq license.LicenseUpdateRequest
+	err = ctx.ShouldBind(&bodyReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = bodyReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.Update(ctx, bodyReq.ToLicenseUpdateInput(rootCtx, r.tracer, uriReq))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
+			errors.Is(err, comerrors.ErrProductIDIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+		return
+	}
+	cSpan.End()
+
+	r.logger.GetLogger().Info("completed generating new license")
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	ctx.JSON(http.StatusCreated, resp)
+	return
+
 }
 
 // delete permanently deletes a license. It cannot be undone.

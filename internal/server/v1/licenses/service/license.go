@@ -172,6 +172,11 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	return resp, nil
 }
 
+func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateInput) (*response.BaseOutput, error) {
+
+	return &response.BaseOutput{}, nil
+}
+
 func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetrievalInput) (*response.BaseOutput, error) {
 	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
 	defer span.End()
