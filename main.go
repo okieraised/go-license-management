@@ -57,7 +57,7 @@ func newDataSource() (*models.DataSource, error) {
 	// tracer
 	err := tracer.NewTracerProvider(
 		viper.GetString(config.TracerURI),
-		viper.GetString(""),
+		"go-license-management",
 		"",
 	)
 	if err != nil {

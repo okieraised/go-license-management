@@ -1,7 +1,10 @@
 package machines
 
 import (
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -11,6 +14,7 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/machines/service"
 	"go-license-management/server/models/v1/machines"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
@@ -47,7 +51,10 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates, or activates, a new machine resource for a license.
 func (r *MachineRouter) create(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -110,6 +117,10 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed registering new machine")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -118,7 +129,10 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 // update updates the specified machine resource by setting the values of the parameters passed.
 // Any parameters not provided will be left unchanged.
 func (r *MachineRouter) update(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -182,6 +196,10 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed updating machine")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -189,7 +207,10 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing machine.
 func (r *MachineRouter) retrieve(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -237,6 +258,10 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieval request")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -244,7 +269,10 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 // delete permanently deletes, or deactivates, a machine. It cannot be undone.
 // This will immediately delete all processes and components associated with the machine.
 func (r *MachineRouter) deactivate(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -287,6 +315,10 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed deactivating machine")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
 
@@ -295,7 +327,10 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 // list returns a list of machines. The machines are returned sorted by creation date,
 // with the most recent machines appearing first.
 func (r *MachineRouter) list(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -354,6 +389,9 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed listing machines")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -363,7 +401,10 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 // encoded into a machine file certificate that can be decoded and used for licensing offline and air-gapped environments.
 // The algorithm will depend on the license policy's scheme.
 func (r *MachineRouter) action(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -429,6 +470,10 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed handling machine action")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 

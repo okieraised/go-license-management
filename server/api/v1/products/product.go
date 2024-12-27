@@ -14,6 +14,7 @@ import (
 	"go-license-management/internal/server/v1/products/service"
 	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/products"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
@@ -54,7 +55,10 @@ func (r *ProductRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new product resource.
 func (r *ProductRouter) create(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -130,7 +134,10 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing product.
 func (r *ProductRouter) retrieve(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -186,7 +193,10 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 // update updates the specified product resource by setting the values of the parameters passed.
 // Any parameters not provided will be left unchanged.
 func (r *ProductRouter) update(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -254,7 +264,10 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 // delete permanently deletes a product. It cannot be undone.
 // This action also immediately deletes any policies, licenses and machines that the product is associated with.
 func (r *ProductRouter) delete(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -305,7 +318,10 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 // list returns a list of products. The products are returned sorted by creation date,
 // with the most recent products appearing first.
 func (r *ProductRouter) list(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -371,7 +387,10 @@ func (r *ProductRouter) list(ctx *gin.Context) {
 
 // tokens generates a new product token resource. Product tokens do not expire.
 func (r *ProductRouter) tokens(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)

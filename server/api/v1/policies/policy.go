@@ -1,7 +1,10 @@
 package policies
 
 import (
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -11,13 +14,10 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/policies/service"
 	"go-license-management/server/models/v1/policies"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
-)
-
-const (
-	policyGroup = "policy_group"
 )
 
 type PolicyRouter struct {
@@ -27,7 +27,7 @@ type PolicyRouter struct {
 }
 
 func NewPolicyRouter(svc *service.PolicyService) *PolicyRouter {
-	tr := tracer.GetInstance().Tracer(policyGroup)
+	tr := tracer.GetInstance().Tracer("policy_group")
 	logger := logging.NewECSLogger()
 	return &PolicyRouter{
 		svc:    svc,
@@ -53,7 +53,10 @@ func (r *PolicyRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new policy resource.
 func (r *PolicyRouter) create(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -101,7 +104,6 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
-
 	cSpan.End()
 
 	// handler
@@ -123,6 +125,10 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed creating new policy")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -131,7 +137,10 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 // update updates the specified policy resource by setting the values of the parameters passed.
 // Any parameters not provided will be left unchanged.
 func (r *PolicyRouter) update(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -179,7 +188,6 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
-
 	cSpan.End()
 
 	// handler
@@ -201,6 +209,10 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed updating policy")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -208,7 +220,10 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing policy.
 func (r *PolicyRouter) retrieve(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -256,6 +271,10 @@ func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieval request")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 
@@ -264,7 +283,10 @@ func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 // delete permanently deletes a policy. It cannot be undone.
 // This action also immediately deletes any licenses that the policy is associated with.
 func (r *PolicyRouter) delete(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -307,14 +329,17 @@ func (r *PolicyRouter) delete(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("finished deleting policy")
+	r.logger.GetLogger().Info("completed deleting policy")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
 }
 
 // list returns a list of policies. The policies are returned sorted by creation date, with the most recent policies appearing first.
 func (r *PolicyRouter) list(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -372,7 +397,10 @@ func (r *PolicyRouter) list(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("finished listing policies")
+	r.logger.GetLogger().Info("completed listing policies")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -381,7 +409,10 @@ func (r *PolicyRouter) list(ctx *gin.Context) {
 // attach attaches entitlements to a policy. This will immediately be taken into effect for all future license validations.
 // Any license that implements the given policy will automatically possess all the policy's entitlements.
 func (r *PolicyRouter) attach(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -451,14 +482,20 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("finished attaching new entitlement to policy")
+	r.logger.GetLogger().Info("completed attaching new entitlement to policy")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-	ctx.JSON(http.StatusCreated, resp)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // detach detaches entitlements from a policy. This will immediately be taken into effect for all future license validations.
 func (r *PolicyRouter) detach(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -527,15 +564,21 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("finished detaching entitlement from policy")
+	r.logger.GetLogger().Info("complated detaching entitlement from policy")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
-	ctx.JSON(http.StatusNoContent, resp)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // listEntitlement returns a list of entitlements attached to the policy.
 // The entitlements are returned sorted by creation date, with the most recent entitlements appearing first.
 func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -593,7 +636,10 @@ func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("finished listing policy entitlements")
+	r.logger.GetLogger().Info("completed listing policy entitlements")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return

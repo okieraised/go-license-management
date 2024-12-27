@@ -57,6 +57,18 @@ type LicenseInfoOutput struct {
 	CreatedAt      time.Time              `json:"created_at"`
 	UpdatedAt      time.Time              `json:"updated_at"`
 	LicensePolicy  LicensePolicyOutput    `json:"license_policy"`
+	LicenseProduct LicenseProductOutput   `json:"license_product"`
+}
+
+type LicenseProductOutput struct {
+	Name                 string                 `json:"name,type:varchar(256)"`
+	DistributionStrategy string                 `json:"distribution_strategy,type:varchar(128)"`
+	Code                 string                 `json:"code,type:varchar(128),unique"`
+	URL                  string                 `json:"url,type:varchar(1024)"`
+	Platforms            []string               `json:"platform,type:jsonb"`
+	Metadata             map[string]interface{} `json:"metadata,type:jsonb"`
+	CreatedAt            time.Time              `json:"created_at,nullzero,notnull,default:current_timestamp"`
+	UpdatedAt            time.Time              `json:"updated_at,nullzero,notnull,default:current_timestamp"`
 }
 
 type LicensePolicyOutput struct {

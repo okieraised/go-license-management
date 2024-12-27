@@ -1,7 +1,10 @@
 package licenses
 
 import (
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -11,6 +14,7 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/licenses/service"
 	"go-license-management/server/models/v1/license"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
@@ -47,7 +51,10 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // generate creates a new license resource.
 func (r *LicenseRouter) generate(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -108,6 +115,9 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed generating new license")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -115,7 +125,10 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing license.
 func (r *LicenseRouter) retrieve(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -163,6 +176,10 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieval request")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -170,8 +187,10 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 // update updates the specified license resource by setting the values of the parameters passed.
 // Any parameters not provided will be left unchanged.
 func (r *LicenseRouter) update(ctx *gin.Context) {
-
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -231,7 +250,10 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("completed generating new license")
+	r.logger.GetLogger().Info("completed updating license")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -241,7 +263,10 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 // delete permanently deletes a license. It cannot be undone.
 // This action also immediately deletes any machines that the license is associated with.
 func (r *LicenseRouter) delete(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -293,7 +318,10 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 // Resources are automatically scoped to the authenticated bearer
 // e.g. when authenticated as a user, only licenses of that specific user will be listed.
 func (r *LicenseRouter) list(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -352,6 +380,9 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed listing licenses")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -376,7 +407,10 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 //   - decrement-usage: Action to decrement a license's uses attribute in accordance with its policy's maxUses attribute.
 //   - reset-usage: Action to reset a license's uses attribute to 0.
 func (r *LicenseRouter) action(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -444,6 +478,10 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed handling license actions")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }

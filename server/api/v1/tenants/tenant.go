@@ -12,13 +12,10 @@ import (
 	"go-license-management/internal/server/v1/tenants/service"
 	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/tenants"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
-)
-
-const (
-	tenantGroup = "tenant_group"
 )
 
 type TenantRouter struct {
@@ -28,7 +25,7 @@ type TenantRouter struct {
 }
 
 func NewTenantRouter(svc *service.TenantService) *TenantRouter {
-	tr := tracer.GetInstance().Tracer(tenantGroup)
+	tr := tracer.GetInstance().Tracer("tenant_group")
 	logger := logging.NewECSLogger()
 	return &TenantRouter{
 		svc:    svc,
@@ -62,7 +59,10 @@ func (r *TenantRouter) Routes(engine *gin.RouterGroup, path string) {
 // @Failure 		500 				{object} 	response.Response
 // @Router 			/tenants [post]
 func (r *TenantRouter) create(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -117,7 +117,10 @@ func (r *TenantRouter) create(ctx *gin.Context) {
 }
 
 func (r *TenantRouter) list(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -167,7 +170,10 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 }
 
 func (r *TenantRouter) retrieve(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -222,7 +228,10 @@ func (r *TenantRouter) retrieve(ctx *gin.Context) {
 }
 
 func (r *TenantRouter) delete(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)

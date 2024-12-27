@@ -13,6 +13,7 @@ import (
 	"go-license-management/internal/server/v1/accounts/service"
 	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/accounts"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
@@ -51,8 +52,10 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new account resource.
 func (r *AccountRouter) create(ctx *gin.Context) {
-
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -127,7 +130,10 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing account.
 func (r *AccountRouter) retrieve(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -178,7 +184,10 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 // update updates the specified account resource by setting the values of the parameters passed.
 // Any parameters not provided will be left unchanged.
 func (r *AccountRouter) update(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -252,7 +261,10 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 
 // delete permanently deletes an account. It cannot be undone.
 func (r *AccountRouter) delete(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -302,7 +314,10 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 // list returns a list of accounts. The accounts are returned sorted by creation date,
 // with the most recent accounts appearing first
 func (r *AccountRouter) list(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -361,7 +376,10 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 }
 
 func (r *AccountRouter) actions(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)

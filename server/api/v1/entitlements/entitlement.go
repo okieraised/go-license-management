@@ -11,13 +11,10 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/entitlements/service"
 	"go-license-management/server/models/v1/entitlements"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
-)
-
-const (
-	entitlementGroup = "entitlement_group"
 )
 
 type EntitlementRouter struct {
@@ -27,7 +24,7 @@ type EntitlementRouter struct {
 }
 
 func NewEntitlementRouter(svc *service.EntitlementService) *EntitlementRouter {
-	tr := tracer.GetInstance().Tracer(entitlementGroup)
+	tr := tracer.GetInstance().Tracer("entitlement_group")
 	logger := logging.NewECSLogger()
 	return &EntitlementRouter{
 		svc:    svc,
@@ -49,7 +46,10 @@ func (r *EntitlementRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new entitlement resource.
 func (r *EntitlementRouter) create(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -125,7 +125,10 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing entitlement.
 func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -181,7 +184,10 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 // delete permanently deletes an entitlement.
 // The entitlement will immediately be removed from all licenses and policies. It cannot be undone.
 func (r *EntitlementRouter) delete(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
@@ -233,7 +239,10 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 // with the most recent entitlements appearing first. Resources are automatically scoped to the authenticated bearer
 // e.g. when authenticated as a license, only entitlements attached to that specific license will be listed.
 func (r *EntitlementRouter) list(ctx *gin.Context) {
-	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path)
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
 	defer span.End()
 
 	resp := response.NewResponse(ctx)

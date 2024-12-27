@@ -13,3 +13,6 @@ username="postgres"
 password="123qweA#"
 database="licenses"
 casbin="rbac_rules"
+
+[tracer]
+uri="127.0.0.1:4317"
