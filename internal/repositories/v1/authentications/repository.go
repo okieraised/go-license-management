@@ -25,7 +25,7 @@ func (repo *AuthenticationRepository) SelectTenantByPK(ctx context.Context, tena
 
 	tenant := &entities.Tenant{Name: tenantName}
 
-	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name, ed25519_private_key").WherePK().Scan(ctx)
+	err := repo.database.NewSelect().Model(tenant).ColumnExpr("name, ed25519_private_key").WherePK().Scan(ctx)
 	if err != nil {
 		return tenant, err
 	}

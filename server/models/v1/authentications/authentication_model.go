@@ -3,8 +3,8 @@ package authentications
 import (
 	"context"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/infrastructure/models/authentication_attribute"
 	"go-license-management/internal/server/v1/authentications/models"
-	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -25,12 +25,12 @@ func (req *AuthenticationLoginRequest) Validate() error {
 	return nil
 }
 
-func (req *AuthenticationLoginRequest) ToAuthenticationLoginInput(ctx context.Context, tracer trace.Tracer, tenantName string) *models.AuthenticationLoginInput {
+func (req *AuthenticationLoginRequest) ToAuthenticationLoginInput(ctx context.Context, tracer trace.Tracer, uriReq authentication_attribute.AuthenticationCommonURI) *models.AuthenticationLoginInput {
 	return &models.AuthenticationLoginInput{
-		TracerCtx:  ctx,
-		Tracer:     tracer,
-		TenantName: utils.RefPointer(tenantName),
-		Username:   req.Username,
-		Password:   req.Password,
+		TracerCtx:               ctx,
+		Tracer:                  tracer,
+		AuthenticationCommonURI: uriReq,
+		Username:                req.Username,
+		Password:                req.Password,
 	}
 }

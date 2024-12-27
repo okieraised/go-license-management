@@ -6,6 +6,7 @@ import (
 	xormadapter "github.com/casbin/xorm-adapter/v3"
 	"github.com/spf13/viper"
 	"go-license-management/internal/config"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/postgres"
 	"go-license-management/internal/infrastructure/logging"
 	_ "go-license-management/internal/infrastructure/logging"
@@ -57,7 +58,7 @@ func newDataSource() (*models.DataSource, error) {
 	// tracer
 	err := tracer.NewTracerProvider(
 		viper.GetString(config.TracerURI),
-		"go-license-management",
+		constants.AppName,
 		"",
 	)
 	if err != nil {

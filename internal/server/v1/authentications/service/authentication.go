@@ -83,22 +83,23 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 	}
 	cSpan.End()
 
-	//// generate jwt
-	//_, cSpan = input.Tracer.Start(rootCtx, "generate-account-token")
-	//token, err := utils.GenerateJWT(account.Email, account.Username, account.RoleName, tenant.ID.String(), tenant.Ed25519PrivateKey)
-	//if err != nil {
-	//	svc.logger.GetLogger().Error(err.Error())
-	//	cSpan.End()
-	//	resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-	//	resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-	//	return resp, comerrors.ErrGenericInternalServer
-	//}
-	//cSpan.End()
+	// generate jwt
+	_, cSpan = input.Tracer.Start(rootCtx, "generate-account-token")
+	token, exp, err := svc.generateJWT(ctx, tenant, account)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
-	resp.Data = map[string]string{
-		"access": "",
+	resp.Data = models.AuthenticationLoginOutput{
+		Access:   token,
+		ExpireAt: exp,
 	}
 
 	return resp, nil

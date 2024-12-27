@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"crypto"
 	"crypto/ed25519"
 	"crypto/x509"
 	"encoding/base64"
@@ -8,8 +9,29 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 )
+
+type ED25519Signer struct {
+	privateKey ed25519.PrivateKey
+}
+
+func (s *ED25519Signer) SetPrivateKey(k ed25519.PrivateKey) {
+	s.privateKey = k
+}
+
+func (s *ED25519Signer) GetPrivateKey() ed25519.PrivateKey {
+	return s.privateKey
+}
+
+func (s *ED25519Signer) Public() crypto.PublicKey {
+	return s.privateKey.Public()
+}
+
+func (s *ED25519Signer) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
+	return s.privateKey.Sign(rand, digest, opts)
+}
 
 // NewEd25519KeyPair generates the private signing key and the public verify key using Ed25519 algorithm
 func NewEd25519KeyPair() (string, string, error) {
