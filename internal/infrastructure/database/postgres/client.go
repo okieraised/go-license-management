@@ -8,6 +8,7 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
+	"go-license-management/internal/infrastructure/logging"
 	"time"
 )
 
@@ -51,6 +52,10 @@ func NewPostgresClient(host, port, dbname, userName, password string) (*bun.DB, 
 	postgresClient = bun.NewDB(postgresDB, pgdialect.New())
 
 	return postgresClient, nil
+}
+
+func Seeding() {
+	logging.GetInstance().GetLogger().Info("started populating database")
 }
 
 func checkDatabaseExists(ctx context.Context, dbName string) (bool, error) {
