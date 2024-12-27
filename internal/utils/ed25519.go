@@ -9,9 +9,53 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"io"
 	"strings"
 )
+
+type SigningMethodEdDSA struct{}
+
+var (
+	SigningMethodEd25519 *SigningMethodEdDSA
+)
+
+func init() {
+	SigningMethodEd25519 = &SigningMethodEdDSA{}
+	jwt.RegisterSigningMethod("EdDSA", func() jwt.SigningMethod {
+		return SigningMethodEd25519
+	})
+}
+
+// Alg returns the name of the signing method
+func (m *SigningMethodEdDSA) Alg() string {
+	return "EdDSA"
+}
+
+// Verify verifies a token's signature
+func (m *SigningMethodEdDSA) Verify(signingString string, signature []byte, key interface{}) error {
+	pubKey, ok := key.(ed25519.PublicKey)
+	if !ok {
+		return fmt.Errorf("invalid public key type")
+	}
+
+	// Verify the signature
+	if !ed25519.Verify(pubKey, []byte(signingString), signature) {
+		return fmt.Errorf("invalid signature")
+	}
+	return nil
+}
+
+// Sign signs a token using the private key
+func (m *SigningMethodEdDSA) Sign(signingString string, key interface{}) ([]byte, error) {
+	privKey, ok := key.(ed25519.PrivateKey)
+	if !ok {
+		return nil, fmt.Errorf("invalid private key type")
+	}
+
+	// Sign the string
+	return ed25519.Sign(privKey, []byte(signingString)), nil
+}
 
 type ED25519Signer struct {
 	privateKey ed25519.PrivateKey
@@ -82,8 +126,8 @@ func NewLicenseKeyWithEd25519(signingKey string, data any) (string, error) {
 
 	// Sign the data with the private key
 	signature := ed25519.Sign(privateKey, bData)
-	encodedSignature := base64.URLEncoding.EncodeToString(signature)
-	encodedData := base64.URLEncoding.EncodeToString(bData)
+	encodedSignature := base64.StdEncoding.EncodeToString(signature)
+	encodedData := base64.StdEncoding.EncodeToString(bData)
 
 	// Combine the encoded data and signature to create the license key
 	licenseKey := fmt.Sprintf("%s.%s", encodedSignature, encodedData)
@@ -100,12 +144,12 @@ func VerifyLicenseKeyWithEd25519(verifyKey string, licenseKey string) (bool, []b
 	encodedData := parts[1]
 	encodedSignature := parts[0]
 
-	data, err := base64.URLEncoding.DecodeString(encodedData)
+	data, err := base64.StdEncoding.DecodeString(encodedData)
 	if err != nil {
 		return false, nil, err
 	}
 
-	signature, err := base64.URLEncoding.DecodeString(encodedSignature)
+	signature, err := base64.StdEncoding.DecodeString(encodedSignature)
 	if err != nil {
 		return false, nil, err
 	}

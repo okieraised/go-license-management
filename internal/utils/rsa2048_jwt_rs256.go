@@ -10,7 +10,7 @@ import (
 // NewLicenseKeyWithJWTRS256 generates new license key in jwt format using RS256 signing method.
 func NewLicenseKeyWithJWTRS256(signingKey string, data any) (string, error) {
 
-	privateKeyPem, err := base64.URLEncoding.DecodeString(signingKey)
+	privateKeyPem, err := base64.StdEncoding.DecodeString(signingKey)
 	if err != nil {
 		return "", err
 	}

@@ -90,7 +90,7 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 		return nil, err
 	}
 	// convert the cert to base64
-	b64MachineCert := base64.URLEncoding.EncodeToString(bMachineCert)
+	b64MachineCert := base64.StdEncoding.EncodeToString(bMachineCert)
 
 	// generate encryption key from hash of signature and machine fingerprint
 	svc.logger.GetLogger().Info(fmt.Sprintf("encrypting machine file for machine [%s]", machine.ID.String()))
@@ -105,7 +105,7 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 		return nil, err
 	}
 
-	finalCertificate := fmt.Sprintf(constants.MachineFileFormat, base64.URLEncoding.EncodeToString(encryptedMachineCert))
+	finalCertificate := fmt.Sprintf(constants.MachineFileFormat, base64.StdEncoding.EncodeToString(encryptedMachineCert))
 	output := &models.MachineActionCheckoutOutput{
 		ID:          machine.ID,
 		Type:        "machine",

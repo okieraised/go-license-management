@@ -57,6 +57,10 @@ const (
 	AuthorizationTypeBearer = "Bearer"
 )
 
+const (
+	ContextValuePermissions = "permissions"
+)
+
 type QueryCommonParam struct {
 	Limit  *int `form:"limit" validate:"optional" example:"10"`
 	Offset *int `form:"offset" validate:"optional" example:"10"`

@@ -40,6 +40,7 @@ func (svc *AuthenticationService) generateJWT(ctx *gin.Context, tenant *entities
 		"exp":         exp,               // Expiration time
 		"iat":         now.Unix(),
 		"nbf":         now.Unix(),
+		"tenant":      account.TenantName,
 		"permissions": jwtPermissions,
 	})
 

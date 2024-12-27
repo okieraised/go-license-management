@@ -36,7 +36,7 @@ func NewRSA2048PKCS1KeyPair() (string, string, error) {
 		Bytes: x509.MarshalPKCS1PublicKey(&privateKey.PublicKey),
 	})
 
-	return base64.URLEncoding.EncodeToString(privateKeyPEM), base64.URLEncoding.EncodeToString(publicKeyPEM), nil
+	return base64.StdEncoding.EncodeToString(privateKeyPEM), base64.StdEncoding.EncodeToString(publicKeyPEM), nil
 }
 
 // NewLicenseKeyWithRSA2048PKCS1 generates new license key using RSA2048 algorithm
@@ -47,7 +47,7 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	}
 
 	// Encode the original data to base64
-	encodedData := base64.URLEncoding.EncodeToString(bData)
+	encodedData := base64.StdEncoding.EncodeToString(bData)
 
 	// Sign the data using the private key with SHA-256 hashing
 	hash := sha512.New()
@@ -55,7 +55,7 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	hashed := hash.Sum(nil)
 
 	// Decode the private key string
-	privateKeyPEM, err := base64.URLEncoding.DecodeString(signingKey)
+	privateKeyPEM, err := base64.StdEncoding.DecodeString(signingKey)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +77,7 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	}
 
 	// Encode the signature in base64
-	encodedSignature := base64.URLEncoding.EncodeToString(signature)
+	encodedSignature := base64.StdEncoding.EncodeToString(signature)
 
 	// Combine the encoded data and signature to create the license key
 	licenseKey := fmt.Sprintf("%s.%s", encodedSignature, encodedData)
@@ -94,19 +94,19 @@ func VerifyLicenseKeyWithRSA2048PKCS1(verifyKey string, licenseKey string) (bool
 	encodedData := parts[1]
 	encodedSignature := parts[0]
 
-	data, err := base64.URLEncoding.DecodeString(encodedData)
+	data, err := base64.StdEncoding.DecodeString(encodedData)
 	if err != nil {
 		return false, nil, err
 	}
 
 	// Decode signature
-	signature, err := base64.URLEncoding.DecodeString(encodedSignature)
+	signature, err := base64.StdEncoding.DecodeString(encodedSignature)
 	if err != nil {
 		return false, nil, err
 	}
 
 	// Decode the public key string
-	publicKeyPEM, err := base64.URLEncoding.DecodeString(verifyKey)
+	publicKeyPEM, err := base64.StdEncoding.DecodeString(verifyKey)
 	if err != nil {
 		return false, nil, err
 	}
