@@ -14,6 +14,7 @@ import (
 	"go-license-management/internal/utils"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func JWTValidationMW() gin.HandlerFunc {
@@ -83,6 +84,19 @@ func JWTValidationMW() gin.HandlerFunc {
 				return
 			}
 
+			exp, err := parsedToken.Claims.GetExpirationTime()
+			if err != nil {
+				logging.GetInstance().GetLogger().Error(err.Error())
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				return
+			}
+
+			if exp.Before(time.Now()) {
+				logging.GetInstance().GetLogger().Error("token has expired")
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				return
+			}
+
 			permissionsClaims, ok := parsedToken.Claims.(jwt.MapClaims)["permissions"]
 			if !ok {
 				logging.GetInstance().GetLogger().Error("missing [permissions] claims")
@@ -97,7 +111,15 @@ func JWTValidationMW() gin.HandlerFunc {
 				return
 			}
 
+			subject, err := parsedToken.Claims.GetSubject()
+			if err != nil {
+				logging.GetInstance().GetLogger().Error(err.Error())
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				return
+			}
+
 			ctx.Set(constants.ContextValuePermissions, permissions)
+			ctx.Set(constants.ContextValueSubject, subject)
 		default:
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
 			return
