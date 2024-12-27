@@ -234,12 +234,12 @@ func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.L
 		Sig: signature,
 		Alg: policy.Scheme,
 	}
-	bMachineCert, err := json.Marshal(jsonLicenseCert)
+	bLicenseCert, err := json.Marshal(jsonLicenseCert)
 	if err != nil {
 		return nil, err
 	}
 
-	certificate := base64.URLEncoding.EncodeToString(bMachineCert)
+	certificate := base64.URLEncoding.EncodeToString(bLicenseCert)
 	if strings.ToLower(ctx.Query("encrypt")) == "true" {
 		svc.logger.GetLogger().Info(fmt.Sprintf("encrypting license certificate file for license [%s]", license.ID.String()))
 		sha256Hash := fmt.Sprintf("%x", sha256.Sum256([]byte(certificate)))

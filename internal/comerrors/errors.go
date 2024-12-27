@@ -21,15 +21,22 @@ var (
 )
 
 var (
-	ErrAccountUsernameIsEmpty      = errors.New("account username is empty")
-	ErrAccountPasswordIsEmpty      = errors.New("account password is empty")
-	ErrAccountEmailIsEmpty         = errors.New("account email is empty")
-	ErrAccountRoleIsEmpty          = errors.New("account role is empty")
-	ErrAccountRoleIsInvalid        = errors.New("account role is invalid")
-	ErrAccountUsernameAlreadyExist = errors.New("account username already exists")
-	ErrAccountActionIsEmpty        = errors.New("account action is empty")
-	ErrAccountActionIsInvalid      = errors.New("account action is invalid")
-	ErrAccountUsernameIsInvalid    = errors.New("account username is invalid")
+	ErrAccountUsernameIsEmpty        = errors.New("account username is empty")
+	ErrAccountPasswordIsEmpty        = errors.New("account password is empty")
+	ErrAccountEmailIsEmpty           = errors.New("account email is empty")
+	ErrAccountRoleIsEmpty            = errors.New("account role is empty")
+	ErrAccountRoleIsInvalid          = errors.New("account role is invalid")
+	ErrAccountUsernameAlreadyExist   = errors.New("account username already exists")
+	ErrAccountEmailAlreadyExist      = errors.New("account email already exists")
+	ErrAccountActionIsEmpty          = errors.New("account action is empty")
+	ErrAccountActionIsInvalid        = errors.New("account action is invalid")
+	ErrAccountUsernameIsInvalid      = errors.New("account username is invalid")
+	ErrAccountCurrentPasswordIsEmpty = errors.New("account current password is empty")
+	ErrAccountNewPasswordIsEmpty     = errors.New("account new password is empty")
+	ErrAccountPasswordNotMatch       = errors.New("account password not match")
+	ErrAccountResetTokenIsEmpty      = errors.New("account reset token is empty")
+	ErrAccountResetTokenIsInvalid    = errors.New("account reset token is invalid")
+	ErrAccountResetTokenIsExpired    = errors.New("account reset token is expired")
 )
 
 var (
@@ -109,25 +116,33 @@ var (
 )
 
 var ErrCodeMapper = map[error]string{
-	nil:                                      "00000",
-	ErrGenericInternalServer:                 "50000",
-	ErrInvalidDatabaseClient:                 "50001",
-	ErrGenericRequestTimedOut:                "50004",
-	ErrGenericBadRequest:                     "40000",
-	ErrGenericUnauthorized:                   "40001",
-	ErrGenericPermission:                     "40003",
-	ErrTenantNameIsEmpty:                     "42000",
-	ErrTenantNameAlreadyExist:                "42001",
-	ErrTenantNameIsInvalid:                   "42002",
-	ErrAccountUsernameIsEmpty:                "43000",
-	ErrAccountEmailIsEmpty:                   "43001",
-	ErrAccountRoleIsEmpty:                    "43002",
-	ErrAccountRoleIsInvalid:                  "43003",
-	ErrAccountPasswordIsEmpty:                "43004",
-	ErrAccountUsernameAlreadyExist:           "43005",
-	ErrAccountActionIsEmpty:                  "43006",
-	ErrAccountActionIsInvalid:                "43007",
-	ErrAccountUsernameIsInvalid:              "43008",
+	nil:                              "00000",
+	ErrGenericInternalServer:         "50000",
+	ErrInvalidDatabaseClient:         "50001",
+	ErrGenericRequestTimedOut:        "50004",
+	ErrGenericBadRequest:             "40000",
+	ErrGenericUnauthorized:           "40001",
+	ErrGenericPermission:             "40003",
+	ErrTenantNameIsEmpty:             "42000",
+	ErrTenantNameAlreadyExist:        "42001",
+	ErrTenantNameIsInvalid:           "42002",
+	ErrAccountUsernameIsEmpty:        "43000",
+	ErrAccountEmailIsEmpty:           "43001",
+	ErrAccountRoleIsEmpty:            "43002",
+	ErrAccountRoleIsInvalid:          "43003",
+	ErrAccountPasswordIsEmpty:        "43004",
+	ErrAccountUsernameAlreadyExist:   "43005",
+	ErrAccountEmailAlreadyExist:      "43006",
+	ErrAccountActionIsEmpty:          "43007",
+	ErrAccountActionIsInvalid:        "43008",
+	ErrAccountUsernameIsInvalid:      "43009",
+	ErrAccountCurrentPasswordIsEmpty: "49010",
+	ErrAccountNewPasswordIsEmpty:     "49011",
+	ErrAccountPasswordNotMatch:       "49012",
+	ErrAccountResetTokenIsEmpty:      "49013",
+	ErrAccountResetTokenIsInvalid:    "49014",
+	ErrAccountResetTokenIsExpired:    "49015",
+
 	ErrProductNameIsEmpty:                    "44000",
 	ErrProductCodeIsEmpty:                    "44001",
 	ErrProductDistributionStrategyIsInvalid:  "44002",
@@ -193,25 +208,33 @@ var ErrCodeMapper = map[error]string{
 }
 
 var ErrMessageMapper = map[error]string{
-	nil:                                      "OK",
-	ErrGenericInternalServer:                 ErrGenericInternalServer.Error(),
-	ErrGenericRequestTimedOut:                ErrGenericRequestTimedOut.Error(),
-	ErrInvalidDatabaseClient:                 ErrInvalidDatabaseClient.Error(),
-	ErrGenericBadRequest:                     ErrGenericBadRequest.Error(),
-	ErrGenericUnauthorized:                   ErrGenericUnauthorized.Error(),
-	ErrGenericPermission:                     ErrGenericPermission.Error(),
-	ErrTenantNameIsEmpty:                     ErrTenantNameIsEmpty.Error(),
-	ErrTenantNameAlreadyExist:                ErrTenantNameAlreadyExist.Error(),
-	ErrTenantNameIsInvalid:                   ErrTenantNameIsInvalid.Error(),
-	ErrAccountUsernameIsEmpty:                ErrAccountUsernameIsEmpty.Error(),
-	ErrAccountEmailIsEmpty:                   ErrAccountEmailIsEmpty.Error(),
-	ErrAccountRoleIsEmpty:                    ErrAccountRoleIsEmpty.Error(),
-	ErrAccountRoleIsInvalid:                  ErrAccountRoleIsInvalid.Error(),
-	ErrAccountPasswordIsEmpty:                ErrAccountPasswordIsEmpty.Error(),
-	ErrAccountUsernameAlreadyExist:           ErrAccountUsernameAlreadyExist.Error(),
-	ErrAccountActionIsEmpty:                  ErrAccountActionIsEmpty.Error(),
-	ErrAccountActionIsInvalid:                ErrAccountActionIsInvalid.Error(),
-	ErrAccountUsernameIsInvalid:              ErrAccountUsernameIsInvalid.Error(),
+	nil:                              "OK",
+	ErrGenericInternalServer:         ErrGenericInternalServer.Error(),
+	ErrGenericRequestTimedOut:        ErrGenericRequestTimedOut.Error(),
+	ErrInvalidDatabaseClient:         ErrInvalidDatabaseClient.Error(),
+	ErrGenericBadRequest:             ErrGenericBadRequest.Error(),
+	ErrGenericUnauthorized:           ErrGenericUnauthorized.Error(),
+	ErrGenericPermission:             ErrGenericPermission.Error(),
+	ErrTenantNameIsEmpty:             ErrTenantNameIsEmpty.Error(),
+	ErrTenantNameAlreadyExist:        ErrTenantNameAlreadyExist.Error(),
+	ErrAccountEmailAlreadyExist:      ErrAccountEmailAlreadyExist.Error(),
+	ErrTenantNameIsInvalid:           ErrTenantNameIsInvalid.Error(),
+	ErrAccountUsernameIsEmpty:        ErrAccountUsernameIsEmpty.Error(),
+	ErrAccountEmailIsEmpty:           ErrAccountEmailIsEmpty.Error(),
+	ErrAccountRoleIsEmpty:            ErrAccountRoleIsEmpty.Error(),
+	ErrAccountRoleIsInvalid:          ErrAccountRoleIsInvalid.Error(),
+	ErrAccountPasswordIsEmpty:        ErrAccountPasswordIsEmpty.Error(),
+	ErrAccountUsernameAlreadyExist:   ErrAccountUsernameAlreadyExist.Error(),
+	ErrAccountActionIsEmpty:          ErrAccountActionIsEmpty.Error(),
+	ErrAccountActionIsInvalid:        ErrAccountActionIsInvalid.Error(),
+	ErrAccountUsernameIsInvalid:      ErrAccountUsernameIsInvalid.Error(),
+	ErrAccountCurrentPasswordIsEmpty: ErrAccountCurrentPasswordIsEmpty.Error(),
+	ErrAccountNewPasswordIsEmpty:     ErrAccountNewPasswordIsEmpty.Error(),
+	ErrAccountPasswordNotMatch:       ErrAccountPasswordNotMatch.Error(),
+	ErrAccountResetTokenIsEmpty:      ErrAccountResetTokenIsEmpty.Error(),
+	ErrAccountResetTokenIsInvalid:    ErrAccountResetTokenIsInvalid.Error(),
+	ErrAccountResetTokenIsExpired:    ErrAccountResetTokenIsExpired.Error(),
+
 	ErrProductNameIsEmpty:                    ErrProductNameIsEmpty.Error(),
 	ErrProductCodeIsEmpty:                    ErrProductCodeIsEmpty.Error(),
 	ErrProductDistributionStrategyIsInvalid:  ErrProductDistributionStrategyIsInvalid.Error(),

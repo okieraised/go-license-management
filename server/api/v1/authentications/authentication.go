@@ -15,10 +15,6 @@ import (
 	"net/http"
 )
 
-const (
-	authGroup = "auth_group"
-)
-
 type AuthenticationRouter struct {
 	svc    *service.AuthenticationService
 	logger *logging.Logger
@@ -26,7 +22,7 @@ type AuthenticationRouter struct {
 }
 
 func NewAuthenticationRouter(svc *service.AuthenticationService) *AuthenticationRouter {
-	tr := tracer.GetInstance().Tracer(authGroup)
+	tr := tracer.GetInstance().Tracer("auth_group")
 	logger := logging.NewECSLogger()
 	return &AuthenticationRouter{
 		svc:    svc,

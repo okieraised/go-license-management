@@ -399,8 +399,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 //   - checkout: Action to check out a license. This will generate a snapshot of the license at time of checkout,
 //     encoded into a license file certificate that can be decoded and used for licensing offline and air-gapped
 //     environments. The algorithm will depend on the policy's scheme.
-//   - checkin: Action to check in a license. Sets the license's lastCheckIn to the current time, and the license's
-//     nex_check_in according to the policy's check-in interval.
+//   - checkin: Action to check in a license. Sets the license's lastCheckIn to the current time
 //   - increment-usage: Action to increment a license's uses attribute in accordance with its policy's maxUses attribute.
 //     When the policy's maxUses limit is exceeded, the increment attempt will fail. When the policy's maxUses is
 //     set to null, there is no limit on usage.

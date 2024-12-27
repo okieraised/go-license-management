@@ -80,7 +80,7 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	cSpan.End()
 
 	// Insert new tenant
-	_, cSpan = input.Tracer.Start(rootCtx, "insert-tenant")
+	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-tenant")
 	svc.logger.GetLogger().Info("inserting new tenant record")
 	now := time.Now()
 	tenant := &entities.Tenant{

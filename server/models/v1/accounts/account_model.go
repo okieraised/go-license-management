@@ -2,6 +2,7 @@ package accounts
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/account_attribute"
@@ -38,11 +39,13 @@ func (req *AccountRegistrationRequest) Validate() error {
 			return comerrors.ErrAccountRoleIsInvalid
 		}
 	}
+
+	// If user first name is blank, generate a random uuid for that user
 	if req.FirstName == nil {
-		req.FirstName = utils.RefPointer("")
+		req.FirstName = utils.RefPointer(uuid.New().String())
 	}
 	if req.LastName == nil {
-		req.LastName = utils.RefPointer("")
+		req.LastName = utils.RefPointer("user")
 	}
 
 	return nil
@@ -151,29 +154,32 @@ func (req *AccountListRequest) ToAccountListInput(ctx context.Context, tracer tr
 	}
 }
 
+type AccountActionUpdatePasswordRequest struct {
+	CurrentPassword *string `json:"current_password" validate:"required" example:"test"`
+	NewPassword     *string `json:"new_password" validate:"required" example:"test"`
+}
+
+func (req *AccountActionUpdatePasswordRequest) Validate() error {
+	return nil
+}
+
 type AccountActionRequest struct {
-	account_attribute.AccountCommonURI
+	CurrentPassword *string `json:"current_password" validate:"optional" example:"test"`
+	NewPassword     *string `json:"new_password" validate:"optional" example:"test"`
+	ResetToken      *string `json:"reset_token" validate:"optional" example:"test"`
 }
 
 func (req *AccountActionRequest) Validate() error {
-	if req.Username == nil {
-		return comerrors.ErrAccountUsernameIsEmpty
-	}
-
-	if req.Action == nil {
-		return comerrors.ErrAccountActionIsEmpty
-	} else {
-		if _, ok := constants.ValidAccountActionMapper[utils.DerefPointer(req.Action)]; !ok {
-			return comerrors.ErrAccountActionIsInvalid
-		}
-	}
-	return req.AccountCommonURI.Validate()
+	return nil
 }
 
-func (req *AccountActionRequest) ToAccountActionInput(ctx context.Context, tracer trace.Tracer) *models.AccountActionInput {
+func (req *AccountActionRequest) ToAccountActionInput(ctx context.Context, tracer trace.Tracer, uriReq account_attribute.AccountCommonURI) *models.AccountActionInput {
 	return &models.AccountActionInput{
 		TracerCtx:        ctx,
 		Tracer:           tracer,
-		AccountCommonURI: req.AccountCommonURI,
+		AccountCommonURI: uriReq,
+		NewPassword:      req.NewPassword,
+		CurrentPassword:  req.CurrentPassword,
+		ResetToken:       req.ResetToken,
 	}
 }

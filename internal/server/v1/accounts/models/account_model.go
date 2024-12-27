@@ -21,6 +21,18 @@ type AccountRegistrationInput struct {
 	Metadata  map[string]interface{} `json:"metadata" validate:"required" example:"test"`
 }
 
+type AccountRegistrationOutput struct {
+	Username  string                 `json:"username"`
+	RoleName  string                 `json:"role_name"`
+	Email     string                 `json:"email"`
+	FirstName string                 `json:"first_name"`
+	LastName  string                 `json:"last_name"`
+	Status    string                 `json:"status"`
+	Metadata  map[string]interface{} `json:"metadata"`
+	CreatedAt time.Time              `json:"created_at"`
+	UpdatedAt time.Time              `json:"updated_at"`
+}
+
 type AccountRetrievalOutput struct {
 	Username  string                 `json:"username"`
 	RoleName  string                 `json:"role_name"`
@@ -29,7 +41,6 @@ type AccountRetrievalOutput struct {
 	LastName  string                 `json:"last_name"`
 	Status    string                 `json:"status"`
 	Metadata  map[string]interface{} `json:"metadata"`
-	BannedAt  time.Time              `json:"banned_at"`
 	CreatedAt time.Time              `json:"created_at"`
 	UpdatedAt time.Time              `json:"updated_at"`
 }
@@ -58,6 +69,18 @@ type AccountUpdateInput struct {
 	Metadata  map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
 }
 
+type AccountUpdateOutput struct {
+	Username  string                 `json:"username"`
+	RoleName  string                 `json:"role_name"`
+	Email     string                 `json:"email"`
+	FirstName string                 `json:"first_name"`
+	LastName  string                 `json:"last_name"`
+	Status    string                 `json:"status"`
+	Metadata  map[string]interface{} `json:"metadata"`
+	CreatedAt time.Time              `json:"created_at"`
+	UpdatedAt time.Time              `json:"updated_at"`
+}
+
 type AccountListInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
@@ -66,7 +89,14 @@ type AccountListInput struct {
 }
 
 type AccountActionInput struct {
-	TracerCtx context.Context
-	Tracer    trace.Tracer
+	TracerCtx       context.Context
+	Tracer          trace.Tracer
+	NewPassword     *string `json:"new_password"`
+	CurrentPassword *string `json:"current_password"`
+	ResetToken      *string `json:"reset_token"`
 	account_attribute.AccountCommonURI
+}
+
+type AccountActionGenerateResetTokenOutput struct {
+	ResetToken string `json:"reset_token"`
 }

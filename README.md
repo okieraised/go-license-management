@@ -6,7 +6,15 @@ An open-source license management written in Go
 
 ### Device Registration
 
+### Request
 
+
+### Response
+For every successful request (200 or 201), a Content-Digest header is included. Client application should verify this 
+hash using sha256 algorithm.
+```text
+sha256=bc08aa0cbd668c66d1a40e447a64cf887824670c7d098f75fcd3d8e0280b158f
+```
 
 
 

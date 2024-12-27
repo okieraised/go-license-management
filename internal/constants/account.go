@@ -7,15 +7,17 @@ const (
 )
 
 const (
-	AccountActionUpdatePassword = "update-password"
-	AccountActionResetPassword  = "reset-password"
-	AccountActionBan            = "ban"
-	AccountActionUnban          = "unban"
+	AccountActionUpdatePassword     = "update-password"
+	AccountActionResetPassword      = "reset-password"
+	AccountActionGenerateResetToken = "password-token"
+	AccountActionBan                = "ban"
+	AccountActionUnban              = "unban"
 )
 
 var ValidAccountActionMapper = map[string]bool{
-	AccountActionUpdatePassword: true,
-	AccountActionResetPassword:  true,
-	AccountActionBan:            true,
-	AccountActionUnban:          true,
+	AccountActionUpdatePassword:     true,
+	AccountActionResetPassword:      true,
+	AccountActionGenerateResetToken: true,
+	AccountActionBan:                true,
+	AccountActionUnban:              true,
 }

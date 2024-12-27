@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
 	"go-license-management/server/models"
+	"time"
 )
 
 type AccountRepository struct {
@@ -68,16 +69,17 @@ func (repo *AccountRepository) SelectAccountByPK(ctx context.Context, tenantName
 	return account, nil
 }
 
-func (repo *AccountRepository) UpdateAccountByPK(ctx context.Context, account *entities.Account) error {
+func (repo *AccountRepository) UpdateAccountByPK(ctx context.Context, account *entities.Account) (*entities.Account, error) {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return account, comerrors.ErrInvalidDatabaseClient
 	}
 
+	account.UpdatedAt = time.Now()
 	_, err := repo.database.NewUpdate().Model(account).WherePK().Exec(ctx)
 	if err != nil {
-		return err
+		return account, err
 	}
-	return nil
+	return account, nil
 }
 
 func (repo *AccountRepository) CheckAccountExistByPK(ctx context.Context, tenantName, username string) (bool, error) {
@@ -87,6 +89,19 @@ func (repo *AccountRepository) CheckAccountExistByPK(ctx context.Context, tenant
 
 	account := &entities.Account{Username: username, TenantName: tenantName}
 	exist, err := repo.database.NewSelect().Model(account).WherePK().Exists(ctx)
+	if err != nil {
+		return exist, err
+	}
+	return exist, nil
+}
+
+func (repo *AccountRepository) CheckAccountEmailExistByPK(ctx context.Context, tenantName, email string) (bool, error) {
+	if repo.database == nil {
+		return false, comerrors.ErrInvalidDatabaseClient
+	}
+
+	account := &entities.Account{Email: email, TenantName: tenantName}
+	exist, err := repo.database.NewSelect().Model(account).Where("tenant_name = ? AND email = ?", tenantName, email).Exists(ctx)
 	if err != nil {
 		return exist, err
 	}

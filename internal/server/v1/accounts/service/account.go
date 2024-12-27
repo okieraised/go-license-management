@@ -48,6 +48,7 @@ func WithCasbinAdapter(casbinAdapter *xormadapter.Adapter) func(*AccountService)
 	}
 }
 
+// Create creates new user
 func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistrationInput) (*response.BaseOutput, error) {
 	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
 	defer span.End()
@@ -90,6 +91,25 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameAlreadyExist]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameAlreadyExist]
 		return resp, comerrors.ErrAccountUsernameAlreadyExist
+	}
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-account-by-name")
+	exists, err = svc.repo.CheckAccountEmailExistByPK(ctx, tenant.Name, utils.DerefPointer(input.Email))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	// If email/tenant combo already exists, return with error
+	if exists {
+		svc.logger.GetLogger().Info(fmt.Sprintf("email [%s] has already been used in tenant [%s]", utils.DerefPointer(input.Username), utils.DerefPointer(input.TenantName)))
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountEmailAlreadyExist]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountEmailAlreadyExist]
+		return resp, comerrors.ErrAccountEmailAlreadyExist
 	}
 
 	// Hashing password
@@ -145,6 +165,17 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = models.AccountRegistrationOutput{
+		Username:  account.Username,
+		RoleName:  account.RoleName,
+		Email:     account.Email,
+		FirstName: account.FirstName,
+		LastName:  account.LastName,
+		Status:    account.Status,
+		Metadata:  account.Metadata,
+		CreatedAt: account.CreatedAt,
+		UpdatedAt: account.UpdatedAt,
+	}
 
 	return resp, nil
 }
@@ -196,7 +227,6 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 			LastName:  account.LastName,
 			Status:    account.Status,
 			Metadata:  account.Metadata,
-			BannedAt:  account.BannedAt,
 			CreatedAt: account.CreatedAt,
 			UpdatedAt: account.UpdatedAt,
 		})
@@ -255,7 +285,6 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 		LastName:  account.LastName,
 		Status:    account.Status,
 		Metadata:  account.Metadata,
-		BannedAt:  account.BannedAt,
 		CreatedAt: account.CreatedAt,
 		UpdatedAt: account.UpdatedAt,
 	}
@@ -304,7 +333,6 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-account-casbin")
-
 	err = svc.casbin.RemovePolicy("g", "g", []string{utils.DerefPointer(input.TenantName), utils.DerefPointer(input.Username)})
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
@@ -419,7 +447,7 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "update-account")
-	err = svc.repo.UpdateAccountByPK(ctx, account)
+	account, err = svc.repo.UpdateAccountByPK(ctx, account)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -431,6 +459,18 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = models.AccountUpdateOutput{
+		Username:  account.Username,
+		RoleName:  account.RoleName,
+		Email:     account.Email,
+		FirstName: account.FirstName,
+		LastName:  account.LastName,
+		Status:    account.Status,
+		Metadata:  account.Metadata,
+		CreatedAt: account.CreatedAt,
+		UpdatedAt: account.UpdatedAt,
+	}
+
 	return resp, nil
 }
 
@@ -476,14 +516,125 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 	}
 	cSpan.End()
 
-	fmt.Println(account)
-
 	_, cSpan = input.Tracer.Start(rootCtx, "account-action")
 	switch utils.DerefPointer(input.Action) {
 	case constants.AccountActionBan:
-	case constants.AccountActionUnban:
-	default:
+		output, err := svc.actionBan(ctx, account)
+		if err != nil {
+			cSpan.End()
+			svc.logger.GetLogger().Error(err.Error())
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		resp.Data = models.AccountUpdateOutput{
+			Username:  output.Username,
+			RoleName:  output.RoleName,
+			Email:     output.Email,
+			FirstName: output.FirstName,
+			LastName:  output.LastName,
+			Status:    output.Status,
+			Metadata:  output.Metadata,
+			CreatedAt: output.CreatedAt,
+			UpdatedAt: output.UpdatedAt,
+		}
 
+	case constants.AccountActionUnban:
+		output, err := svc.actionUnban(ctx, account)
+		if err != nil {
+			cSpan.End()
+			svc.logger.GetLogger().Error(err.Error())
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		resp.Data = models.AccountUpdateOutput{
+			Username:  output.Username,
+			RoleName:  output.RoleName,
+			Email:     output.Email,
+			FirstName: output.FirstName,
+			LastName:  output.LastName,
+			Status:    output.Status,
+			Metadata:  output.Metadata,
+			CreatedAt: output.CreatedAt,
+			UpdatedAt: output.UpdatedAt,
+		}
+	case constants.AccountActionGenerateResetToken:
+		output, err := svc.actionGenerateResetToken(ctx, account)
+		if err != nil {
+			cSpan.End()
+			svc.logger.GetLogger().Error(err.Error())
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		resp.Data = models.AccountUpdateOutput{
+			Username:  output.Username,
+			RoleName:  output.RoleName,
+			Email:     output.Email,
+			FirstName: output.FirstName,
+			LastName:  output.LastName,
+			Status:    output.Status,
+			Metadata:  output.Metadata,
+			CreatedAt: output.CreatedAt,
+			UpdatedAt: output.UpdatedAt,
+		}
+	case constants.AccountActionResetPassword:
+		output, err := svc.actionResetPassword(ctx, utils.DerefPointer(input.ResetToken), utils.DerefPointer(input.NewPassword), account)
+		if err != nil {
+			cSpan.End()
+			svc.logger.GetLogger().Error(err.Error())
+			switch {
+			case errors.Is(err, comerrors.ErrAccountResetTokenIsInvalid),
+				errors.Is(err, comerrors.ErrAccountResetTokenIsExpired):
+				resp.Code = comerrors.ErrCodeMapper[err]
+				resp.Message = comerrors.ErrMessageMapper[err]
+				return resp, err
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
+		resp.Data = models.AccountUpdateOutput{
+			Username:  output.Username,
+			RoleName:  output.RoleName,
+			Email:     output.Email,
+			FirstName: output.FirstName,
+			LastName:  output.LastName,
+			Status:    output.Status,
+			Metadata:  output.Metadata,
+			CreatedAt: output.CreatedAt,
+			UpdatedAt: output.UpdatedAt,
+		}
+	case constants.AccountActionUpdatePassword:
+		output, err := svc.actionUpdatePassword(ctx, utils.DerefPointer(input.CurrentPassword), utils.DerefPointer(input.NewPassword), account)
+		if err != nil {
+			cSpan.End()
+			svc.logger.GetLogger().Error(err.Error())
+			switch {
+			case errors.Is(err, comerrors.ErrAccountPasswordNotMatch):
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountPasswordNotMatch]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountPasswordNotMatch]
+				return resp, comerrors.ErrAccountPasswordNotMatch
+			default:
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
+		resp.Data = models.AccountUpdateOutput{
+			Username:  output.Username,
+			RoleName:  output.RoleName,
+			Email:     output.Email,
+			FirstName: output.FirstName,
+			LastName:  output.LastName,
+			Status:    output.Status,
+			Metadata:  output.Metadata,
+			CreatedAt: output.CreatedAt,
+			UpdatedAt: output.UpdatedAt,
+		}
+	default:
 	}
 	cSpan.End()
 

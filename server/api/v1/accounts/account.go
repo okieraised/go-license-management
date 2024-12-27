@@ -1,6 +1,8 @@
 package accounts
 
 import (
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -113,7 +115,9 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid), errors.Is(err, comerrors.ErrAccountUsernameAlreadyExist):
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, comerrors.ErrAccountUsernameAlreadyExist),
+			errors.Is(err, comerrors.ErrAccountEmailAlreadyExist):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -123,6 +127,9 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info(fmt.Sprintf("completed creating new account [%s]", utils.DerefPointer(bodyReq.Username)))
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -177,6 +184,9 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed retrieving account info")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -255,6 +265,10 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed updating account info")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -370,6 +384,10 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieval request")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -386,9 +404,25 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts action request")
 
 	// serializer
-	var req accounts.AccountActionRequest
+	var uriReq account_attribute.AccountCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err := ctx.ShouldBindUri(&req)
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if uriReq.Action == nil {
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountActionIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountActionIsEmpty], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var bodyReq accounts.AccountActionRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -400,7 +434,7 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = uriReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -408,17 +442,59 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
+
+	err = bodyReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if utils.DerefPointer(uriReq.Action) == constants.AccountActionUpdatePassword {
+		if bodyReq.CurrentPassword == nil {
+			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountCurrentPasswordIsEmpty],
+				comerrors.ErrMessageMapper[comerrors.ErrAccountCurrentPasswordIsEmpty], nil, nil, nil)
+			ctx.JSON(http.StatusBadRequest, resp)
+			return
+		}
+
+		if bodyReq.NewPassword == nil {
+			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountNewPasswordIsEmpty],
+				comerrors.ErrMessageMapper[comerrors.ErrAccountNewPasswordIsEmpty], nil, nil, nil)
+			ctx.JSON(http.StatusBadRequest, resp)
+			return
+		}
+	} else if utils.DerefPointer(uriReq.Action) == constants.AccountActionResetPassword {
+		if bodyReq.NewPassword == nil {
+			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountNewPasswordIsEmpty],
+				comerrors.ErrMessageMapper[comerrors.ErrAccountNewPasswordIsEmpty], nil, nil, nil)
+			ctx.JSON(http.StatusBadRequest, resp)
+			return
+		}
+
+		if bodyReq.ResetToken == nil {
+			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountResetTokenIsEmpty],
+				comerrors.ErrMessageMapper[comerrors.ErrAccountResetTokenIsEmpty], nil, nil, nil)
+			ctx.JSON(http.StatusBadRequest, resp)
+			return
+		}
+	}
 	cSpan.End()
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Action(ctx, req.ToAccountActionInput(rootCtx, r.tracer))
+	result, err := r.svc.Action(ctx, bodyReq.ToAccountActionInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid), errors.Is(err, comerrors.ErrAccountUsernameIsInvalid):
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, comerrors.ErrAccountUsernameIsInvalid),
+			errors.Is(err, comerrors.ErrAccountPasswordNotMatch),
+			errors.Is(err, comerrors.ErrAccountResetTokenIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -427,6 +503,10 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	}
 	cSpan.End()
 
+	r.logger.GetLogger().Info("completed retrieval request")
+	contentToHash, _ := json.Marshal(result.Data)
+	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
