@@ -47,6 +47,12 @@ func init() {
 	viper.AutomaticEnv()
 	replacer := strings.NewReplacer(".", "__")
 	viper.SetEnvKeyReplacer(replacer)
+
+	// Seeding database
+
+	// Seeding superadmin user
+
+	// Seeding Casbin permissions
 }
 
 func newDataSource() (*models.DataSource, error) {
