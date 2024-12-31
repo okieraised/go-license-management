@@ -13,7 +13,7 @@ func main() {
 	}
 
 	subject := "alice"  // the user who wants to access the resource
-	domain := "domain2" // the domain in which access is requested
+	domain := "domain1" // the domain in which access is requested
 	object := "data1"   // the resource to access
 	action := "write"   // the action the user wants to perform
 

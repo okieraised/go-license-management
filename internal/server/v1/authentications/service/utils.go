@@ -9,7 +9,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
-	"go-license-management/internal/utils"
 	"time"
 )
 
@@ -59,10 +58,7 @@ func (svc *AuthenticationService) generateJWT(ctx *gin.Context, tenant *entities
 		return "", 0, errors.New("decoded key is not of type ed25519.PrivateKey")
 	}
 
-	signer := &utils.ED25519Signer{}
-	signer.SetPrivateKey(privateKey)
-
-	tokenString, err := claims.SignedString(signer)
+	tokenString, err := claims.SignedString(decodedPrivateKey)
 	if err != nil {
 		return "", 0, err
 	}

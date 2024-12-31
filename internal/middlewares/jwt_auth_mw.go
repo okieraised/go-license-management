@@ -1,17 +1,17 @@
 package middlewares
 
 import (
-	"crypto/ed25519"
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/database/postgres"
 	"go-license-management/internal/infrastructure/logging"
-	"go-license-management/internal/utils"
+	"go-license-management/internal/response"
 	"net/http"
 	"strings"
 	"time"
@@ -19,10 +19,20 @@ import (
 
 func JWTValidationMW() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		logging.GetInstance().GetLogger().Info("validating jwt token")
 
 		authHeader := ctx.GetHeader(constants.AuthorizationHeader)
 		if authHeader == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+			ctx.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				response.NewResponse(ctx).ToResponse(
+					comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+					"missing authorization header",
+					nil,
+					nil,
+					nil,
+				),
+			)
 			return
 		}
 
@@ -30,13 +40,31 @@ func JWTValidationMW() gin.HandlerFunc {
 		switch len(authHdrPart) {
 		case 2:
 			if authHdrPart[0] != constants.AuthorizationTypeBearer {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"invalid bearer authorization header",
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
 			tenantName := ctx.Param("tenant_name")
 			if tenantName == "" {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"invalid request url",
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
@@ -46,82 +74,164 @@ func JWTValidationMW() gin.HandlerFunc {
 			err := postgres.GetInstance().NewSelect().Model(tenant).WherePK().Scan(ctx)
 			if err != nil {
 				logging.GetInstance().GetLogger().Error(err.Error())
-				ctx.AbortWithStatusJSON(http.StatusInternalServerError, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusInternalServerError,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
+						comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
 			publicKey, err := hex.DecodeString(tenant.Ed25519PublicKey)
 			if err != nil {
 				logging.GetInstance().GetLogger().Error(err.Error())
-				ctx.AbortWithStatusJSON(http.StatusInternalServerError, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusInternalServerError,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
+						comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
 			decodedPublicKey, err := x509.ParsePKIXPublicKey(publicKey)
 			if err != nil {
 				logging.GetInstance().GetLogger().Error(err.Error())
-				ctx.AbortWithStatusJSON(http.StatusInternalServerError, nil)
-				return
-			}
-
-			publicKey, ok := decodedPublicKey.(ed25519.PublicKey)
-			if !ok {
-				logging.GetInstance().GetLogger().Error("public key not of type ed25519")
-				ctx.AbortWithStatusJSON(http.StatusInternalServerError, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusInternalServerError,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
+						comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
 			parsedToken, err := jwt.Parse(authHdrPart[1], func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*utils.SigningMethodEdDSA); !ok {
+				if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
 					logging.GetInstance().GetLogger().Error(fmt.Sprintf("unexpected signing method: %v", token.Header["alg"]))
 					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 				}
-				return publicKey, nil
+				return decodedPublicKey, nil
 			})
 			if err != nil {
-				logging.GetInstance().GetLogger().Error("public key not of type ed25519")
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				logging.GetInstance().GetLogger().Error(err.Error())
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, map[string]interface{}{})
 				return
 			}
 
 			exp, err := parsedToken.Claims.GetExpirationTime()
 			if err != nil {
 				logging.GetInstance().GetLogger().Error(err.Error())
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"invalid [exp] claim",
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
 			if exp.Before(time.Now()) {
 				logging.GetInstance().GetLogger().Error("token has expired")
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"token has expired",
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
-			permissionsClaims, ok := parsedToken.Claims.(jwt.MapClaims)["permissions"]
-			if !ok {
-				logging.GetInstance().GetLogger().Error("missing [permissions] claims")
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+			audience, err := parsedToken.Claims.GetAudience()
+			if err != nil {
+				logging.GetInstance().GetLogger().Error(err.Error())
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"invalid [aud] claims",
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
-
-			permissions, ok := permissionsClaims.([]interface{})
-			if !ok {
-				logging.GetInstance().GetLogger().Error("invalid [permissions] claims")
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
-				return
-			}
+			ctx.Set(constants.ContextValueAudience, audience)
 
 			subject, err := parsedToken.Claims.GetSubject()
 			if err != nil {
 				logging.GetInstance().GetLogger().Error(err.Error())
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"invalid [sub] claims",
+						nil,
+						nil,
+						nil,
+					),
+				)
+				return
+			}
+			ctx.Set(constants.ContextValueSubject, subject)
+
+			tenantClaims, ok := parsedToken.Claims.(jwt.MapClaims)["tenant"]
+			if !ok {
+				logging.GetInstance().GetLogger().Error("missing [tenant] claims")
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"missing [tenant] claims",
+						nil,
+						nil,
+						nil,
+					),
+				)
 				return
 			}
 
-			ctx.Set(constants.ContextValuePermissions, permissions)
-			ctx.Set(constants.ContextValueSubject, subject)
+			tenantCtx, ok := tenantClaims.(interface{})
+			if !ok {
+				logging.GetInstance().GetLogger().Error("invalid [tenant] claims")
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"invalid [tenant] claims",
+						nil,
+						nil,
+						nil,
+					),
+				)
+				return
+			}
+			ctx.Set(constants.ContextValueTenant, tenantCtx)
+
 		default:
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, map[string]interface{}{})
 			return
 		}
 

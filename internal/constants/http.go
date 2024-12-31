@@ -59,7 +59,9 @@ const (
 
 const (
 	ContextValuePermissions = "permissions"
+	ContextValueTenant      = "tenant"
 	ContextValueSubject     = "subject"
+	ContextValueAudience    = "audience"
 )
 
 type QueryCommonParam struct {

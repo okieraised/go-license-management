@@ -17,10 +17,6 @@ func (req *AccountCommonURI) Validate() error {
 		return comerrors.ErrTenantNameIsEmpty
 	}
 
-	if req.Username == nil {
-		return comerrors.ErrAccountUsernameIsEmpty
-	}
-
 	if req.Action != nil {
 		if _, ok := constants.ValidAccountActionMapper[utils.DerefPointer(req.Action)]; !ok {
 			return comerrors.ErrAccountActionIsInvalid

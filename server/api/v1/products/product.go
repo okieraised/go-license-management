@@ -10,6 +10,7 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/product_attribute"
 	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/products/service"
 	"go-license-management/internal/utils"
@@ -44,12 +45,12 @@ func (r *ProductRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/products")
-		routes.POST("", r.create)
-		routes.GET("", r.list)
-		routes.GET("/:product_id", r.retrieve)
-		routes.PATCH("/:product_id", r.update)
-		routes.DELETE("/:product_id", r.delete)
-		routes.POST("/:product_id/tokens", r.tokens)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.ProductCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), r.list)
+		routes.GET("/:product_id", middlewares.JWTValidationMW(), r.retrieve)
+		routes.PATCH("/:product_id", middlewares.JWTValidationMW(), r.update)
+		routes.DELETE("/:product_id", middlewares.JWTValidationMW(), r.delete)
+		routes.POST("/:product_id/tokens", middlewares.JWTValidationMW(), r.tokens)
 	}
 }
 

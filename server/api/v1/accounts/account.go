@@ -169,6 +169,15 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
+
+	if req.Username == nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
 	cSpan.End()
 
 	// handler
@@ -233,6 +242,14 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	if uriReq.Username == nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}

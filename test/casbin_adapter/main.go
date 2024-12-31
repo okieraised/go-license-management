@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	xormadapter "github.com/casbin/xorm-adapter/v3"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	a, err := xormadapter.NewAdapter("postgres",
-		"dbname=rbac_rules  user=postgres password=123qweA# host=127.0.0.1 port=5432 sslmode=disable")
+	a, err := xormadapter.NewAdapter("postgres", "user=postgres password=123qweA# host=127.0.0.1 port=5432 sslmode=disable")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -26,37 +26,21 @@ func main() {
 		return
 	}
 
-	//policies, err := e.GetPolicy()
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//
-	//fmt.Println(policies)
+	fmt.Println(e.GetAllDomains())
 
-	//policies, err := e.GetFilteredPolicy(0, "user")
-	//fmt.Println(policies)
+	policies, err := e.GetPolicy()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	ok, err := e.Enforce("test", "user2", "product", "create")
+	fmt.Println("policies", policies)
+
+	ok, err := e.Enforce("test", "user1", "product", "create")
 	if err != nil {
 		fmt.Printf("Error checking permission: %v\n", err)
 		return
 	}
 	fmt.Println("result", ok)
-
-	//// Modify the policy.
-	//for _, record := range constants.CreateAdminPermission("test") {
-	//	_, err := e.AddPolicy(record[1], record[2], record[3], record[4])
-	//	if err != nil {
-	//		fmt.Println(err)
-	//		return
-	//	}
-	//
-	//	err = e.SavePolicy()
-	//	if err != nil {
-	//		fmt.Println(err)
-	//		return
-	//	}
-	//}
 
 }
