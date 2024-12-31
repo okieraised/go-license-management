@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/entitlement_attribute"
 	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/entitlements/service"
 	"go-license-management/server/models/v1/entitlements"
@@ -37,10 +38,10 @@ func (r *EntitlementRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/entitlements")
-		routes.POST("", r.create)
-		routes.GET("", r.list)
-		routes.GET("/:entitlement_id", r.retrieve)
-		routes.DELETE("/:entitlement_id", r.delete)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.EntitlementCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.EntitlementRead), r.list)
+		routes.GET("/:entitlement_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.EntitlementRead), r.retrieve)
+		routes.DELETE("/:entitlement_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.EntitlementDelete), r.delete)
 	}
 }
 

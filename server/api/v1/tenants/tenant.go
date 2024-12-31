@@ -10,6 +10,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/tenants/service"
 	"go-license-management/internal/utils"
@@ -40,10 +41,10 @@ func (r *TenantRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/tenants")
-		routes.POST("", r.create)
-		routes.GET("", r.list)
-		routes.GET("/:tenant_name", r.retrieve)
-		routes.DELETE("/:tenant_name", r.delete)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.list)
+		routes.GET("/:tenant_name", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.retrieve)
+		routes.DELETE("/:tenant_name", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantDelete), r.delete)
 	}
 }
 

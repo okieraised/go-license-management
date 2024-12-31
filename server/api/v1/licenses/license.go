@@ -11,6 +11,7 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/licenses/service"
 	"go-license-management/server/models/v1/license"
@@ -40,12 +41,12 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/licenses")
-		routes.POST("", r.generate)
-		routes.GET("/:license_id", r.retrieve)
-		routes.PATCH("/:license_id", r.update)
-		routes.DELETE("/:license_id", r.delete)
-		routes.GET("", r.list)
-		routes.POST("/actions/:action", r.action)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseCreate), r.generate)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseRead), r.list)
+		routes.GET("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseRead), r.retrieve)
+		routes.PATCH("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseUpdate), r.update)
+		routes.DELETE("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseDelete), r.delete)
+		routes.POST("/actions/:action", middlewares.JWTValidationMW(), r.action)
 	}
 }
 

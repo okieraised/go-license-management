@@ -42,7 +42,7 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 	{
 		routes = routes.Group("/machines")
 		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineCreate), r.create)
-		routes.GET("", r.list)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.list)
 		routes.GET("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.retrieve)
 		routes.PATCH("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.update)
 		routes.DELETE("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineDelete), r.deactivate)

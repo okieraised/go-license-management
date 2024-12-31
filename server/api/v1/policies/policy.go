@@ -11,6 +11,7 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/policy_attribute"
 	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/policies/service"
 	"go-license-management/server/models/v1/policies"
@@ -40,14 +41,14 @@ func (r *PolicyRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/policies")
-		routes.POST("", r.create)
-		routes.GET("", r.list)
-		routes.GET("/:policy_id", r.retrieve)
-		routes.PATCH("/:policy_id", r.update)
-		routes.DELETE("/:policy_id", r.delete)
-		routes.POST("/:policy_id/entitlements", r.attach)
-		routes.DELETE("/:policy_id/entitlements", r.detach)
-		routes.GET("/:policy_id/entitlements", r.listEntitlement)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyRead), r.list)
+		routes.GET("/:policy_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyRead), r.retrieve)
+		routes.PATCH("/:policy_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyUpdate), r.update)
+		routes.DELETE("/:policy_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyDelete), r.delete)
+		routes.POST("/:policy_id/entitlements", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyEntitlementsAttach), r.attach)
+		routes.DELETE("/:policy_id/entitlements", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyEntitlementsDetach), r.detach)
+		routes.GET("/:policy_id/entitlements", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.PolicyRead), r.listEntitlement)
 	}
 }
 
