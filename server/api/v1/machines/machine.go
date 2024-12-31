@@ -11,6 +11,7 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/machine_attribute"
 	"go-license-management/internal/infrastructure/tracer"
+	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/machines/service"
 	"go-license-management/server/models/v1/machines"
@@ -40,12 +41,12 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/machines")
-		routes.POST("", r.create)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineCreate), r.create)
 		routes.GET("", r.list)
-		routes.GET("/:machine_id", r.retrieve)
-		routes.PATCH("/:machine_id", r.update)
-		routes.DELETE("/:machine_id", r.deactivate)
-		routes.POST("/:machine_id/actions/:machine_action", r.action)
+		routes.GET("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.retrieve)
+		routes.PATCH("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.update)
+		routes.DELETE("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineDelete), r.deactivate)
+		routes.POST("/:machine_id/actions/:machine_action", middlewares.JWTValidationMW(), r.action)
 	}
 }
 
