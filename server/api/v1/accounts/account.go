@@ -42,7 +42,7 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/accounts")
-		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.create)
+		routes.POST("", r.create)
 		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.list)
 		routes = routes.Group("/:username")
 		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserRead), r.retrieve)
@@ -128,9 +128,9 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info(fmt.Sprintf("completed creating new account [%s]", utils.DerefPointer(bodyReq.Username)))
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
+	//contentToHash, _ := json.Marshal(result.Data)
+	//sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
+	//ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return

@@ -58,6 +58,13 @@ func NewPostgresClient(host, port, dbname, userName, password string) (*bun.DB, 
 	return postgresClient, nil
 }
 
+func checkDatabaseExists(ctx context.Context, dbName string) (bool, error) {
+	var exists bool
+	query := "SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower(?);"
+	err := postgresClient.NewRaw(query, dbName).Scan(ctx, &exists)
+	return exists, err
+}
+
 func SeedingDatabase() error {
 	logging.GetInstance().GetLogger().Info("started populating license database")
 	roles := make([]entities.Role, 0)
@@ -103,13 +110,6 @@ func SeedingDatabase() error {
 
 	logging.GetInstance().GetLogger().Info("completed populating license database")
 	return nil
-}
-
-func checkDatabaseExists(ctx context.Context, dbName string) (bool, error) {
-	var exists bool
-	query := "SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower(?);"
-	err := postgresClient.NewRaw(query, dbName).Scan(ctx, &exists)
-	return exists, err
 }
 
 func CreateSchemaIfNotExists() error {
