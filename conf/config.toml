@@ -2,10 +2,6 @@
 http_port=8888
 mode="debug"
 
-[superadmin]
-username="admin"
-password="admin"
-
 [postgres]
 host="127.0.0.1"
 port="5432"

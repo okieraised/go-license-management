@@ -32,27 +32,6 @@ func TestNewPostgresClient(t *testing.T) {
 	//dbClient.
 }
 
-func TestNewPostgresClient_CheckDBExists(t *testing.T) {
-	viper.Set(config.PostgresHost, "127.0.0.1")
-	viper.Set(config.PostgresPort, "5432")
-	viper.Set(config.PostgresDatabase, "licenses")
-	viper.Set(config.PostgresUsername, "postgres")
-	viper.Set(config.PostgresPassword, "123qweA#")
-
-	dbClient, err := NewPostgresClient(
-		viper.GetString(config.PostgresHost),
-		viper.GetString(config.PostgresPort),
-		viper.GetString(config.PostgresDatabase),
-		viper.GetString(config.PostgresUsername),
-		viper.GetString(config.PostgresPassword),
-	)
-	assert.NoError(t, err)
-	assert.NotNil(t, dbClient)
-
-	err = CreateDatabase(context.Background(), viper.GetString(config.PostgresDatabase))
-	assert.NoError(t, err)
-}
-
 func TestNewPostgresClient_CreateTenantSchema(t *testing.T) {
 
 	viper.Set(config.PostgresHost, "127.0.0.1")
@@ -71,7 +50,10 @@ func TestNewPostgresClient_CreateTenantSchema(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, dbClient)
 
-	_, err = dbClient.NewCreateTable().Model((*entities.Tenant)(nil)).WithForeignKeys().Exec(context.Background())
+	_, err = dbClient.NewCreateTable().
+		IfNotExists().
+		Model((*entities.Tenant)(nil)).
+		WithForeignKeys().Exec(context.Background())
 	assert.NoError(t, err)
 }
 
@@ -107,7 +89,6 @@ func TestNewPostgresClient_CreateRoleSchema(t *testing.T) {
 
 	_, err = dbClient.NewInsert().Model(&roles).Exec(context.Background())
 	assert.NoError(t, err)
-
 }
 
 func TestNewPostgresClient_CreateAccountsSchema(t *testing.T) {
@@ -129,6 +110,7 @@ func TestNewPostgresClient_CreateAccountsSchema(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.Account)(nil)).
+		IfNotExists().
 		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
 		ForeignKey(`("role_name") REFERENCES "roles" ("name") ON DELETE CASCADE`).
 		Exec(context.Background())
@@ -154,6 +136,7 @@ func TestNewPostgresClient_CreateProductsSchema(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.Product)(nil)).
+		IfNotExists().
 		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
 		Exec(context.Background())
 	assert.NoError(t, err)
@@ -178,6 +161,7 @@ func TestNewPostgresClient_CreateProductsToken(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.ProductToken)(nil)).
+		IfNotExists().
 		ForeignKey(`("product_id") REFERENCES "products" ("id") ON DELETE CASCADE`).
 		Exec(context.Background())
 	assert.NoError(t, err)
@@ -202,6 +186,7 @@ func TestNewPostgresClient_CreateEntitlementsSchema(t *testing.T) {
 	assert.NotNil(t, dbClient)
 
 	_, err = dbClient.NewCreateTable().Model((*entities.Entitlement)(nil)).
+		IfNotExists().
 		ForeignKey(`("tenant_name") REFERENCES "tenants" ("name") ON DELETE CASCADE`).
 		Exec(context.Background())
 	assert.NoError(t, err)

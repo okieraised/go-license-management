@@ -29,7 +29,6 @@ import (
 	tenantSvc "go-license-management/internal/server/v1/tenants/service"
 	"go-license-management/server"
 	"go-license-management/server/models"
-	"log/slog"
 	"os"
 	"os/signal"
 	"strings"
@@ -38,28 +37,67 @@ import (
 )
 
 func init() {
+	// init logger
+	logging.NewDefaultLogger()
+
 	viper.AddConfigPath("conf")
 	viper.SetConfigName("config")
 	err := viper.ReadInConfig()
 	if err != nil {
-		slog.Info(fmt.Sprintf("error reading config file, %s", err))
+		logging.GetInstance().GetLogger().Error(fmt.Sprintf("error reading config file: %v", err))
+		os.Exit(1)
 	}
+	logging.GetInstance().GetLogger().Info("successfully read config file")
 	viper.AutomaticEnv()
 	replacer := strings.NewReplacer(".", "__")
 	viper.SetEnvKeyReplacer(replacer)
 
 	// Seeding database
+	_, err = postgres.NewPostgresClient(
+		viper.GetString(config.PostgresHost),
+		viper.GetString(config.PostgresPort),
+		viper.GetString(config.PostgresDatabase),
+		viper.GetString(config.PostgresUsername),
+		viper.GetString(config.PostgresPassword),
+	)
+	if err != nil {
+		logging.GetInstance().GetLogger().Error(fmt.Sprintf("failed to initialize license database connection: %v", err))
+		os.Exit(1)
+	}
 
-	// Seeding superadmin user
+	err = postgres.CreateSchemaIfNotExists()
+	if err != nil {
+		logging.GetInstance().GetLogger().Error(fmt.Sprintf("failed to initialize license database schemas: %v", err))
+		os.Exit(1)
+	}
+
+	// Seeding roles and superadmin user
+	err = postgres.SeedingDatabase()
+	if err != nil {
+		logging.GetInstance().GetLogger().Error(fmt.Sprintf("failed to initialize license initial data: %v", err))
+		os.Exit(1)
+	}
 
 	// Seeding Casbin permissions
+	_, err = casbin_adapter.NewCasbinAdapter(viper.GetString(config.PostgresUsername),
+		viper.GetString(config.PostgresPassword),
+		viper.GetString(config.PostgresHost),
+		viper.GetString(config.PostgresPort),
+	)
+	if err != nil {
+		logging.GetInstance().GetLogger().Error(fmt.Sprintf("failed to initialize casbin: %v", err))
+		os.Exit(1)
+	}
+
+	err = casbin_adapter.SeedingCasbinPermissions()
+	if err != nil {
+		logging.GetInstance().GetLogger().Error(fmt.Sprintf("failed to initialize casbin adapter: %v", err))
+		os.Exit(1)
+	}
 }
 
 func newDataSource() (*models.DataSource, error) {
 	dataSource := &models.DataSource{}
-
-	// init logger
-	logging.NewDefaultLogger()
 
 	// tracer
 	err := tracer.NewTracerProvider(
@@ -72,29 +110,10 @@ func newDataSource() (*models.DataSource, error) {
 	}
 
 	// database
-	dbClient, err := postgres.NewPostgresClient(
-		viper.GetString(config.PostgresHost),
-		viper.GetString(config.PostgresPort),
-		viper.GetString(config.PostgresDatabase),
-		viper.GetString(config.PostgresUsername),
-		viper.GetString(config.PostgresPassword),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	dataSource.SetDatabase(dbClient)
+	dataSource.SetDatabase(postgres.GetInstance())
 
 	// casbin adapter
-	casbinAdapter, err := casbin_adapter.NewCasbinAdapter(viper.GetString(config.PostgresUsername),
-		viper.GetString(config.PostgresPassword),
-		viper.GetString(config.PostgresHost),
-		viper.GetString(config.PostgresPort),
-	)
-	if err != nil {
-		return nil, err
-	}
-	dataSource.SetCasbin(casbinAdapter)
+	dataSource.SetCasbin(casbin_adapter.GetAdapter())
 
 	return dataSource, nil
 }

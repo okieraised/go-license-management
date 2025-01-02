@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+type Master struct {
+	bun.BaseModel `bun:"table:masters,alias:ms" swaggerignore:"true"`
+
+	Username       string `bun:"username,pk,type:varchar(128)"`
+	RoleName       string `bun:"role_name,type:varchar(256),notnull"`
+	PasswordDigest string `bun:"password_digest,type:varchar(256)"`
+}
+
 type Account struct {
 	bun.BaseModel `bun:"table:accounts,alias:a" swaggerignore:"true"`
 
