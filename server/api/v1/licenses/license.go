@@ -43,7 +43,7 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes.GET("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseRead), r.retrieve)
 		routes.PATCH("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseUpdate), r.update)
 		routes.DELETE("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseDelete), r.delete)
-		routes.POST("/actions/:action", middlewares.JWTValidationMW(), r.action)
+		routes.POST("/actions/:action", middlewares.JWTValidationMW(), middlewares.LicenseActionPermissionValidationMW(), r.action)
 	}
 }
 
