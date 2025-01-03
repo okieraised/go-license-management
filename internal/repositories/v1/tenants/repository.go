@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
 	"go-license-management/server/models"
+	"time"
 )
 
 type TenantRepository struct {
@@ -92,4 +93,17 @@ func (repo *TenantRepository) DeleteTenantByPK(ctx context.Context, name string)
 		return err
 	}
 	return nil
+}
+
+func (repo *TenantRepository) UpdateTenantByPK(ctx context.Context, tenant *entities.Tenant) (*entities.Tenant, error) {
+	if repo.database == nil {
+		return tenant, comerrors.ErrInvalidDatabaseClient
+	}
+
+	tenant.UpdatedAt = time.Now()
+	_, err := repo.database.NewUpdate().Model(tenant).WherePK().Exec(ctx)
+	if err != nil {
+		return tenant, err
+	}
+	return tenant, nil
 }

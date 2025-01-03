@@ -43,3 +43,9 @@ type TenantDeletionInput struct {
 	Tracer    trace.Tracer
 	Name      *string `json:"name,omitempty" validate:"required" example:"test"`
 }
+
+type TenantRegenerationInput struct {
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	Name      *string `json:"name,omitempty" validate:"required" example:"test"`
+}

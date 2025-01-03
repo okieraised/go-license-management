@@ -82,3 +82,22 @@ func (req *TenantListRequest) ToTenantListInput(ctx context.Context, tracer trac
 		QueryCommonParam: req.QueryCommonParam,
 	}
 }
+
+type TenantRegenerationRequest struct {
+	TenantName *string `uri:"tenant_name" binding:"required"`
+}
+
+func (req *TenantRegenerationRequest) Validate() error {
+	if req.TenantName == nil {
+		return comerrors.ErrTenantNameIsEmpty
+	}
+	return nil
+}
+
+func (req *TenantRegenerationRequest) ToTenantRegenerationInput(ctx context.Context, tracer trace.Tracer) *models.TenantRegenerationInput {
+	return &models.TenantRegenerationInput{
+		TracerCtx: ctx,
+		Tracer:    tracer,
+		Name:      req.TenantName,
+	}
+}

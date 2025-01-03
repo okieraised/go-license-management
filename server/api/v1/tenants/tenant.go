@@ -39,10 +39,11 @@ func (r *TenantRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/tenants")
-		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantCreate), r.create)
-		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.list)
-		routes.GET("/:tenant_name", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.retrieve)
-		routes.DELETE("/:tenant_name", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.TenantDelete), r.delete)
+		routes.POST("", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantCreate), r.create)
+		routes.GET("", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.list)
+		routes.GET("/:tenant_name", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.retrieve)
+		routes.POST("/:tenant_name/regenerate", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantUpdate), r.regenerate)
+		routes.DELETE("/:tenant_name", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantDelete), r.delete)
 	}
 }
 
@@ -248,7 +249,7 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 	r.logger.WithCustomFields(
 		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
 		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
-	).Info("received new tenant retrieval request")
+	).Info("received new tenant deletion request")
 
 	// serializer
 	var req tenants.TenantDeletionRequest
@@ -290,5 +291,66 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 	r.logger.GetLogger().Info(fmt.Sprintf("completed deleting tenant [%s]", utils.DerefPointer(req.TenantName)))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
+	return
+}
+
+func (r *TenantRouter) regenerate(ctx *gin.Context) {
+	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
+		Key:   constants.RequestIDField,
+		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
+	}))
+	defer span.End()
+
+	resp := response.NewResponse(ctx)
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new tenant regeneration request")
+
+	// serializer
+	var req tenants.TenantRegenerationRequest
+	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	err := ctx.ShouldBindUri(&req)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// validation
+	_, cSpan = r.tracer.Start(rootCtx, "validation")
+	err = req.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	cSpan.End()
+
+	// handler
+	_, cSpan = r.tracer.Start(rootCtx, "handler")
+	result, err := r.svc.Regenerate(ctx, req.ToTenantRegenerationInput(rootCtx, r.tracer))
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+		switch {
+		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+			ctx.JSON(http.StatusBadRequest, resp)
+		default:
+			ctx.JSON(http.StatusInternalServerError, resp)
+		}
+		return
+	}
+	cSpan.End()
+
+	r.logger.GetLogger().Info(fmt.Sprintf("completed updating tenant [%s]", utils.DerefPointer(req.TenantName)))
+	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
+	ctx.JSON(http.StatusOK, resp)
 	return
 }

@@ -12,4 +12,5 @@ type ITenant interface {
 	SelectTenants(ctx context.Context, queryParam constants.QueryCommonParam) ([]entities.Tenant, int, error)
 	CheckTenantExistByPK(ctx context.Context, name string) (bool, error)
 	DeleteTenantByPK(ctx context.Context, name string) error
+	UpdateTenantByPK(ctx context.Context, tenant *entities.Tenant) (*entities.Tenant, error)
 }

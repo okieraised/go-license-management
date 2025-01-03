@@ -225,3 +225,72 @@ func (svc *TenantService) Delete(ctx *gin.Context, input *models.TenantDeletionI
 
 	return resp, nil
 }
+
+func (svc *TenantService) Regenerate(ctx *gin.Context, input *models.TenantRegenerationInput) (*response.BaseOutput, error) {
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "retrieval-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.Name))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		}
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	// regenerate additional required info
+	_, cSpan = input.Tracer.Start(rootCtx, "generate-tenant-key")
+	svc.logger.GetLogger().Info(fmt.Sprintf("generating new private/public key pair for tenant [%s]", utils.DerefPointer(input.Name)))
+	privateKey, publicKey, err := utils.NewEd25519KeyPair()
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	tenant.Ed25519PrivateKey = privateKey
+	tenant.Ed25519PublicKey = publicKey
+
+	_, cSpan = input.Tracer.Start(rootCtx, "update-tenant")
+	tenant, err = svc.repo.UpdateTenantByPK(ctx, tenant)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "convert-tenant-to-output")
+	respData := models.TenantRetrievalOutput{
+		Name:             tenant.Name,
+		Ed25519PublicKey: tenant.Ed25519PublicKey,
+		CreatedAt:        tenant.CreatedAt,
+		UpdatedAt:        tenant.UpdatedAt,
+	}
+	cSpan.End()
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = respData
+
+	return resp, nil
+}
