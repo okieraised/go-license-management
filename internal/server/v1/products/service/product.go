@@ -463,7 +463,7 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 	// Check product
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying product [%s]", input.ProductID))
 	_, cSpan = input.Tracer.Start(rootCtx, "query-product")
-	product, err := svc.repo.SelectProductByPK(ctx, input.ProductID)
+	product, err := svc.repo.SelectProductByPK(ctx, uuid.MustParse(utils.DerefPointer(input.ProductID)))
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()

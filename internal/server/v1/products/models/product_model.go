@@ -82,13 +82,12 @@ type ProductDeletionInput struct {
 }
 
 type ProductTokensInput struct {
-	TracerCtx   context.Context
-	Tracer      trace.Tracer
-	TenantName  *string   `json:"tenant_name" validate:"required" example:"test"`
-	ProductID   uuid.UUID `json:"product_id" validate:"required" example:"test"`
-	Name        *string   `json:"name" validate:"optional" example:"test"`
-	Expiry      *string   `json:"expiry" validate:"optional" example:"test"`
-	Permissions []string  `json:"permissions" validate:"required" example:"test"`
+	TracerCtx context.Context
+	Tracer    trace.Tracer
+	product_attribute.ProductCommonURI
+	Name        *string  `json:"name" validate:"optional" example:"test"`
+	Expiry      *string  `json:"expiry" validate:"optional" example:"test"`
+	Permissions []string `json:"permissions" validate:"required" example:"test"`
 }
 
 type ProductTokenOutput struct {

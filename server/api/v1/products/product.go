@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
@@ -69,6 +68,7 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 	).Info("received new product creation request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating product registration request")
 	var uriReq product_attribute.ProductCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&uriReq)
@@ -151,6 +151,7 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 	).Info("received new product retrieval request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating product retrieval request")
 	var req products.ProductRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
@@ -213,6 +214,7 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 	).Info("received new product creation request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating product update request")
 	var uriReq product_attribute.ProductCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&uriReq)
@@ -287,6 +289,7 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 	).Info("received new product deletion request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating product deletion request")
 	var req products.ProductDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
@@ -341,9 +344,10 @@ func (r *ProductRouter) list(ctx *gin.Context) {
 	r.logger.WithCustomFields(
 		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
 		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
-	).Info("received new product history request")
+	).Info("received new product listing request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating product listing request")
 	var uriReq product_attribute.ProductCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&uriReq)
@@ -416,25 +420,19 @@ func (r *ProductRouter) tokens(ctx *gin.Context) {
 	).Info("received new product token creation request")
 
 	// serializer
-	tenantName := ctx.Param("tenant_name")
-	if tenantName == "" {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsEmpty], nil, nil, nil)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
-	}
-
-	productID := ctx.Param("product_id")
-	_, err := uuid.Parse(productID)
-	if err != nil {
-		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid], comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid], nil, nil, nil)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
-	}
-
-	var req products.ProductTokenRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	err = ctx.ShouldBind(&req)
+	var uriReq product_attribute.ProductCommonURI
+	err := ctx.ShouldBindUri(&uriReq)
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var bodyReq products.ProductTokenRequest
+	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -446,7 +444,7 @@ func (r *ProductRouter) tokens(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = req.Validate()
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -458,7 +456,7 @@ func (r *ProductRouter) tokens(ctx *gin.Context) {
 
 	// handler
 	_, cSpan = r.tracer.Start(rootCtx, "handler")
-	result, err := r.svc.Tokens(ctx, req.ToProductTokenInput(rootCtx, r.tracer, tenantName, productID))
+	result, err := r.svc.Tokens(ctx, bodyReq.ToProductTokenInput(rootCtx, r.tracer, uriReq))
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -477,5 +475,4 @@ func (r *ProductRouter) tokens(ctx *gin.Context) {
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
-
 }

@@ -2,7 +2,6 @@ package products
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/product_attribute"
@@ -143,14 +142,13 @@ func (req *ProductTokenRequest) Validate() error {
 	return nil
 }
 
-func (req *ProductTokenRequest) ToProductTokenInput(ctx context.Context, tracer trace.Tracer, tenantName, productID string) *models.ProductTokensInput {
+func (req *ProductTokenRequest) ToProductTokenInput(ctx context.Context, tracer trace.Tracer, productURI product_attribute.ProductCommonURI) *models.ProductTokensInput {
 	return &models.ProductTokensInput{
-		TracerCtx:   ctx,
-		Tracer:      tracer,
-		TenantName:  utils.RefPointer(tenantName),
-		ProductID:   uuid.MustParse(productID),
-		Name:        req.Name,
-		Expiry:      req.Expiry,
-		Permissions: req.Permissions,
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		ProductCommonURI: productURI,
+		Name:             req.Name,
+		Expiry:           req.Expiry,
+		Permissions:      req.Permissions,
 	}
 }
