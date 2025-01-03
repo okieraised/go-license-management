@@ -45,7 +45,10 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	exists, err := svc.repo.CheckTenantExistByPK(ctx, utils.DerefPointer(input.Name))
@@ -118,7 +121,10 @@ func (svc *TenantService) List(ctx *gin.Context, input *models.TenantListInput) 
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant")
 	tenants, count, err := svc.repo.SelectTenants(ctx, input.QueryCommonParam)
@@ -156,7 +162,10 @@ func (svc *TenantService) Retrieve(ctx *gin.Context, input *models.TenantRetriev
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.Name))
@@ -195,7 +204,10 @@ func (svc *TenantService) Delete(ctx *gin.Context, input *models.TenantDeletionI
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "delete-tenant-by-name")
 	err := svc.repo.DeleteTenantByPK(ctx, utils.DerefPointer(input.Name))

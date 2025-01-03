@@ -75,12 +75,7 @@ func (svc *AccountService) actionResetPassword(ctx *gin.Context, token, newPass 
 func (svc *AccountService) actionUpdatePassword(ctx *gin.Context, currentPass, newPass string, account *entities.Account) (*entities.Account, error) {
 	svc.logger.GetLogger().Info(fmt.Sprintf("updating account [%s] in tenant [%s]", account.Username, account.TenantName))
 
-	currentHash, err := utils.HashPassword(currentPass)
-	if err != nil {
-		return account, err
-	}
-
-	if currentHash != account.PasswordDigest {
+	if !utils.CompareHashedPassword(account.PasswordDigest, currentPass) {
 		return account, comerrors.ErrAccountPasswordNotMatch
 	}
 

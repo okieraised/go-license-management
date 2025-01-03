@@ -47,7 +47,10 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	// Check if tenant exists
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
@@ -211,7 +214,10 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -296,7 +302,10 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -379,7 +388,10 @@ func (svc *PolicyService) Delete(ctx *gin.Context, input *models.PolicyDeletionI
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -421,7 +433,10 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	// Check if tenant exists
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
@@ -528,7 +543,10 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -652,7 +670,10 @@ func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmen
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))

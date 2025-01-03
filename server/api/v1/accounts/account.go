@@ -46,7 +46,7 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserRead), r.retrieve)
 		routes.PATCH("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserUpdate), r.update)
 		routes.DELETE("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserDelete), r.delete)
-		routes.POST("/actions/:action", middlewares.JWTValidationMW(), r.actions)
+		routes.POST("/actions/:action", middlewares.JWTValidationMW(), middlewares.AccountActionPermissionValidationMW(), r.actions)
 
 	}
 }
@@ -60,7 +60,10 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new account creation request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new account creation request")
 
 	// serializer
 	var uriReq account_attribute.AccountCommonURI
@@ -140,7 +143,10 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts retrieval request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new accounts retrieval request")
 
 	// serializer
 	var req accounts.AccountRetrievalRequest
@@ -203,7 +209,10 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts update request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new accounts update request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -289,7 +298,10 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts deletion request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new accounts deletion request")
 
 	// serializer
 	var req accounts.AccountDeletionRequest
@@ -342,7 +354,10 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts list request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new accounts list request")
 
 	// serializer
 	var uriReq account_attribute.AccountCommonURI
@@ -370,6 +385,15 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
 	err = bodyReq.Validate()
+	if err != nil {
+		cSpan.End()
+		r.logger.GetLogger().Error(err.Error())
+		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		ctx.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	err = uriReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -405,7 +429,10 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new accounts action request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new accounts action request")
 
 	// serializer
 	var uriReq account_attribute.AccountCommonURI
@@ -507,7 +534,7 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("completed retrieval request")
+	r.logger.GetLogger().Info("completed account action request")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return

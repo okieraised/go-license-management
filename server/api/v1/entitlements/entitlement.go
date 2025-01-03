@@ -45,7 +45,7 @@ func (r *EntitlementRouter) Routes(engine *gin.RouterGroup, path string) {
 	}
 }
 
-// create creates a new entitlement resource.
+// create creates a new entitlement.
 func (r *EntitlementRouter) create(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -54,7 +54,10 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement creation request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new entitlement creation request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -133,7 +136,10 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement retrieval request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new entitlement retrieval request")
 
 	// serializer
 	var req entitlements.EntitlementRetrievalRequest
@@ -192,7 +198,10 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement deletion request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new entitlement deletion request")
 
 	// serializer
 	var req entitlements.EntitlementDeletionRequest
@@ -237,8 +246,7 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 }
 
 // list returns a list of entitlements. The entitlements are returned sorted by creation date,
-// with the most recent entitlements appearing first. Resources are automatically scoped to the authenticated bearer
-// e.g. when authenticated as a license, only entitlements attached to that specific license will be listed.
+// with the most recent entitlements appearing first.
 func (r *EntitlementRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -247,7 +255,10 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new entitlement list request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new entitlement list request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")

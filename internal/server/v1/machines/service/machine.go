@@ -46,7 +46,10 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	tenant, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
@@ -193,7 +196,10 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
@@ -336,7 +342,10 @@ func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetri
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
@@ -403,7 +412,10 @@ func (svc *MachineService) Delete(ctx *gin.Context, input *models.MachineDeleteI
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
@@ -443,7 +455,10 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -515,7 +530,10 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))

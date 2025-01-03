@@ -42,14 +42,12 @@ func (r *TokenRouter) retrieve(ctx *gin.Context) {
 }
 
 // revoke permanently revokes a token. It cannot be undone.
-// This action also immediately invalidates all sessions using the given token.
 func (r *TokenRouter) revoke(ctx *gin.Context) {
 
 }
 
-// list returns a list of tokens. The tokens are returned sorted by creation date, with the most recent tokens
-// appearing first. Resources are automatically scoped to the authenticated bearer
-// e.g. when authenticated as a product, only tokens that belong to the specific product will be listed.
+// list returns a list of tokens. The tokens are returned sorted by creation date,
+// with the most recent tokens appearing first.
 func (r *TokenRouter) list(ctx *gin.Context) {
 
 }

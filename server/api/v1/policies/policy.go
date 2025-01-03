@@ -58,7 +58,10 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy creation request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new policy creation request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -139,7 +142,10 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received policy update request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received policy update request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -219,7 +225,10 @@ func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy retrieval request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new policy retrieval request")
 
 	// serializer
 	var req policies.PolicyRetrievalRequest
@@ -279,7 +288,10 @@ func (r *PolicyRouter) delete(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy deletion request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new policy deletion request")
 
 	// serializer
 	var req policies.PolicyDeletionRequest
@@ -332,7 +344,10 @@ func (r *PolicyRouter) list(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy history request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new policy history request")
 
 	// serializer
 	var uriReq policy_attribute.PolicyCommonURI
@@ -402,7 +417,10 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy entitlement attachment request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new policy entitlement attachment request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -482,7 +500,10 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy entitlement detachment request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new policy entitlement detachment request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -562,7 +583,10 @@ func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new policy entitlement list request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new policy entitlement list request")
 
 	// serializer
 	var uriReq policy_attribute.PolicyCommonURI

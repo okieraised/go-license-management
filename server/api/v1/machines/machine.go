@@ -56,7 +56,10 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new machine activation request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new machine activation request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -131,7 +134,10 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received machine update request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received machine update request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -206,7 +212,10 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new machine retrieval request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new machine retrieval request")
 
 	// serializer
 	var req machines.MachineRetrievalRequest
@@ -256,7 +265,6 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 }
 
 // delete permanently deletes, or deactivates, a machine. It cannot be undone.
-// This will immediately delete all processes and components associated with the machine.
 func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -265,7 +273,10 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new machine deletion request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new machine deletion request")
 
 	// serializer
 	var req machines.MachineDeletionRequest
@@ -320,7 +331,10 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new machine history request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new machine history request")
 
 	// serializer
 	var uriReq machine_attribute.MachineCommonURI
@@ -391,7 +405,10 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new machine action request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new machine action request")
 
 	// serializer
 	var uriReq machines.MachineActionsRequest

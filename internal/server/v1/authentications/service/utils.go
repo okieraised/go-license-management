@@ -29,6 +29,7 @@ func (svc *AuthenticationService) generateSuperadminJWT(ctx *gin.Context, master
 		"iat":         now.Unix(),
 		"nbf":         now.Unix(),
 		"tenant":      "*",
+		"status":      constants.AccountStatusActive,
 		"permissions": jwtPermissions,
 	})
 
@@ -83,6 +84,7 @@ func (svc *AuthenticationService) generateJWT(ctx *gin.Context, tenant *entities
 		"iat":         now.Unix(),
 		"nbf":         now.Unix(),
 		"tenant":      account.TenantName,
+		"status":      account.Status,
 		"permissions": jwtPermissions,
 	})
 

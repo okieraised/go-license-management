@@ -56,7 +56,10 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new license creation request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new license creation request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -127,7 +130,10 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new license retrieval request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new license retrieval request")
 
 	// serializer
 	var req license.LicenseRetrievalRequest
@@ -186,7 +192,10 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received license update request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received license update request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
@@ -259,7 +268,10 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new license deletion request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new license deletion request")
 
 	// serializer
 	var req license.LicenseDeletionRequest
@@ -304,8 +316,6 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 
 // list returns a list of licenses. The licenses are returned sorted by creation date,
 // with the most recent licenses appearing first.
-// Resources are automatically scoped to the authenticated bearer
-// e.g. when authenticated as a user, only licenses of that specific user will be listed.
 func (r *LicenseRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -314,7 +324,10 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new license history request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new license history request")
 
 	// serializer
 	var uriReq license_attribute.LicenseCommonURI
@@ -399,7 +412,10 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	defer span.End()
 
 	resp := response.NewResponse(ctx)
-	r.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField))).Info("received new license action request")
+	r.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	).Info("received new license action request")
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")

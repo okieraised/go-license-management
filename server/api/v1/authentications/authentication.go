@@ -108,7 +108,9 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrGenericUnauthorized):
+		case errors.Is(err, comerrors.ErrGenericUnauthorized),
+			errors.Is(err, comerrors.ErrAccountIsBanned),
+			errors.Is(err, comerrors.ErrAccountIsInactive):
 			ctx.JSON(http.StatusUnauthorized, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)

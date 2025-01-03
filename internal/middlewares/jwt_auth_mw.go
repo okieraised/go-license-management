@@ -300,6 +300,52 @@ func JWTValidationMW() gin.HandlerFunc {
 			}
 			ctx.Set(constants.ContextValueTenant, tenantCtx)
 
+			statusClaims, ok := parsedToken.Claims.(jwt.MapClaims)["status"]
+			if !ok {
+				logging.GetInstance().GetLogger().Error("missing [status] claims")
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"missing [status] claims",
+						nil,
+						nil,
+						nil,
+					),
+				)
+				return
+			}
+			statusCtx, ok := statusClaims.(interface{})
+			if !ok {
+				logging.GetInstance().GetLogger().Error("invalid [status] claims")
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						"invalid [status] claims",
+						nil,
+						nil,
+						nil,
+					),
+				)
+				return
+			}
+
+			status := statusCtx.(string)
+			if status == constants.AccountStatusBanned {
+				ctx.AbortWithStatusJSON(
+					http.StatusForbidden,
+					response.NewResponse(ctx).ToResponse(
+						comerrors.ErrCodeMapper[comerrors.ErrGenericPermission],
+						"account has been banned",
+						nil,
+						nil,
+						nil,
+					),
+				)
+				return
+			}
+
 		default:
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, map[string]interface{}{})
 			return

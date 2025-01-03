@@ -132,6 +132,19 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 		}
 		cSpan.End()
 
+		// If account is inactive of banned
+		if account.Status == constants.AccountStatusInactive {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountIsInactive]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountIsInactive]
+			return resp, comerrors.ErrAccountIsInactive
+		}
+
+		if account.Status == constants.AccountStatusBanned {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountIsBanned]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountIsBanned]
+			return resp, comerrors.ErrAccountIsBanned
+		}
+
 		// generate jwt
 		_, cSpan = input.Tracer.Start(rootCtx, "generate-account-token")
 		token, exp, err = svc.generateJWT(ctx, tenant, account)

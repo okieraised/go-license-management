@@ -37,6 +37,8 @@ var (
 	ErrAccountResetTokenIsEmpty      = errors.New("account reset token is empty")
 	ErrAccountResetTokenIsInvalid    = errors.New("account reset token is invalid")
 	ErrAccountResetTokenIsExpired    = errors.New("account reset token is expired")
+	ErrAccountIsBanned               = errors.New("account is banned")
+	ErrAccountIsInactive             = errors.New("account is inactive")
 )
 
 var (
@@ -142,6 +144,8 @@ var ErrCodeMapper = map[error]string{
 	ErrAccountResetTokenIsEmpty:      "49013",
 	ErrAccountResetTokenIsInvalid:    "49014",
 	ErrAccountResetTokenIsExpired:    "49015",
+	ErrAccountIsBanned:               "49016",
+	ErrAccountIsInactive:             "49017",
 
 	ErrProductNameIsEmpty:                    "44000",
 	ErrProductCodeIsEmpty:                    "44001",
@@ -234,6 +238,8 @@ var ErrMessageMapper = map[error]string{
 	ErrAccountResetTokenIsEmpty:      ErrAccountResetTokenIsEmpty.Error(),
 	ErrAccountResetTokenIsInvalid:    ErrAccountResetTokenIsInvalid.Error(),
 	ErrAccountResetTokenIsExpired:    ErrAccountResetTokenIsExpired.Error(),
+	ErrAccountIsBanned:               ErrAccountIsBanned.Error(),
+	ErrAccountIsInactive:             ErrAccountIsInactive.Error(),
 
 	ErrProductNameIsEmpty:                    ErrProductNameIsEmpty.Error(),
 	ErrProductCodeIsEmpty:                    ErrProductCodeIsEmpty.Error(),

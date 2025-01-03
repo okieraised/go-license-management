@@ -81,6 +81,10 @@ type AccountUpdateOutput struct {
 	UpdatedAt time.Time              `json:"updated_at"`
 }
 
+type AccountPasswordTokenOutput struct {
+	Token string `json:"token"`
+}
+
 type AccountListInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer

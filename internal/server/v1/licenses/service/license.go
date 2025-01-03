@@ -47,7 +47,10 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -193,7 +196,10 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -294,7 +300,10 @@ func (svc *LicenseService) Delete(ctx *gin.Context, input *models.LicenseDeletio
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -336,7 +345,10 @@ func (svc *LicenseService) List(ctx *gin.Context, input *models.LicenseListInput
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -439,7 +451,10 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 	svc.logger.GetLogger().Info(fmt.Sprintf("received action [%s]", utils.DerefPointer(input.Action)))
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")

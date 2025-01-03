@@ -54,7 +54,10 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -185,7 +188,10 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -246,7 +252,10 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -301,7 +310,10 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -332,6 +344,7 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	}
 	cSpan.End()
 
+	// Remove user policy from casbin
 	_, cSpan = input.Tracer.Start(rootCtx, "delete-account-casbin")
 	err = svc.casbin.RemovePolicy("g", "g", []string{utils.DerefPointer(input.TenantName), utils.DerefPointer(input.Username)})
 	if err != nil {
@@ -354,7 +367,10 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	// Query tenant
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
@@ -479,7 +495,10 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 	defer span.End()
 
 	resp := &response.BaseOutput{}
-	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
 
 	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
 	svc.logger.GetLogger().Info(fmt.Sprintf("checking existing tenant [%s]", utils.DerefPointer(input.TenantName)))
@@ -517,9 +536,10 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 	cSpan.End()
 
 	_, cSpan = input.Tracer.Start(rootCtx, "account-action")
+	var output *entities.Account
 	switch utils.DerefPointer(input.Action) {
 	case constants.AccountActionBan:
-		output, err := svc.actionBan(ctx, account)
+		output, err = svc.actionBan(ctx, account)
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
@@ -527,40 +547,17 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 			return resp, comerrors.ErrGenericInternalServer
 		}
-		resp.Data = models.AccountUpdateOutput{
-			Username:  output.Username,
-			RoleName:  output.RoleName,
-			Email:     output.Email,
-			FirstName: output.FirstName,
-			LastName:  output.LastName,
-			Status:    output.Status,
-			Metadata:  output.Metadata,
-			CreatedAt: output.CreatedAt,
-			UpdatedAt: output.UpdatedAt,
-		}
-
 	case constants.AccountActionUnban:
-		output, err := svc.actionUnban(ctx, account)
+		output, err = svc.actionUnban(ctx, account)
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
 			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 			return resp, comerrors.ErrGenericInternalServer
-		}
-		resp.Data = models.AccountUpdateOutput{
-			Username:  output.Username,
-			RoleName:  output.RoleName,
-			Email:     output.Email,
-			FirstName: output.FirstName,
-			LastName:  output.LastName,
-			Status:    output.Status,
-			Metadata:  output.Metadata,
-			CreatedAt: output.CreatedAt,
-			UpdatedAt: output.UpdatedAt,
 		}
 	case constants.AccountActionGenerateResetToken:
-		output, err := svc.actionGenerateResetToken(ctx, account)
+		output, err = svc.actionGenerateResetToken(ctx, account)
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
@@ -568,19 +565,8 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 			return resp, comerrors.ErrGenericInternalServer
 		}
-		resp.Data = models.AccountUpdateOutput{
-			Username:  output.Username,
-			RoleName:  output.RoleName,
-			Email:     output.Email,
-			FirstName: output.FirstName,
-			LastName:  output.LastName,
-			Status:    output.Status,
-			Metadata:  output.Metadata,
-			CreatedAt: output.CreatedAt,
-			UpdatedAt: output.UpdatedAt,
-		}
 	case constants.AccountActionResetPassword:
-		output, err := svc.actionResetPassword(ctx, utils.DerefPointer(input.ResetToken), utils.DerefPointer(input.NewPassword), account)
+		output, err = svc.actionResetPassword(ctx, utils.DerefPointer(input.ResetToken), utils.DerefPointer(input.NewPassword), account)
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
@@ -596,19 +582,8 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 				return resp, comerrors.ErrGenericInternalServer
 			}
 		}
-		resp.Data = models.AccountUpdateOutput{
-			Username:  output.Username,
-			RoleName:  output.RoleName,
-			Email:     output.Email,
-			FirstName: output.FirstName,
-			LastName:  output.LastName,
-			Status:    output.Status,
-			Metadata:  output.Metadata,
-			CreatedAt: output.CreatedAt,
-			UpdatedAt: output.UpdatedAt,
-		}
 	case constants.AccountActionUpdatePassword:
-		output, err := svc.actionUpdatePassword(ctx, utils.DerefPointer(input.CurrentPassword), utils.DerefPointer(input.NewPassword), account)
+		output, err = svc.actionUpdatePassword(ctx, utils.DerefPointer(input.CurrentPassword), utils.DerefPointer(input.NewPassword), account)
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
@@ -623,6 +598,15 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 				return resp, comerrors.ErrGenericInternalServer
 			}
 		}
+	default:
+	}
+	cSpan.End()
+
+	if utils.DerefPointer(input.Action) == constants.AccountActionGenerateResetToken {
+		resp.Data = models.AccountPasswordTokenOutput{
+			Token: output.PasswordResetToken,
+		}
+	} else {
 		resp.Data = models.AccountUpdateOutput{
 			Username:  output.Username,
 			RoleName:  output.RoleName,
@@ -634,9 +618,7 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 			CreatedAt: output.CreatedAt,
 			UpdatedAt: output.UpdatedAt,
 		}
-	default:
 	}
-	cSpan.End()
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
