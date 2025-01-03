@@ -188,7 +188,55 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 
 func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateInput) (*response.BaseOutput, error) {
 
-	return &response.BaseOutput{}, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "select-product")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying license [%s]", utils.DerefPointer(input.LicenseID)))
+	license, err := svc.repo.SelectLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIDIsInvalid]
+			return resp, comerrors.ErrLicenseIDIsInvalid
+		default:
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	fmt.Println(license)
+
+	return resp, nil
 }
 
 func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetrievalInput) (*response.BaseOutput, error) {
