@@ -482,8 +482,9 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 	// Generate token
 	_, cSpan = input.Tracer.Start(rootCtx, "generate-product-token")
 	token := utils.GenerateToken()
+	id := uuid.New()
 	productToken := &entities.ProductToken{
-		ID:         uuid.New(),
+		ID:         id,
 		TenantName: tenant.Name,
 		ProductID:  product.ID,
 		Token:      token,
@@ -501,6 +502,9 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]
-	resp.Data = models.ProductTokenOutput{Token: token}
+	resp.Data = models.ProductTokenOutput{
+		ID:    id.String(),
+		Token: token,
+	}
 	return resp, nil
 }
