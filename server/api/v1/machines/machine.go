@@ -1,10 +1,7 @@
 package machines
 
 import (
-	"crypto/sha256"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -119,9 +116,6 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed registering new machine")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -198,9 +192,6 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed updating machine")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -260,9 +251,6 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed retrieval request")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -317,9 +305,6 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed deactivating machine")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusNoContent, resp)
 
@@ -390,9 +375,6 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed listing machines")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -472,9 +454,6 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed handling machine action")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 

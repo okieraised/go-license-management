@@ -1,10 +1,7 @@
 package policies
 
 import (
-	"crypto/sha256"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -127,9 +124,6 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed creating new policy")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -211,9 +205,6 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed updating policy")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -273,9 +264,6 @@ func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed retrieval request")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 
@@ -399,9 +387,6 @@ func (r *PolicyRouter) list(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed listing policies")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -484,9 +469,6 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed attaching new entitlement to policy")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -566,9 +548,6 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("complated detaching entitlement from policy")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -638,9 +617,6 @@ func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed listing policy entitlements")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return

@@ -1,10 +1,7 @@
 package authentications
 
 import (
-	"crypto/sha256"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -115,9 +112,6 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 	return

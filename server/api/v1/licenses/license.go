@@ -1,10 +1,7 @@
 package licenses
 
 import (
-	"crypto/sha256"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
@@ -116,9 +113,6 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed generating new license")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -178,9 +172,6 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed retrieval request")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -252,9 +243,6 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed updating license")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusCreated, resp)
 	return
@@ -381,9 +369,6 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed listing licenses")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
@@ -479,9 +464,6 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	cSpan.End()
 
 	r.logger.GetLogger().Info("completed handling license actions")
-	contentToHash, _ := json.Marshal(result.Data)
-	sha256Hash := fmt.Sprintf("%x", sha256.Sum256(contentToHash))
-	ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }

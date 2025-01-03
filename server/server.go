@@ -35,7 +35,10 @@ func StartServer(appService *models.AppService, quit chan os.Signal) {
 		AllowCredentials: true,
 	}))
 
-	router.Use(middlewares.HashHeaderMW(), middlewares.RequestIDMW(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression), middlewares.LoggerMW(logging.GetInstance().GetLogger()), middlewares.Recovery())
+	router.Use(
+		middlewares.RequestIDMW(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression),
+		middlewares.Recovery(), middlewares.LoggerMW(logging.GetInstance().GetLogger()), middlewares.HashHeaderMW(),
+	)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	rootRouter := api.New(appService)
