@@ -17,6 +17,7 @@ import (
 	"go-license-management/internal/server/v1/licenses/repository"
 	"go-license-management/internal/utils"
 	"go.uber.org/zap"
+	"time"
 )
 
 type LicenseService struct {
@@ -215,7 +216,7 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 	}
 	cSpan.End()
 
-	_, cSpan = input.Tracer.Start(rootCtx, "select-product")
+	_, cSpan = input.Tracer.Start(rootCtx, "select-license")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying license [%s]", utils.DerefPointer(input.LicenseID)))
 	license, err := svc.repo.SelectLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
 	if err != nil {
@@ -234,7 +235,142 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 	}
 	cSpan.End()
 
-	fmt.Println(license)
+	// validate policyID exists
+	if input.PolicyID != nil {
+		_, cSpan = input.Tracer.Start(rootCtx, "check-policy-exist")
+		policyID := uuid.MustParse(utils.DerefPointer(input.PolicyID))
+
+		exist, err := svc.repo.CheckPolicyExist(ctx, policyID)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+
+		if !exist {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
+			return resp, comerrors.ErrPolicyIDIsInvalid
+		} else {
+			license.PolicyID = policyID
+		}
+		cSpan.End()
+	}
+
+	// validate productID exists
+	if input.ProductID != nil {
+		_, cSpan = input.Tracer.Start(rootCtx, "check-policy-exist")
+		productID := uuid.MustParse(utils.DerefPointer(input.ProductID))
+
+		exist, err := svc.repo.CheckProductExist(ctx, productID)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+
+		if !exist {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
+			return resp, comerrors.ErrProductIDIsInvalid
+		} else {
+			license.ProductID = productID
+		}
+		cSpan.End()
+	}
+
+	if input.Expiry != nil {
+		license.Expiry, _ = time.Parse(time.RFC3339, utils.DerefPointer(input.Expiry))
+	}
+
+	if input.MaxUsers != nil {
+		license.MaxUsers = utils.DerefPointer(input.MaxUsers)
+	}
+
+	if input.MaxUses != nil {
+		license.MaxUsers = utils.DerefPointer(input.MaxUses)
+	}
+
+	if input.MaxMachines != nil {
+		license.MaxMachines = utils.DerefPointer(input.MaxMachines)
+	}
+
+	if input.Name != nil {
+		license.Name = utils.DerefPointer(input.Name)
+	}
+
+	if input.Metadata != nil {
+		license.Metadata = input.Metadata
+	}
+
+	_, cSpan = input.Tracer.Start(rootCtx, "update-license")
+	license, err = svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	respData := &models.LicenseInfoOutput{
+		LicenseID:      license.ID.String(),
+		ProductID:      license.ProductID.String(),
+		PolicyID:       license.PolicyID.String(),
+		Name:           license.Name,
+		LicenseKey:     license.Key,
+		MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
+		Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
+		Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
+		Status:         license.Status,
+		Metadata:       license.Metadata,
+		Expiry:         license.Expiry,
+		CreatedAt:      license.CreatedAt,
+		UpdatedAt:      license.UpdatedAt,
+		LicensePolicy: models.LicensePolicyOutput{
+			PolicyScheme:           license.Policy.Scheme,
+			PolicyPublicKey:        license.Policy.PublicKey,
+			ExpirationStrategy:     license.Policy.ExpirationStrategy,
+			ExpirationBasis:        license.Policy.ExpirationBasis,
+			AuthenticationStrategy: license.Policy.AuthenticationStrategy,
+			CheckInInterval:        license.Policy.CheckInInterval,
+			OverageStrategy:        license.Policy.OverageStrategy,
+			HeartbeatBasis:         license.Policy.HeartbeatBasis,
+			RenewalBasis:           license.Policy.RenewalBasis,
+			RequireCheckIn:         license.Policy.RequireCheckIn,
+			RequireHeartbeat:       license.Policy.RequireHeartbeat,
+			Strict:                 license.Policy.Strict,
+			Floating:               license.Policy.Floating,
+			UsePool:                license.Policy.UsePool,
+			RateLimited:            license.Policy.RateLimited,
+			Encrypted:              license.Policy.Encrypted,
+			Protected:              license.Policy.Protected,
+			Duration:               license.Policy.Duration,
+			MaxMachines:            license.Policy.MaxMachines,
+			MaxUses:                license.Policy.MaxUses,
+			MaxUsers:               license.Policy.MaxUsers,
+			HeartbeatDuration:      license.Policy.HeartbeatDuration,
+		},
+		LicenseProduct: models.LicenseProductOutput{
+			Name:                 license.Product.Name,
+			DistributionStrategy: license.Product.DistributionStrategy,
+			Code:                 license.Product.Code,
+			URL:                  license.Product.URL,
+			Platforms:            license.Product.Platforms,
+			Metadata:             license.Product.Metadata,
+			CreatedAt:            license.Product.CreatedAt,
+			UpdatedAt:            license.Product.UpdatedAt,
+		},
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Data = respData
 
 	return resp, nil
 }
@@ -267,7 +403,7 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 	}
 	cSpan.End()
 
-	_, cSpan = input.Tracer.Start(rootCtx, "select-product")
+	_, cSpan = input.Tracer.Start(rootCtx, "select-license")
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying license [%s]", utils.DerefPointer(input.LicenseID)))
 	license, err := svc.repo.SelectLicenseByPK(ctx, uuid.MustParse(utils.DerefPointer(input.LicenseID)))
 	if err != nil {

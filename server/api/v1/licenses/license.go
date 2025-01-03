@@ -242,7 +242,8 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 		switch {
 		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
 			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
-			errors.Is(err, comerrors.ErrProductIDIsInvalid):
+			errors.Is(err, comerrors.ErrProductIDIsInvalid),
+			errors.Is(err, comerrors.ErrLicenseIDIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)

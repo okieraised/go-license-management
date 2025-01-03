@@ -120,9 +120,12 @@ func (req *LicenseUpdateRequest) Validate() error {
 	}
 
 	if req.Expiry != nil {
-		_, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
+		exp, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
 		if err != nil {
 			return comerrors.ErrLicenseExpiryFormatIsInvalid
+		}
+		if exp.Before(time.Now()) {
+			return comerrors.ErrLicenseExpireDateIsInvalid
 		}
 	}
 

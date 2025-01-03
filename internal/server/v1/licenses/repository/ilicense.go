@@ -17,4 +17,6 @@ type ILicense interface {
 	SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error)
 	DeleteLicenseByPK(ctx context.Context, licenseID uuid.UUID) error
 	UpdateLicenseByPK(ctx context.Context, license *entities.License) (*entities.License, error)
+	CheckPolicyExist(ctx context.Context, policyID uuid.UUID) (bool, error)
+	CheckProductExist(ctx context.Context, productID uuid.UUID) (bool, error)
 }

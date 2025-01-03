@@ -158,3 +158,35 @@ func (repo *LicenseRepository) UpdateLicenseByPK(ctx context.Context, license *e
 
 	return license, nil
 }
+
+func (repo *LicenseRepository) CheckPolicyExist(ctx context.Context, policyID uuid.UUID) (bool, error) {
+	var exist bool
+
+	if repo.database == nil {
+		return exist, comerrors.ErrInvalidDatabaseClient
+	}
+
+	policy := &entities.Policy{ID: policyID}
+	exist, err := repo.database.NewSelect().Model(policy).WherePK().Exists(ctx)
+	if err != nil {
+		return exist, err
+	}
+
+	return exist, nil
+}
+
+func (repo *LicenseRepository) CheckProductExist(ctx context.Context, productID uuid.UUID) (bool, error) {
+	var exist bool
+
+	if repo.database == nil {
+		return exist, comerrors.ErrInvalidDatabaseClient
+	}
+
+	product := &entities.Product{ID: productID}
+	exist, err := repo.database.NewSelect().Model(product).WherePK().Exists(ctx)
+	if err != nil {
+		return exist, err
+	}
+
+	return exist, nil
+}

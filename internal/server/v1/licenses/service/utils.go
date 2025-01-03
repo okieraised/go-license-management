@@ -276,6 +276,10 @@ func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.L
 
 	expiry := issued.Add(time.Duration(ttl) * time.Second)
 
+	if license.Status == constants.LicenseStatusNotActivated {
+		license.Status = constants.LicenseStatusActive
+	}
+
 	license.LastCheckOutAt = issued
 	license, err = svc.repo.UpdateLicenseByPK(ctx, license)
 	if err != nil {
