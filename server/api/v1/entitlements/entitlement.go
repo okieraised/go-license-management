@@ -60,6 +60,7 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 	).Info("received new entitlement creation request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating new entitlement creation request")
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	var uriReq entitlement_attribute.EntitlementCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
@@ -142,6 +143,7 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 	).Info("received new entitlement retrieval request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating new entitlement retrieval request")
 	var req entitlements.EntitlementRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
@@ -189,7 +191,7 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 }
 
 // delete permanently deletes an entitlement.
-// The entitlement will immediately be removed from all licenses and policies. It cannot be undone.
+// The entitlement will immediately be removed from all licenses and policies
 func (r *EntitlementRouter) delete(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -204,6 +206,7 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 	).Info("received new entitlement deletion request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating new entitlement deletion request")
 	var req entitlements.EntitlementDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
@@ -261,6 +264,7 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 	).Info("received new entitlement list request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating new entitlement list request")
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	var uriReq entitlement_attribute.EntitlementCommonURI
 	err := ctx.ShouldBindUri(&uriReq)

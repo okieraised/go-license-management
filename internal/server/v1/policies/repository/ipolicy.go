@@ -22,4 +22,5 @@ type IPolicy interface {
 	DeletePolicyByPK(ctx context.Context, policyID uuid.UUID) error
 	DeletePolicyEntitlementByPK(ctx context.Context, policyEntitlementID uuid.UUID) error
 	DeletePolicyEntitlementsByPK(ctx context.Context, policyEntitlementID []uuid.UUID) error
+	SelectPolicyEntitlements(ctx context.Context, policyID uuid.UUID, queryParam constants.QueryCommonParam) ([]entities.PolicyEntitlement, int, error)
 }

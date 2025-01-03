@@ -64,6 +64,7 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 	).Info("received new policy creation request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating new policy creation request")
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	var uriReq policy_attribute.PolicyCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
@@ -568,7 +569,7 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 	}
 	cSpan.End()
 
-	r.logger.GetLogger().Info("complated detaching entitlement from policy")
+	r.logger.GetLogger().Info("completed detaching entitlement from policy")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
 }

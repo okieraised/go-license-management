@@ -57,7 +57,7 @@ func (repo *PolicyRepository) CheckPolicyEntitlementExistsByPolicyIDAndEntitleme
 	exists := false
 
 	if repo.database == nil {
-		return exists, comerrors.ErrInvalidDatabaseClient
+		return false, comerrors.ErrInvalidDatabaseClient
 	}
 
 	exists, err = repo.database.NewSelect().
@@ -157,6 +157,26 @@ func (repo *PolicyRepository) DeletePolicyEntitlementByPK(ctx context.Context, p
 	}
 
 	return nil
+}
+
+func (repo *PolicyRepository) SelectPolicyEntitlements(ctx context.Context, policyID uuid.UUID, queryParam constants.QueryCommonParam) ([]entities.PolicyEntitlement, int, error) {
+	var total int
+
+	if repo.database == nil {
+		return nil, total, comerrors.ErrInvalidDatabaseClient
+	}
+
+	policyEntitlements := make([]entities.PolicyEntitlement, 0)
+	total, err := repo.database.NewSelect().Model(new(entities.PolicyEntitlement)).
+		Where("policy_id = ?", policyID).
+		Limit(utils.DerefPointer(queryParam.Limit)).
+		Offset(utils.DerefPointer(queryParam.Offset)).
+		Order("created_at DESC").
+		ScanAndCount(ctx, &policyEntitlements)
+	if err != nil {
+		return policyEntitlements, total, err
+	}
+	return policyEntitlements, total, err
 }
 
 func (repo *PolicyRepository) DeletePolicyEntitlementsByPK(ctx context.Context, policyEntitlementID []uuid.UUID) error {

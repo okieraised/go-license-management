@@ -63,7 +63,7 @@ type PolicyAttachmentOutput struct {
 	TenantName    string                 `json:"tenant_name"`
 	PolicyID      string                 `json:"policy_id"`
 	EntitlementID string                 `json:"entitlement_id"`
-	Metadata      map[string]interface{} `json:"type:jsonb"`
+	Metadata      map[string]interface{} `json:"metadata"`
 	CreatedAt     time.Time              `json:"created_at"`
 	UpdatedAt     time.Time              `json:"updated_at"`
 }
@@ -79,4 +79,15 @@ type PolicyEntitlementListInput struct {
 	TracerCtx context.Context
 	Tracer    trace.Tracer
 	policy_attribute.PolicyCommonURI
+	constants.QueryCommonParam
+}
+
+type PolicyEntitlementListOutput struct {
+	ID            string                 `json:"id"`
+	TenantName    string                 `json:"tenant_name"`
+	PolicyID      string                 `json:"policy_id"`
+	EntitlementID string                 `json:"entitlement_id"`
+	Metadata      map[string]interface{} `json:"metadata"`
+	CreatedAt     time.Time              `json:"created_at"`
+	UpdatedAt     time.Time              `json:"updated_at"`
 }

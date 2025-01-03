@@ -393,8 +393,9 @@ func (req *PolicyEntitlementListRequest) Validate() error {
 
 func (req *PolicyEntitlementListRequest) ToPolicyEntitlementListInput(ctx context.Context, tracer trace.Tracer, policyURI policy_attribute.PolicyCommonURI) *models.PolicyEntitlementListInput {
 	return &models.PolicyEntitlementListInput{
-		TracerCtx:       ctx,
-		Tracer:          tracer,
-		PolicyCommonURI: policyURI,
+		TracerCtx:        ctx,
+		Tracer:           tracer,
+		PolicyCommonURI:  policyURI,
+		QueryCommonParam: req.QueryCommonParam,
 	}
 }

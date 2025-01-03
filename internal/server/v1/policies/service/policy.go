@@ -734,5 +734,79 @@ func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmen
 }
 
 func (svc *PolicyService) ListEntitlements(ctx *gin.Context, input *models.PolicyEntitlementListInput) (*response.BaseOutput, error) {
-	return nil, nil
+	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-policy-entilement")
+	defer span.End()
+
+	resp := &response.BaseOutput{}
+	svc.logger.WithCustomFields(
+		zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)),
+		zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
+	)
+
+	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+	svc.logger.GetLogger().Info(fmt.Sprintf("verifying tenant [%s]", utils.DerefPointer(input.TenantName)))
+	_, err := svc.repo.SelectTenantByName(ctx, utils.DerefPointer(input.TenantName))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+			return resp, comerrors.ErrTenantNameIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "query-policy")
+	svc.logger.GetLogger().Info(fmt.Sprintf("querying policy [%s]", utils.DerefPointer(input.PolicyID)))
+	policy, err := svc.repo.SelectPolicyByPK(ctx, uuid.MustParse(utils.DerefPointer(input.PolicyID)))
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		if errors.Is(err, sql.ErrNoRows) {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
+			return resp, comerrors.ErrPolicyIDIsInvalid
+		} else {
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+	}
+	cSpan.End()
+
+	_, cSpan = input.Tracer.Start(rootCtx, "listing-policy-entitlement")
+	svc.logger.GetLogger().Info("listing policy entitlements")
+	entitlements, total, err := svc.repo.SelectPolicyEntitlements(ctx, policy.ID, input.QueryCommonParam)
+	if err != nil {
+		svc.logger.GetLogger().Error(err.Error())
+		cSpan.End()
+		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+		return resp, comerrors.ErrGenericInternalServer
+	}
+	cSpan.End()
+
+	outputs := make([]models.PolicyEntitlementListOutput, 0)
+	for _, entitlement := range entitlements {
+		outputs = append(outputs, models.PolicyEntitlementListOutput{
+			ID:            entitlement.ID.String(),
+			TenantName:    entitlement.TenantName,
+			PolicyID:      entitlement.PolicyID.String(),
+			EntitlementID: entitlement.EntitlementID.String(),
+			Metadata:      entitlement.Metadata,
+			CreatedAt:     entitlement.CreatedAt,
+			UpdatedAt:     entitlement.UpdatedAt,
+		})
+	}
+
+	resp.Code = comerrors.ErrCodeMapper[nil]
+	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Count = total
+	resp.Data = outputs
+	return resp, nil
 }
