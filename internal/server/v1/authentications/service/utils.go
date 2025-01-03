@@ -12,6 +12,49 @@ import (
 	"time"
 )
 
+func (svc *AuthenticationService) generateSuperadminJWT(ctx *gin.Context, master *entities.Master) (string, int64, error) {
+
+	jwtPermissions := make([]string, 0)
+	for k, _ := range constants.SuperAdminPermissionMapper {
+		jwtPermissions = append(jwtPermissions, k)
+	}
+
+	now := time.Now()
+	exp := now.Add(time.Hour).Unix()
+	claims := jwt.NewWithClaims(jwt.SigningMethodEdDSA, jwt.MapClaims{
+		"sub":         master.Username,   // Subject (user identifier)
+		"iss":         constants.AppName, // Issuer
+		"aud":         master.RoleName,   // Audience (user role)
+		"exp":         exp,               // Expiration time
+		"iat":         now.Unix(),
+		"nbf":         now.Unix(),
+		"tenant":      "*",
+		"permissions": jwtPermissions,
+	})
+
+	privateKey, err := hex.DecodeString(master.Ed25519PrivateKey)
+	if err != nil {
+		return "", 0, err
+	}
+
+	decodedPrivateKey, err := x509.ParsePKCS8PrivateKey(privateKey)
+	if err != nil {
+		return "", 0, err
+	}
+
+	privateKey, ok := decodedPrivateKey.(ed25519.PrivateKey)
+	if !ok {
+		return "", 0, errors.New("decoded key is not of type ed25519.PrivateKey")
+	}
+
+	tokenString, err := claims.SignedString(decodedPrivateKey)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return tokenString, exp, nil
+}
+
 func (svc *AuthenticationService) generateJWT(ctx *gin.Context, tenant *entities.Tenant, account *entities.Account) (string, int64, error) {
 
 	jwtPermissions := make([]string, 0)

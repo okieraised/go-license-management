@@ -4,12 +4,14 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/authentication_attribute"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/authentications/service"
+	"go-license-management/internal/utils"
 	"go-license-management/server/models/v1/authentications"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -76,7 +78,7 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 
 	// validation
 	_, cSpan = r.tracer.Start(rootCtx, "validation")
-	err = uriReq.Validate()
+	err = bodyReq.Validate()
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
@@ -85,13 +87,16 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 		return
 	}
 
-	err = bodyReq.Validate()
-	if err != nil {
-		cSpan.End()
-		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
+	// Super admin user can login with all paths
+	if utils.DerefPointer(bodyReq.Username) != config.SuperAdminUsername {
+		err = uriReq.Validate()
+		if err != nil {
+			cSpan.End()
+			r.logger.GetLogger().Error(err.Error())
+			resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+			ctx.JSON(http.StatusBadRequest, resp)
+			return
+		}
 	}
 	cSpan.End()
 

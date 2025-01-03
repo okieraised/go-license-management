@@ -8,9 +8,11 @@ import (
 type Master struct {
 	bun.BaseModel `bun:"table:masters,alias:ms" swaggerignore:"true"`
 
-	Username       string `bun:"username,pk,type:varchar(128)"`
-	RoleName       string `bun:"role_name,type:varchar(256),notnull"`
-	PasswordDigest string `bun:"password_digest,type:varchar(256)"`
+	Username          string `bun:"username,pk,type:varchar(128)"`
+	RoleName          string `bun:"role_name,type:varchar(256),notnull"`
+	PasswordDigest    string `bun:"password_digest,type:varchar(256)"`
+	Ed25519PublicKey  string `bun:"ed25519_public_key,type:varchar(512),notnull"`
+	Ed25519PrivateKey string `bun:"ed25519_private_key,type:varchar(512),notnull"`
 }
 
 type Account struct {

@@ -35,7 +35,7 @@ func (req *AccountRegistrationRequest) Validate() error {
 	if req.Role == nil {
 		req.Role = utils.RefPointer(constants.RoleUser)
 	} else {
-		if _, ok := constants.ValidRoleMapper[utils.DerefPointer(req.Role)]; !ok {
+		if _, ok := constants.ValidAccountCreationRoleMapper[utils.DerefPointer(req.Role)]; !ok {
 			return comerrors.ErrAccountRoleIsInvalid
 		}
 	}
@@ -115,7 +115,7 @@ type AccountUpdateRequest struct {
 
 func (req *AccountUpdateRequest) Validate() error {
 	if req.Role != nil {
-		if _, ok := constants.ValidRoleMapper[utils.DerefPointer(req.Role)]; !ok {
+		if _, ok := constants.ValidAccountCreationRoleMapper[utils.DerefPointer(req.Role)]; !ok {
 			return comerrors.ErrAccountRoleIsInvalid
 		}
 	}

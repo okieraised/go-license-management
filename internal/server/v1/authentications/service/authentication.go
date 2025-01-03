@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/response"
@@ -37,6 +38,7 @@ func WithRepository(repo repository.IAuthentication) func(*AuthenticationService
 	}
 }
 
+// Login handles the login logic.
 func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.AuthenticationLoginInput) (*response.BaseOutput, error) {
 	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
 	defer span.End()
@@ -44,56 +46,104 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 	resp := &response.BaseOutput{}
 	svc.logger.WithCustomFields(zap.String(constants.RequestIDField, ctx.GetString(constants.RequestIDField)))
 
-	_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
-	tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
-	if err != nil {
-		svc.logger.GetLogger().Error(err.Error())
+	var token string
+	var exp int64
+
+	// Login admin
+	if utils.DerefPointer(input.Username) == config.SuperAdminUsername {
+		_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+		master, err := svc.repo.SelectMasterByPK(ctx, utils.DerefPointer(input.Username))
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			if errors.Is(err, sql.ErrNoRows) {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+				return resp, comerrors.ErrTenantNameIsInvalid
+			} else {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
 		cSpan.End()
-		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
-		} else {
+
+		// compare hash
+		_, cSpan = input.Tracer.Start(rootCtx, "compare-hash")
+		match := utils.CompareHashedPassword(master.PasswordDigest, utils.DerefPointer(input.Password))
+		if !match {
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericUnauthorized]
+			return resp, comerrors.ErrGenericUnauthorized
+		}
+		cSpan.End()
+
+		// generate jwt
+		_, cSpan = input.Tracer.Start(rootCtx, "generate-master-token")
+		token, exp, err = svc.generateSuperadminJWT(ctx, master)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
 			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 			return resp, comerrors.ErrGenericInternalServer
 		}
-	}
-	cSpan.End()
-
-	_, cSpan = input.Tracer.Start(rootCtx, "select-account")
-	account, err := svc.repo.SelectAccountByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
-	if err != nil {
-		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
-	}
-	cSpan.End()
 
-	// compare hash
-	_, cSpan = input.Tracer.Start(rootCtx, "compare-hash")
-	match := utils.CompareHashedPassword(account.PasswordDigest, utils.DerefPointer(input.Password))
-	if !match {
+	} else {
+		// Login user
+		_, cSpan := input.Tracer.Start(rootCtx, "query-tenant-by-name")
+		tenant, err := svc.repo.SelectTenantByPK(ctx, utils.DerefPointer(input.TenantName))
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			if errors.Is(err, sql.ErrNoRows) {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
+				return resp, comerrors.ErrTenantNameIsInvalid
+			} else {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+				return resp, comerrors.ErrGenericInternalServer
+			}
+		}
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericUnauthorized]
-		return resp, comerrors.ErrGenericUnauthorized
-	}
-	cSpan.End()
 
-	// generate jwt
-	_, cSpan = input.Tracer.Start(rootCtx, "generate-account-token")
-	token, exp, err := svc.generateJWT(ctx, tenant, account)
-	if err != nil {
-		svc.logger.GetLogger().Error(err.Error())
+		_, cSpan = input.Tracer.Start(rootCtx, "select-account")
+		account, err := svc.repo.SelectAccountByPK(ctx, tenant.Name, utils.DerefPointer(input.Username))
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+
+		// compare hash
+		_, cSpan = input.Tracer.Start(rootCtx, "compare-hash")
+		match := utils.CompareHashedPassword(account.PasswordDigest, utils.DerefPointer(input.Password))
+		if !match {
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericUnauthorized]
+			return resp, comerrors.ErrGenericUnauthorized
+		}
+		cSpan.End()
+
+		// generate jwt
+		_, cSpan = input.Tracer.Start(rootCtx, "generate-account-token")
+		token, exp, err = svc.generateJWT(ctx, tenant, account)
+		if err != nil {
+			svc.logger.GetLogger().Error(err.Error())
+			cSpan.End()
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+			return resp, comerrors.ErrGenericInternalServer
+		}
+		cSpan.End()
 	}
-	cSpan.End()
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
 	resp.Message = comerrors.ErrMessageMapper[nil]

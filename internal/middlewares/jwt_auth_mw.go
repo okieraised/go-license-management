@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/database/postgres"
@@ -119,7 +120,8 @@ func JWTValidationMW() gin.HandlerFunc {
 				return
 			}
 
-			parsedToken, err := jwt.Parse(authHdrPart[1], func(token *jwt.Token) (interface{}, error) {
+			var parsedToken *jwt.Token
+			parsedToken, err = jwt.Parse(authHdrPart[1], func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
 					logging.GetInstance().GetLogger().Error(fmt.Sprintf("unexpected signing method: %v", token.Header["alg"]))
 					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -127,9 +129,77 @@ func JWTValidationMW() gin.HandlerFunc {
 				return decodedPublicKey, nil
 			})
 			if err != nil {
-				logging.GetInstance().GetLogger().Error(err.Error())
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, map[string]interface{}{})
-				return
+				master := &entities.Master{
+					Username: config.SuperAdminUsername,
+				}
+				err = postgres.GetInstance().NewSelect().Model(master).WherePK().Scan(ctx)
+				if err != nil {
+					logging.GetInstance().GetLogger().Error(err.Error())
+					ctx.AbortWithStatusJSON(
+						http.StatusInternalServerError,
+						response.NewResponse(ctx).ToResponse(
+							comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
+							comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+							nil,
+							nil,
+							nil,
+						),
+					)
+					return
+				}
+
+				publicKey, err = hex.DecodeString(master.Ed25519PublicKey)
+				if err != nil {
+					logging.GetInstance().GetLogger().Error(err.Error())
+					ctx.AbortWithStatusJSON(
+						http.StatusInternalServerError,
+						response.NewResponse(ctx).ToResponse(
+							comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
+							comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+							nil,
+							nil,
+							nil,
+						),
+					)
+					return
+				}
+
+				decodedPublicKey, err = x509.ParsePKIXPublicKey(publicKey)
+				if err != nil {
+					logging.GetInstance().GetLogger().Error(err.Error())
+					ctx.AbortWithStatusJSON(
+						http.StatusInternalServerError,
+						response.NewResponse(ctx).ToResponse(
+							comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
+							comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+							nil,
+							nil,
+							nil,
+						),
+					)
+					return
+				}
+				parsedToken, err = jwt.Parse(authHdrPart[1], func(token *jwt.Token) (interface{}, error) {
+					if _, ok := token.Method.(*jwt.SigningMethodEd25519); !ok {
+						logging.GetInstance().GetLogger().Error(fmt.Sprintf("unexpected signing method: %v", token.Header["alg"]))
+						return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+					}
+					return decodedPublicKey, nil
+				})
+				if err != nil {
+					logging.GetInstance().GetLogger().Error(err.Error())
+					ctx.AbortWithStatusJSON(
+						http.StatusUnauthorized,
+						response.NewResponse(ctx).ToResponse(
+							comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+							comerrors.ErrMessageMapper[comerrors.ErrGenericUnauthorized],
+							nil,
+							nil,
+							nil,
+						),
+					)
+					return
+				}
 			}
 
 			exp, err := parsedToken.Claims.GetExpirationTime()

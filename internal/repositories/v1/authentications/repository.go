@@ -45,3 +45,16 @@ func (repo *AuthenticationRepository) SelectAccountByPK(ctx context.Context, ten
 	}
 	return account, nil
 }
+
+func (repo *AuthenticationRepository) SelectMasterByPK(ctx context.Context, username string) (*entities.Master, error) {
+	if repo.database == nil {
+		return nil, comerrors.ErrInvalidDatabaseClient
+	}
+
+	master := &entities.Master{Username: username}
+	err := repo.database.NewSelect().Model(master).WherePK().Scan(ctx)
+	if err != nil {
+		return master, err
+	}
+	return master, nil
+}

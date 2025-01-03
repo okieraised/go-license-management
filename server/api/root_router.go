@@ -33,6 +33,9 @@ func (rr *RootRouter) InitRouters(engine *gin.Engine) {
 		tenantRoute := tenants.NewTenantRouter(rr.AppService.GetV1Svc().GetTenant())
 		tenantRoute.Routes(v1Router, "")
 
+		superAdminRoute := authentications.NewAuthenticationRouter(rr.AppService.GetV1Svc().GetAuth())
+		superAdminRoute.Routes(v1Router, "")
+
 		// common path prefix
 		prefix := "tenants/:tenant_name"
 

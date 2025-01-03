@@ -15,3 +15,10 @@ var ValidRoleMapper = map[string]bool{
 	RoleLicense:    true,
 	RoleUser:       true,
 }
+
+var ValidAccountCreationRoleMapper = map[string]bool{
+	RoleAdmin:   true,
+	RoleProduct: true,
+	RoleLicense: true,
+	RoleUser:    true,
+}

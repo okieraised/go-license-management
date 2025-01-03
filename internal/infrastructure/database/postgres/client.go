@@ -81,26 +81,28 @@ func SeedingDatabase() error {
 		return err
 	}
 
-	superadminUsername := "superadmin"
 	superadminPassword := "superadmin"
-
-	if viper.GetString(config.SuperAdminUsername) != "" {
-		superadminUsername = viper.GetString(config.SuperAdminUsername)
-	}
 
 	if viper.GetString(config.SuperAdminPassword) != "" {
 		superadminPassword = viper.GetString(config.SuperAdminPassword)
+	} else {
+		viper.Set(config.SuperAdminPassword, superadminPassword)
 	}
 
 	digest, err := utils.HashPassword(superadminPassword)
 	if err != nil {
 		return err
 	}
-
+	privateKey, publicKey, err := utils.NewEd25519KeyPair()
+	if err != nil {
+		return err
+	}
 	superadmin := entities.Master{
-		Username:       superadminUsername,
-		RoleName:       constants.RoleSuperAdmin,
-		PasswordDigest: digest,
+		Username:          config.SuperAdminUsername,
+		RoleName:          constants.RoleSuperAdmin,
+		PasswordDigest:    digest,
+		Ed25519PublicKey:  publicKey,
+		Ed25519PrivateKey: privateKey,
 	}
 
 	_, err = GetInstance().NewInsert().Model(&superadmin).Exec(context.Background())

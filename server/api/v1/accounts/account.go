@@ -40,8 +40,8 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/accounts")
-		routes.POST("", r.create)
-		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.list)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserRead), r.list)
 		routes = routes.Group("/:username")
 		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserRead), r.retrieve)
 		routes.PATCH("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserUpdate), r.update)
