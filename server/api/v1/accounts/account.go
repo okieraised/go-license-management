@@ -13,7 +13,6 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/accounts/service"
 	"go-license-management/internal/utils"
-	"go-license-management/server/models/v1/accounts"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -77,7 +76,7 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq accounts.AccountRegistrationRequest
+	var bodyReq AccountRegistrationRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -149,7 +148,7 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	).Info("received new accounts retrieval request")
 
 	// serializer
-	var req accounts.AccountRetrievalRequest
+	var req AccountRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -226,7 +225,7 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq accounts.AccountUpdateRequest
+	var bodyReq AccountUpdateRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -304,7 +303,7 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 	).Info("received new accounts deletion request")
 
 	// serializer
-	var req accounts.AccountDeletionRequest
+	var req AccountDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -371,7 +370,7 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq accounts.AccountListRequest
+	var bodyReq AccountListRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -452,7 +451,7 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq accounts.AccountActionRequest
+	var bodyReq AccountActionRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()

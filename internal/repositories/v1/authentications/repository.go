@@ -5,14 +5,14 @@ import (
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/infrastructure/database/entities"
-	"go-license-management/server/models"
+	"go-license-management/server/api"
 )
 
 type AuthenticationRepository struct {
 	database *bun.DB
 }
 
-func NewAuthenticationRepository(ds *models.DataSource) *AuthenticationRepository {
+func NewAuthenticationRepository(ds *api.DataSource) *AuthenticationRepository {
 	return &AuthenticationRepository{
 		database: ds.GetDatabase(),
 	}

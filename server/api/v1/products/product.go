@@ -13,7 +13,6 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/products/service"
 	"go-license-management/internal/utils"
-	"go-license-management/server/models/v1/products"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -80,7 +79,7 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq products.ProductRegistrationRequest
+	var bodyReq ProductRegistrationRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -152,7 +151,7 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 
 	// serializer
 	r.logger.GetLogger().Info("validating product retrieval request")
-	var req products.ProductRetrievalRequest
+	var req ProductRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -226,7 +225,7 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq products.ProductUpdateRequest
+	var bodyReq ProductUpdateRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -290,7 +289,7 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 
 	// serializer
 	r.logger.GetLogger().Info("validating product deletion request")
-	var req products.ProductDeletionRequest
+	var req ProductDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -359,7 +358,7 @@ func (r *ProductRouter) list(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq products.ProductListRequest
+	var bodyReq ProductListRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -431,7 +430,7 @@ func (r *ProductRouter) tokens(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq products.ProductTokenRequest
+	var bodyReq ProductTokenRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()

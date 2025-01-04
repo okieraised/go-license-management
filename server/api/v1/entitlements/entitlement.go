@@ -11,7 +11,6 @@ import (
 	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/entitlements/service"
-	"go-license-management/server/models/v1/entitlements"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -72,7 +71,7 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq entitlements.EntitlementRegistrationRequest
+	var bodyReq EntitlementRegistrationRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -144,7 +143,7 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 
 	// serializer
 	r.logger.GetLogger().Info("validating new entitlement retrieval request")
-	var req entitlements.EntitlementRetrievalRequest
+	var req EntitlementRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -207,7 +206,7 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 
 	// serializer
 	r.logger.GetLogger().Info("validating new entitlement deletion request")
-	var req entitlements.EntitlementDeletionRequest
+	var req EntitlementDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -276,7 +275,7 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq entitlements.EntitlementListRequest
+	var bodyReq EntitlementListRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()

@@ -7,7 +7,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
-	"go-license-management/server/models"
+	"go-license-management/server/api"
 	"time"
 )
 
@@ -15,7 +15,7 @@ type AccountRepository struct {
 	database *bun.DB
 }
 
-func NewAccountRepository(ds *models.DataSource) *AccountRepository {
+func NewAccountRepository(ds *api.DataSource) *AccountRepository {
 	return &AccountRepository{
 		database: ds.GetDatabase(),
 	}

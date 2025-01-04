@@ -11,7 +11,6 @@ import (
 	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/machines/service"
-	"go-license-management/server/models/v1/machines"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -73,7 +72,7 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq machines.MachineRegistrationRequest
+	var bodyReq MachineRegistrationRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -151,7 +150,7 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq machines.MachineUpdateRequest
+	var bodyReq MachineUpdateRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -218,7 +217,7 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 	).Info("received new machine retrieval request")
 
 	// serializer
-	var req machines.MachineRetrievalRequest
+	var req MachineRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -279,7 +278,7 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	).Info("received new machine deletion request")
 
 	// serializer
-	var req machines.MachineDeletionRequest
+	var req MachineDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -348,7 +347,7 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq machines.MachineListRequest
+	var bodyReq MachineListRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -411,7 +410,7 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	).Info("received new machine action request")
 
 	// serializer
-	var uriReq machines.MachineActionsRequest
+	var uriReq MachineActionsRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&uriReq)
 	if err != nil {

@@ -12,7 +12,6 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/tenants/service"
 	"go-license-management/internal/utils"
-	"go-license-management/server/models/v1/tenants"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -74,7 +73,7 @@ func (r *TenantRouter) create(ctx *gin.Context) {
 	).Info("received new tenant creation request")
 
 	// serializer
-	var req tenants.TenantRegistrationRequest
+	var req TenantRegistrationRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBind(&req)
 	if err != nil {
@@ -136,7 +135,7 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
-	var req tenants.TenantListRequest
+	var req TenantListRequest
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		cSpan.End()
@@ -191,7 +190,7 @@ func (r *TenantRouter) retrieve(ctx *gin.Context) {
 	).Info("received new tenant retrieval request")
 
 	// serializer
-	var req tenants.TenantRetrievalRequest
+	var req TenantRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -252,7 +251,7 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 	).Info("received new tenant deletion request")
 
 	// serializer
-	var req tenants.TenantDeletionRequest
+	var req TenantDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -308,7 +307,7 @@ func (r *TenantRouter) regenerate(ctx *gin.Context) {
 	).Info("received new tenant regeneration request")
 
 	// serializer
-	var req tenants.TenantRegenerationRequest
+	var req TenantRegenerationRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {

@@ -12,7 +12,6 @@ import (
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/authentications/service"
 	"go-license-management/internal/utils"
-	"go-license-management/server/models/v1/authentications"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -65,7 +64,7 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq authentications.AuthenticationLoginRequest
+	var bodyReq AuthenticationLoginRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()

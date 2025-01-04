@@ -15,13 +15,12 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/middlewares"
 	"go-license-management/server/api"
-	"go-license-management/server/models"
 	"net/http"
 	"os"
 	"time"
 )
 
-func StartServer(appService *models.AppService, quit chan os.Signal) {
+func StartServer(appService *api.AppService, quit chan os.Signal) {
 	gin.SetMode(viper.GetString(config.ServerMode))
 	router := gin.New()
 	router.Use(gin.Recovery())

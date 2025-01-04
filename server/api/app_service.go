@@ -1,4 +1,4 @@
-package models
+package api
 
 import (
 	accountSvc "go-license-management/internal/server/v1/accounts/service"

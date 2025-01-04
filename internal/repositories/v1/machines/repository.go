@@ -9,7 +9,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
-	"go-license-management/server/models"
+	"go-license-management/server/api"
 	"time"
 )
 
@@ -17,7 +17,7 @@ type MachineRepository struct {
 	database *bun.DB
 }
 
-func NewMachineRepository(ds *models.DataSource) *MachineRepository {
+func NewMachineRepository(ds *api.DataSource) *MachineRepository {
 	return &MachineRepository{
 		database: ds.GetDatabase(),
 	}

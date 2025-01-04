@@ -8,14 +8,14 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
-	"go-license-management/server/models"
+	"go-license-management/server/api"
 )
 
 type EntitlementRepository struct {
 	database *bun.DB
 }
 
-func NewEntitlementRepository(ds *models.DataSource) *EntitlementRepository {
+func NewEntitlementRepository(ds *api.DataSource) *EntitlementRepository {
 	return &EntitlementRepository{
 		database: ds.GetDatabase(),
 	}

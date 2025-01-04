@@ -11,7 +11,6 @@ import (
 	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/policies/service"
-	"go-license-management/server/models/v1/policies"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -76,7 +75,7 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq policies.PolicyRegistrationRequest
+	var bodyReq PolicyRegistrationRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -160,7 +159,7 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq policies.PolicyUpdateRequest
+	var bodyReq PolicyUpdateRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -232,7 +231,7 @@ func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 	).Info("received new policy retrieval request")
 
 	// serializer
-	var req policies.PolicyRetrievalRequest
+	var req PolicyRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -295,7 +294,7 @@ func (r *PolicyRouter) delete(ctx *gin.Context) {
 	).Info("received new policy deletion request")
 
 	// serializer
-	var req policies.PolicyDeletionRequest
+	var req PolicyDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -362,7 +361,7 @@ func (r *PolicyRouter) list(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq policies.PolicyListRequest
+	var bodyReq PolicyListRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -435,7 +434,7 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq policies.PolicyAttachmentRequest
+	var bodyReq PolicyAttachmentRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -518,7 +517,7 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq policies.PolicyDetachmentRequest
+	var bodyReq PolicyDetachmentRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -601,7 +600,7 @@ func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq policies.PolicyEntitlementListRequest
+	var bodyReq PolicyEntitlementListRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()

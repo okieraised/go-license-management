@@ -10,14 +10,13 @@ import (
 	"go-license-management/server/api/v1/policies"
 	"go-license-management/server/api/v1/products"
 	"go-license-management/server/api/v1/tenants"
-	"go-license-management/server/models"
 )
 
 type RootRouter struct {
-	AppService *models.AppService
+	AppService *AppService
 }
 
-func New(appService *models.AppService) *RootRouter {
+func New(appService *AppService) *RootRouter {
 	return &RootRouter{
 		AppService: appService,
 	}

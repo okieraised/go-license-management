@@ -11,7 +11,6 @@ import (
 	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
 	"go-license-management/internal/server/v1/licenses/service"
-	"go-license-management/server/models/v1/license"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -73,7 +72,7 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq license.LicenseRegistrationRequest
+	var bodyReq LicenseRegistrationRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -136,7 +135,7 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	).Info("received new license retrieval request")
 
 	// serializer
-	var req license.LicenseRetrievalRequest
+	var req LicenseRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -209,7 +208,7 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq license.LicenseUpdateRequest
+	var bodyReq LicenseUpdateRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -275,7 +274,7 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 	).Info("received new license deletion request")
 
 	// serializer
-	var req license.LicenseDeletionRequest
+	var req LicenseDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -342,7 +341,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq license.LicenseListRequest
+	var bodyReq LicenseListRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()
@@ -430,7 +429,7 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 		return
 	}
 
-	var bodyReq license.LicenseActionsRequest
+	var bodyReq LicenseActionsRequest
 	err = ctx.ShouldBind(&bodyReq)
 	if err != nil {
 		cSpan.End()

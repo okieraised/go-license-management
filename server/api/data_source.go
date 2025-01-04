@@ -1,4 +1,4 @@
-package models
+package api
 
 import (
 	xormadapter "github.com/casbin/xorm-adapter/v3"

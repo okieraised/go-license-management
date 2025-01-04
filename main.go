@@ -28,7 +28,7 @@ import (
 	productSvc "go-license-management/internal/server/v1/products/service"
 	tenantSvc "go-license-management/internal/server/v1/tenants/service"
 	"go-license-management/server"
-	"go-license-management/server/models"
+	"go-license-management/server/api"
 	"os"
 	"os/signal"
 	"strings"
@@ -96,8 +96,8 @@ func init() {
 	}
 }
 
-func newDataSource() (*models.DataSource, error) {
-	dataSource := &models.DataSource{}
+func newDataSource() (*api.DataSource, error) {
+	dataSource := &api.DataSource{}
 
 	// tracer
 	err := tracer.NewTracerProvider(
@@ -118,11 +118,11 @@ func newDataSource() (*models.DataSource, error) {
 	return dataSource, nil
 }
 
-func NewAppService(ds *models.DataSource) *models.AppService {
-	appSvc := &models.AppService{}
+func NewAppService(ds *api.DataSource) *api.AppService {
+	appSvc := &api.AppService{}
 
 	// register v1
-	v1 := &models.V1AppService{}
+	v1 := &api.V1AppService{}
 
 	// tenant
 	v1.SetTenant(tenantSvc.NewTenantService(tenantSvc.WithRepository(tenantRepo.NewTenantRepository(ds))))
