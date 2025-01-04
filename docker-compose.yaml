@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - postgres
+      - backend
     restart: always
 
   pgadmin:
@@ -24,9 +24,22 @@ services:
     ports:
       - "18080:80"
     networks:
+      - backend
+    restart: always
+
+  license-manager:
+    container_name: go-license-manager
+    image: go-license-manager:latest
+    volumes:
+      - ./config.toml:/opt/app/conf/config.toml
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    depends_on:
       - postgres
     restart: always
 
 networks:
-  postgres:
+  backend:
     driver: bridge
