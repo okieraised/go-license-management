@@ -1,14 +1,14 @@
 package api
 
 import (
-	accountSvc "go-license-management/internal/server/v1/accounts/service"
-	authSvc "go-license-management/internal/server/v1/authentications/service"
-	entitlementSvc "go-license-management/internal/server/v1/entitlements/service"
-	licenseSvc "go-license-management/internal/server/v1/licenses/service"
-	machineSvc "go-license-management/internal/server/v1/machines/service"
-	policySvc "go-license-management/internal/server/v1/policies/service"
-	productSvc "go-license-management/internal/server/v1/products/service"
-	tenantSvc "go-license-management/internal/server/v1/tenants/service"
+	accountSvc "go-license-management/internal/services/v1/accounts/service"
+	authSvc "go-license-management/internal/services/v1/authentications/service"
+	entitlementSvc "go-license-management/internal/services/v1/entitlements/service"
+	licenseSvc "go-license-management/internal/services/v1/licenses/service"
+	machineSvc "go-license-management/internal/services/v1/machines/service"
+	policySvc "go-license-management/internal/services/v1/policies/service"
+	productSvc "go-license-management/internal/services/v1/products/service"
+	tenantSvc "go-license-management/internal/services/v1/tenants/service"
 )
 
 type AppService struct {

@@ -10,7 +10,7 @@ import (
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/middlewares"
 	"go-license-management/internal/response"
-	"go-license-management/internal/server/v1/tenants/service"
+	"go-license-management/internal/services/v1/tenants/service"
 	"go-license-management/internal/utils"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"

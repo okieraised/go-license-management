@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
-	"go-license-management/internal/server/v1/tenants/models"
+	"go-license-management/internal/services/v1/tenants/models"
 	"go.opentelemetry.io/otel/trace"
 )
 
