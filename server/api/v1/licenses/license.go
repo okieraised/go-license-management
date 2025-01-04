@@ -47,6 +47,18 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 }
 
 // generate creates a new license resource.
+//
+// @Summary 		API to register new license resource
+// @Description 	Register new license
+// @Tags 			license
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Param 			payload 			body 		licenses.LicenseRegistrationRequest 	true 	"request"
+// @Success 		201 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/licenses [post]
 func (r *LicenseRouter) generate(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -121,6 +133,18 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 }
 
 // retrieve retrieves the details of an existing license.
+//
+// @Summary 		API to retrieve license resource
+// @Description 	Retrieve license
+// @Tags 			license
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		licenses.LicenseRetrievalRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/licenses/{license_id} [get]
 func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -181,8 +205,19 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-// update updates the specified license resource by setting the values of the parameters passed.
-// Any parameters not provided will be left unchanged.
+// update updates the specified license resource.
+//
+// @Summary 		API to update license resource
+// @Description 	Updating license
+// @Tags 			license
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		licenses.LicenseUpdateRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/licenses/{license_id} [patch]
 func (r *LicenseRouter) update(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -260,6 +295,18 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 
 // delete permanently deletes a license. It cannot be undone.
 // This action also immediately deletes any machines that the license is associated with.
+//
+// @Summary 		API to delete license resource
+// @Description 	Deleting license
+// @Tags 			license
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		licenses.LicenseDeletionRequest 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/licenses/{license_id} [delete]
 func (r *LicenseRouter) delete(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -316,6 +363,18 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 
 // list returns a list of licenses. The licenses are returned sorted by creation date,
 // with the most recent licenses appearing first.
+//
+// @Summary 		API to list license resources
+// @Description 	Listing licenses
+// @Tags 			license
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		licenses.LicenseListRequest 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/licenses [get]
 func (r *LicenseRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -404,6 +463,18 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 //     set to null, there is no limit on usage.
 //   - decrement-usage: Action to decrement a license's uses attribute in accordance with its policy's maxUses attribute.
 //   - reset-usage: Action to reset a license's uses attribute to 0.
+//
+// @Summary 		API to perform action on license resources
+// @Description 	Action licenses
+// @Tags 			license
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		licenses.LicenseActionsRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/licenses/{license_id}/actions/{action} [post]
 func (r *LicenseRouter) action(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

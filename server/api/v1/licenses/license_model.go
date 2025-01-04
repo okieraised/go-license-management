@@ -16,11 +16,11 @@ type LicenseRegistrationRequest struct {
 	PolicyID    *string                `json:"policy_id" validate:"required" example:"test"`
 	ProductID   *string                `json:"product_id" validate:"required" example:"test"`
 	Name        *string                `json:"name" validate:"required" example:"test"`
-	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"test"`
-	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"test"`
-	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"test"`
+	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"1"`
+	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"1"`
+	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"1"`
 	Expiry      *string                `json:"expiry" validate:"optional" example:"test"`
-	Metadata    map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	Metadata    map[string]interface{} `json:"metadata" validate:"optional"`
 }
 
 func (req *LicenseRegistrationRequest) Validate() error {
@@ -97,11 +97,11 @@ type LicenseUpdateRequest struct {
 	PolicyID    *string                `json:"policy_id" validate:"required" example:"test"`
 	ProductID   *string                `json:"product_id" validate:"required" example:"test"`
 	Name        *string                `json:"name" validate:"required" example:"test"`
-	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"test"`
-	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"test"`
-	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"test"`
+	MaxMachines *int                   `json:"max_machines" validate:"optional" example:"1"`
+	MaxUsers    *int                   `json:"max_users" validate:"optional" example:"1"`
+	MaxUses     *int                   `json:"max_uses" validate:"optional" example:"1"`
 	Expiry      *string                `json:"expiry" validate:"optional" example:"test"`
-	Metadata    map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	Metadata    map[string]interface{} `json:"metadata" validate:"optional"`
 }
 
 func (req *LicenseUpdateRequest) Validate() error {

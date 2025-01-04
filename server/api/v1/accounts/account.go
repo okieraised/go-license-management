@@ -51,6 +51,18 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 }
 
 // create creates a new account resource.
+//
+// @Summary 		API to register new account
+// @Description 	Register new account
+// @Tags 			account
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Param 			payload 			body 		accounts.AccountRegistrationRequest 	true 	"request"
+// @Success 		201 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/accounts [post]
 func (r *AccountRouter) create(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -134,6 +146,18 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 }
 
 // retrieve retrieves the details of an existing account.
+//
+// @Summary 		API to retrieve existing account
+// @Description 	Retrieving account
+// @Tags 			account
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		accounts.AccountRetrievalRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/accounts/{username} [get]
 func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -198,8 +222,19 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-// update updates the specified account resource by setting the values of the parameters passed.
-// Any parameters not provided will be left unchanged.
+// update updates the specified account resource.
+//
+// @Summary 		API to retrieve existing account
+// @Description 	Retrieving account
+// @Tags 			account
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		accounts.AccountUpdateRequest	 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/accounts/{username} [patch]
 func (r *AccountRouter) update(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -288,7 +323,19 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-// delete permanently deletes an account. It cannot be undone.
+// delete permanently deletes an account.
+//
+// @Summary 		API to delete existing account
+// @Description 	Deleting account
+// @Tags 			account
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		accounts.AccountDeletionRequest	 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/accounts/{username} [delete]
 func (r *AccountRouter) delete(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -344,7 +391,19 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 }
 
 // list returns a list of accounts. The accounts are returned sorted by creation date,
-// with the most recent accounts appearing first
+// with the most recent accounts appearing first.
+//
+// @Summary 		API to list existing accounts
+// @Description 	Listing accounts
+// @Tags 			account
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		accounts.AccountListRequest	 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/accounts [get]
 func (r *AccountRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -420,6 +479,19 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	return
 }
 
+// actions performs account action
+//
+// @Summary 		API to perform action with account
+// @Description 	Actions accounts
+// @Tags 			account
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		accounts.AccountActionRequest	 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/accounts/{username} [post]
 func (r *AccountRouter) actions(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

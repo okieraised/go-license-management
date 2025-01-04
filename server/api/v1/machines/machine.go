@@ -47,6 +47,18 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 }
 
 // create creates, or activates, a new machine resource for a license.
+//
+// @Summary 		API to register new machine resource
+// @Description 	Register new machine
+// @Tags 			machine
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Param 			payload 			body 		machines.MachineRegistrationRequest 	true 	"request"
+// @Success 		201 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/machines [post]
 func (r *MachineRouter) create(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -123,8 +135,19 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 	return
 }
 
-// update updates the specified machine resource by setting the values of the parameters passed.
-// Any parameters not provided will be left unchanged.
+// update updates the specified machine resource.
+//
+// @Summary 		API to update machine resource
+// @Description 	Updating machine
+// @Tags 			machine
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		machines.MachineUpdateRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/machines/{machine_id} [patch]
 func (r *MachineRouter) update(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -203,6 +226,18 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 }
 
 // retrieve retrieves the details of an existing machine.
+//
+// @Summary 		API to retrieve machine resource
+// @Description 	Retrieve machine
+// @Tags 			machine
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		machines.MachineRetrievalRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/machines/{machine_id} [get]
 func (r *MachineRouter) retrieve(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -264,6 +299,18 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 }
 
 // delete permanently deletes, or deactivates, a machine. It cannot be undone.
+//
+// @Summary 		API to delete machine resource
+// @Description 	Delete machine
+// @Tags 			machine
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		machines.MachineDeletionRequest 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/machines/{machine_id} [delete]
 func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -322,6 +369,18 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 
 // list returns a list of machines. The machines are returned sorted by creation date,
 // with the most recent machines appearing first.
+//
+// @Summary 		API to list machine resource
+// @Description 	Listing machine
+// @Tags 			machine
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		machines.MachineListRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/machines [get]
 func (r *MachineRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -396,6 +455,18 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 // action actions to check out a machine. This will generate a snapshot of the machine at time of checkout,
 // encoded into a machine file certificate that can be decoded and used for licensing offline and air-gapped environments.
 // The algorithm will depend on the license policy's scheme.
+//
+// @Summary 		API to perform action on machine resource
+// @Description 	Action machine
+// @Tags 			machine
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		machines.MachineActionsRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/machines/{machine_id}/actions/{action} [post]
 func (r *MachineRouter) action(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

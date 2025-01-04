@@ -42,6 +42,18 @@ func (r *AuthenticationRouter) Routes(engine *gin.RouterGroup, path string) {
 	}
 }
 
+// login validates existing account resource.
+//
+// @Summary 		API to validate existing account and return jwt token
+// @Description 	Validating account
+// @Tags 			authentication
+// @Accept 			mpfd
+// @Produce 		json
+// @Param 			payload 			body 		authentications.AuthenticationLoginRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/login [post]
 func (r *AuthenticationRouter) login(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

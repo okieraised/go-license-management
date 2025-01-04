@@ -32,5 +32,5 @@ type ProductAttribute struct {
 	Url                  *string                `json:"url" validate:"optional" example:"test"`
 	Permissions          []string               `json:"permissions" validate:"optional" example:"test"`
 	Platforms            []string               `json:"platforms" validate:"optional" example:"test"`
-	Metadata             map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	Metadata             map[string]interface{} `json:"metadata" validate:"optional"`
 }

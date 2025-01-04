@@ -49,6 +49,18 @@ func (r *PolicyRouter) Routes(engine *gin.RouterGroup, path string) {
 }
 
 // create creates a new policy resource.
+//
+// @Summary 		API to register new policy resource
+// @Description 	Register new policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyRegistrationRequest 	true 	"request"
+// @Success 		201 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies [post]
 func (r *PolicyRouter) create(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -132,8 +144,19 @@ func (r *PolicyRouter) create(ctx *gin.Context) {
 	return
 }
 
-// update updates the specified policy resource by setting the values of the parameters passed.
-// Any parameters not provided will be left unchanged.
+// update updates the specified policy resource.
+//
+// @Summary 		API to update policy resource
+// @Description 	Updating policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyUpdateRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies/{policy_id} [patch]
 func (r *PolicyRouter) update(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -217,6 +240,18 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 }
 
 // retrieve retrieves the details of an existing policy.
+//
+// @Summary 		API to retrieve policy resource
+// @Description 	Retrieving policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyRetrievalRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies/{policy_id} [get]
 func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -280,6 +315,18 @@ func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 
 // delete permanently deletes a policy. It cannot be undone.
 // This action also immediately deletes any licenses that the policy is associated with.
+//
+// @Summary 		API to delete policy resource
+// @Description 	Deleting policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyDeletionRequest 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies/{policy_id} [delete]
 func (r *PolicyRouter) delete(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -336,6 +383,18 @@ func (r *PolicyRouter) delete(ctx *gin.Context) {
 }
 
 // list returns a list of policies. The policies are returned sorted by creation date, with the most recent policies appearing first.
+//
+// @Summary 		API to list policy resource
+// @Description 	Listing policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 						true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyListRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies [get]
 func (r *PolicyRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -409,6 +468,18 @@ func (r *PolicyRouter) list(ctx *gin.Context) {
 
 // attach attaches entitlements to a policy. This will immediately be taken into effect for all future license validations.
 // Any license that implements the given policy will automatically possess all the policy's entitlements.
+//
+// @Summary 		API to attach entitlement to policy resource
+// @Description 	Attach entitlement to policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyAttachmentRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies/{policy_id}/entitlements [post]
 func (r *PolicyRouter) attach(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -492,6 +563,18 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 }
 
 // detach detaches entitlements from a policy. This will immediately be taken into effect for all future license validations.
+//
+// @Summary 		API to detach entitlement from policy resource
+// @Description 	Detach entitlement from policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyDetachmentRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies/{policy_id}/entitlements [delete]
 func (r *PolicyRouter) detach(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -575,6 +658,18 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 
 // listEntitlement returns a list of entitlements attached to the policy.
 // The entitlements are returned sorted by creation date, with the most recent entitlements appearing first.
+//
+// @Summary 		API to list entitlements for policy resource
+// @Description 	List entitlement for policy
+// @Tags 			policy
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Param 			payload 			body 		policies.PolicyEntitlementListRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/policies/{policy_id}/entitlements [get]
 func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

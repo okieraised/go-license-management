@@ -12,7 +12,7 @@ import (
 type EntitlementRegistrationRequest struct {
 	Name     *string                `json:"name" validate:"required" example:"test"`
 	Code     *string                `json:"code" validate:"required" example:"test"`
-	Metadata map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	Metadata map[string]interface{} `json:"metadata" validate:"optional"`
 }
 
 func (req *EntitlementRegistrationRequest) Validate() error {

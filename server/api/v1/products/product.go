@@ -53,6 +53,18 @@ func (r *ProductRouter) Routes(engine *gin.RouterGroup, path string) {
 }
 
 // create creates a new product resource.
+//
+// @Summary 		API to register new product resource
+// @Description 	Register new product
+// @Tags 			product
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Param 			payload 			body 		products.ProductRegistrationRequest 	true 	"request"
+// @Success 		201 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/products [post]
 func (r *ProductRouter) create(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -136,6 +148,18 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 }
 
 // retrieve retrieves the details of an existing product.
+//
+// @Summary 		API to retrieve product resource
+// @Description 	Retrieve product
+// @Tags 			product
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		products.ProductRetrievalRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/products/{product_id} [get]
 func (r *ProductRouter) retrieve(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -197,8 +221,19 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp)
 }
 
-// update updates the specified product resource by setting the values of the parameters passed.
-// Any parameters not provided will be left unchanged.
+// update updates the specified product resource.
+//
+// @Summary 		API to update product resource
+// @Description 	Updating product
+// @Tags 			product
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		products.ProductUpdateRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/products/{product_id} [patch]
 func (r *ProductRouter) update(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -274,6 +309,18 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 
 // delete permanently deletes a product. It cannot be undone.
 // This action also immediately deletes any policies, licenses and machines that the product is associated with.
+//
+// @Summary 		API to delete product resource
+// @Description 	Delete product
+// @Tags 			product
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		products.ProductDeletionRequest 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/products/{product_id} [delete]
 func (r *ProductRouter) delete(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -332,6 +379,18 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 
 // list returns a list of products. The products are returned sorted by creation date,
 // with the most recent products appearing first.
+//
+// @Summary 		API to list product resources
+// @Description 	Listing products
+// @Tags 			product
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		products.ProductListRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/products [get]
 func (r *ProductRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -405,6 +464,18 @@ func (r *ProductRouter) list(ctx *gin.Context) {
 }
 
 // tokens generates a new product token resource. Product tokens do not expire.
+//
+// @Summary 		API to generate product token resource
+// @Description 	Generate product token
+// @Tags 			product
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		products.ProductTokenRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/products/{product_id}/tokens [post]
 func (r *ProductRouter) tokens(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

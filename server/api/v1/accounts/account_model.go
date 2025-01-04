@@ -18,7 +18,7 @@ type AccountRegistrationRequest struct {
 	LastName  *string                `json:"lastName" validate:"optional" example:"test"`
 	Email     *string                `json:"email" validate:"required" example:"test"`
 	Role      *string                `json:"role" validate:"required" example:"test"`
-	Metadata  map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	Metadata  map[string]interface{} `json:"metadata" validate:"optional"`
 }
 
 func (req *AccountRegistrationRequest) Validate() error {
@@ -110,7 +110,7 @@ type AccountUpdateRequest struct {
 	LastName  *string                `json:"lastName" validate:"optional" example:"test"`
 	Email     *string                `json:"email" validate:"required" example:"test"`
 	Role      *string                `json:"role" validate:"required" example:"test"`
-	Metadata  map[string]interface{} `json:"metadata" validate:"optional" example:"test"`
+	Metadata  map[string]interface{} `json:"metadata" validate:"optional"`
 }
 
 func (req *AccountUpdateRequest) Validate() error {

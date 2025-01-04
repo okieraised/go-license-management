@@ -44,7 +44,19 @@ func (r *EntitlementRouter) Routes(engine *gin.RouterGroup, path string) {
 	}
 }
 
-// create creates a new entitlement.
+// create creates a new entitlement resource.
+//
+// @Summary 		API to register new entitlement resource
+// @Description 	Register new entitlement
+// @Tags 			entitlement
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 											true 	"authorization"
+// @Param 			payload 			body 		entitlements.EntitlementRegistrationRequest 	true 	"request"
+// @Success 		201 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/entitlements [post]
 func (r *EntitlementRouter) create(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -128,6 +140,17 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 }
 
 // retrieve retrieves the details of an existing entitlement.
+// @Summary 		API to retrieve entitlement resource
+// @Description 	Retrieving entitlement
+// @Tags 			entitlement
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 										true 	"authorization"
+// @Param 			payload 			body 		entitlements.EntitlementRetrievalRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/entitlements/{entitlement_id} [get]
 func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -191,6 +214,17 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 
 // delete permanently deletes an entitlement.
 // The entitlement will immediately be removed from all licenses and policies
+// @Summary 		API to delete entitlement resource
+// @Description 	Deleting entitlement
+// @Tags 			entitlement
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 										true 	"authorization"
+// @Param 			payload 			body 		entitlements.EntitlementDeletionRequest 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/entitlements/{entitlement_id} [delete]
 func (r *EntitlementRouter) delete(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -249,6 +283,18 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 
 // list returns a list of entitlements. The entitlements are returned sorted by creation date,
 // with the most recent entitlements appearing first.
+//
+// @Summary 		API to list entitlement resources
+// @Description 	Listing entitlements
+// @Tags 			entitlement
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Param 			payload 			body 		entitlements.EntitlementListRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/entitlements [get]
 func (r *EntitlementRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

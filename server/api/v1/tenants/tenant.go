@@ -55,7 +55,7 @@ func (r *TenantRouter) Routes(engine *gin.RouterGroup, path string) {
 // @Produce 		json
 // @Param 			Authorization 		header 		string 								true 	"authorization"
 // @Param 			payload 			body 		tenants.TenantRegistrationRequest 	true 	"request"
-// @Success 		200 				{object} 	response.Response
+// @Success 		201 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
 // @Router 			/tenants [post]

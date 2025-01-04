@@ -1,7 +1,14 @@
 # go-license-management
 An open-source license management written in Go 
 
+### Introduction
+
+---
+This is my personal attempt to develop a License Management Service in pure Golang.
+
 ### Authentication and Authorization
+
+---
 
 
 ### Device Registration
@@ -41,7 +48,6 @@ sha256=bc08aa0cbd668c66d1a40e447a64cf887824670c7d098f75fcd3d8e0280b158f
 ### Supported License Scheme
 * **Ed25519**
 * **RSA2048**
-* **RSA-JWT-RS256**
 
 ### Supported License Types
 
