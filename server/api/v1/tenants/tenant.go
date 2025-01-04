@@ -120,6 +120,19 @@ func (r *TenantRouter) create(ctx *gin.Context) {
 	return
 }
 
+// list lists tenant resources.
+//
+// @Summary 		API to list existing tenants
+// @Description 	Listings existing tenant
+// @Tags 			tenant
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 						true 	"authorization"
+// @Param 			payload 			body 		tenants.TenantListRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants [get]
 func (r *TenantRouter) list(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -176,6 +189,19 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 	return
 }
 
+// retrieve retrieves a tenant resource by id.
+//
+// @Summary 		API to retrieve tenant
+// @Description 	Retrieving tenant
+// @Tags 			tenant
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		tenants.TenantRetrievalRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name} [get]
 func (r *TenantRouter) retrieve(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -237,6 +263,19 @@ func (r *TenantRouter) retrieve(ctx *gin.Context) {
 	return
 }
 
+// delete deletes a tenant resource by id.
+//
+// @Summary 		API to delete tenant
+// @Description 	Deleting tenant
+// @Tags 			tenant
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Param 			payload 			body 		tenants.TenantDeletionRequest 	true 	"request"
+// @Success 		204 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name} [delete]
 func (r *TenantRouter) delete(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
@@ -293,6 +332,19 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 	return
 }
 
+// regenerate generates a new private/public key pair for a tenant resource by id.
+//
+// @Summary 		API to regenerate tenant
+// @Description 	Regenerating tenant
+// @Tags 			tenant
+// @Accept 			json
+// @Produce 		json
+// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Param 			payload 			body 		tenants.TenantRegenerationRequest 	true 	"request"
+// @Success 		200 				{object} 	response.Response
+// @Failure 		400 				{object} 	response.Response
+// @Failure 		500 				{object} 	response.Response
+// @Router 			/tenants/{tenant_name}/regenerate [post]
 func (r *TenantRouter) regenerate(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

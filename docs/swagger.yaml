@@ -15,21 +15,82 @@ definitions:
       server_time:
         type: integer
     type: object
+  tenants.TenantDeletionRequest:
+    properties:
+      tenantName:
+        type: string
+    required:
+    - tenantName
+    type: object
+  tenants.TenantListRequest:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 10
+        type: integer
+    type: object
+  tenants.TenantRegenerationRequest:
+    properties:
+      tenantName:
+        type: string
+    required:
+    - tenantName
+    type: object
   tenants.TenantRegistrationRequest:
     properties:
       name:
         example: test
         type: string
-      protected:
-        example: true
-        type: boolean
     required:
     - name
+    type: object
+  tenants.TenantRetrievalRequest:
+    properties:
+      tenantName:
+        type: string
+    required:
+    - tenantName
     type: object
 info:
   contact: {}
 paths:
   /tenants:
+    get:
+      consumes:
+      - application/json
+      description: Listings existing tenant
+      parameters:
+      - description: authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/tenants.TenantListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to list existing tenants
+      tags:
+      - tenant
     post:
       consumes:
       - application/json
@@ -62,6 +123,110 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: API to register new tenant
+      tags:
+      - tenant
+  /tenants/{tenant_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleting tenant
+      parameters:
+      - description: authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/tenants.TenantDeletionRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to delete tenant
+      tags:
+      - tenant
+    get:
+      consumes:
+      - application/json
+      description: Retrieving tenant
+      parameters:
+      - description: authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/tenants.TenantRetrievalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to retrieve tenant
+      tags:
+      - tenant
+  /tenants/{tenant_name}/regenerate:
+    post:
+      consumes:
+      - application/json
+      description: Regenerating tenant
+      parameters:
+      - description: authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/tenants.TenantRegenerationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to regenerate tenant
       tags:
       - tenant
 swagger: "2.0"
