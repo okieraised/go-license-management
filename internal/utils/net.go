@@ -2,8 +2,30 @@ package utils
 
 import (
 	"bytes"
+	"io"
+	"mime/multipart"
 	"net"
 )
+
+func MultipartToBytes(in *multipart.FileHeader) ([]byte, error) {
+	fInfo, err := in.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		cErr := fInfo.Close()
+		if cErr != nil && err == nil {
+			err = cErr
+		}
+	}()
+
+	content, err := io.ReadAll(fInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return content, err
+}
 
 func RetrievePhysicalMacAddr() ([]string, error) {
 	interfaces, err := net.Interfaces()

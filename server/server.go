@@ -52,12 +52,20 @@ func StartServer(appService *api.AppService, quit chan os.Signal) {
 	}
 
 	go func() {
-		err := srv.ListenAndServe()
+		var err error
+
+		if viper.GetBool(config.ServerEnableTLS) {
+			logging.GetInstance().GetLogger().Info("tls enabled")
+			err = srv.ListenAndServeTLS(viper.GetString(config.ServerCertFile), viper.GetString(config.ServerKeyFile))
+		} else {
+			logging.GetInstance().GetLogger().Info("tls disabled")
+			err = srv.ListenAndServe()
+		}
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logging.GetInstance().GetLogger().Error(err.Error())
 		}
+		logging.GetInstance().GetLogger().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
 	}()
-	logging.GetInstance().GetLogger().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
 
 	<-quit
 

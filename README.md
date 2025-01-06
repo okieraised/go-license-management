@@ -15,8 +15,8 @@ However, what to do with this information is entirely up to the client applicati
 This repository requires PostgreSQL as the backend database. 
 Support for other databases are not yet implemented at this time.
 
-If you want to build an image and push to the local registry on your computer, I have included an example docker-compose file.
-Run the following command to set up a local registry:
+If you want to build this service as a Docker image and push to the local registry on your computer,
+I have included an example docker-compose file. Run the following command to set up a local registry:
 ```shell
 docker compose up -d local-registry
 ```
@@ -26,6 +26,79 @@ To build this repository as a Docker image, clone this repository to your local 
 ```shell
 make build
 ```
+
+To push this repository to the local registry, run:
+```shell
+make push-local
+```
+
+If you want to build this service as is, run the good old:
+```shell
+go build .
+```
+
+Otherwise, if you just want to test it out, you can also do:
+```shell
+go run .
+```
+
+---
+### Environmental Variable and Config
+
+This service support 2 ways to specify environmental variables, using ```conf.toml``` and ```.env```
+
+| Using Env          | Using config.toml  | Default Value  | Description                               |
+|--------------------|--------------------|----------------|-------------------------------------------|
+| SERVER__MODE       | [server]mode       | debug          | Server mode                               |
+| SERVER__HTTP_PORT  | [server]http_port  | 8888           | Port to listen                            |
+| POSTGRES__HOST     | [postgres]host     | 127.0.0.1      | IP/Hostname of the postgres db            |
+| POSTGRES__PORT     | [postgres]port     | N/A            | Port of the postgres db                   |
+| POSTGRES__USERNAME | [postgres]username | N/A            | postgres username to use                  |
+| POSTGRES__PASSWORD | [postgres]password | N/A            | postgres port to use                      |
+| POSTGRES__DATABASE | [postgres]database | licenses       | database name, must be created beforehand |
+
+---
+### Authorization and Permissions
+Authentication with the server is handled through Json Web Token (JWT). The default token lifespan duration is 1 hour.
+
+Authorization (Permissions) is handled using Casbin. The model configuration is as follows:
+```text
+[request_definition]
+r = dom, sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _, _
+
+[policy_effect]
+e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
+
+[matchers]
+m = g(r.dom, r.sub, p.sub) && r.obj == p.obj && r.act == p.act || r.sub == "superadmin"
+```
+
+for more information about Casbin, refer to [Casbin](https://casbin.org/docs/overview/)
+
+---
+### Tenant
+
+
+### Account
+
+
+### Product
+
+
+### Policy
+
+
+### License
+
+
+### Machine
+
 ---
 ### Roadmap
 - [x] Tenant APIs

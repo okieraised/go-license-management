@@ -13,3 +13,11 @@ func TestEncrypt(t *testing.T) {
 	fmt.Println(string(cypher))
 
 }
+
+func TestHashPassword(t *testing.T) {
+	password := "abcd1234"
+	hashed, err := HashPassword(password)
+	assert.NoError(t, err)
+
+	fmt.Println(hashed)
+}

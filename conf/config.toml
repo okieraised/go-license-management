@@ -8,7 +8,6 @@ port="5432"
 username="postgres"
 password="123qweA#"
 database="licenses"
-casbin="casbin_rule"
 
 [tracer]
 uri="127.0.0.1:4317"
