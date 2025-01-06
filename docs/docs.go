@@ -274,7 +274,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Listing accounts",
+                "description": "Listing account resources",
                 "consumes": [
                     "application/json"
                 ],
@@ -284,7 +284,7 @@ const docTemplate = `{
                 "tags": [
                     "account"
                 ],
-                "summary": "API to list existing accounts",
+                "summary": "API to list existing account resources",
                 "parameters": [
                     {
                         "type": "string",
@@ -567,7 +567,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Actions accounts",
+                "description": "Performing actions on account resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -577,7 +577,7 @@ const docTemplate = `{
                 "tags": [
                     "account"
                 ],
-                "summary": "API to perform action with account",
+                "summary": "API to perform action on account resource",
                 "parameters": [
                     {
                         "type": "string",
@@ -686,7 +686,12 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/entitlements": {
             "get": {
-                "description": "Listing entitlements",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing existing entitlement resources",
                 "consumes": [
                     "application/json"
                 ],
@@ -696,23 +701,33 @@ const docTemplate = `{
                 "tags": [
                     "entitlement"
                 ],
-                "summary": "API to list entitlement resources",
+                "summary": "API to list existing entitlement resources",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
                         "required": true
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entitlements.EntitlementListRequest"
-                        }
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -737,7 +752,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Register new entitlement",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creating new entitlement resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -747,13 +767,20 @@ const docTemplate = `{
                 "tags": [
                     "entitlement"
                 ],
-                "summary": "API to register new entitlement resource",
+                "summary": "API to create new entitlement resource",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -790,6 +817,11 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/entitlements/{entitlement_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieving entitlement",
                 "consumes": [
                     "application/json"
@@ -804,19 +836,17 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
                         "required": true
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entitlements.EntitlementRetrievalRequest"
-                        }
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -841,7 +871,12 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deleting entitlement",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting existing entitlement",
                 "consumes": [
                     "application/json"
                 ],
@@ -855,19 +890,17 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
                         "required": true
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entitlements.EntitlementDeletionRequest"
-                        }
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -894,7 +927,12 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/licenses": {
             "get": {
-                "description": "Listing licenses",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing existing license resources",
                 "consumes": [
                     "application/json"
                 ],
@@ -904,23 +942,34 @@ const docTemplate = `{
                 "tags": [
                     "license"
                 ],
-                "summary": "API to list license resources",
+                "summary": "API to list existing license resources",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "action",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/licenses.LicenseListRequest"
-                        }
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -945,6 +994,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Register new license",
                 "consumes": [
                     "application/json"
@@ -959,10 +1013,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -996,164 +1058,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/tenants/{tenant_name}/licenses/{license_id}": {
-            "get": {
-                "description": "Retrieve license",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "license"
-                ],
-                "summary": "API to retrieve license resource",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/licenses.LicenseRetrievalRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deleting license",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "license"
-                ],
-                "summary": "API to delete license resource",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/licenses.LicenseDeletionRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Updating license",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "license"
-                ],
-                "summary": "API to update license resource",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/licenses.LicenseUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/tenants/{tenant_name}/licenses/{license_id}/actions/{action}": {
+        "/tenants/{tenant_name}/licenses/actions/{action}": {
             "post": {
-                "description": "Action licenses",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Performing action on license resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1163,14 +1075,22 @@ const docTemplate = `{
                 "tags": [
                     "license"
                 ],
-                "summary": "API to perform action on license resources",
+                "summary": "API to perform action on license resource",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -1204,9 +1124,190 @@ const docTemplate = `{
                 }
             }
         },
+        "/tenants/{tenant_name}/licenses/{license_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve license",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to retrieve license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting license",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to delete license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updating license",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to update license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/licenses.LicenseUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/tenants/{tenant_name}/machines": {
             "get": {
-                "description": "Listing machine",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing existing machine resources",
                 "consumes": [
                     "application/json"
                 ],
@@ -1216,23 +1317,34 @@ const docTemplate = `{
                 "tags": [
                     "machine"
                 ],
-                "summary": "API to list machine resource",
+                "summary": "API to list machine resources",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "machine_action",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/machines.MachineListRequest"
-                        }
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1257,7 +1369,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Register new machine",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creating new machine resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1271,10 +1388,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -1310,7 +1435,12 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/machines/{machine_id}": {
             "get": {
-                "description": "Retrieve machine",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving existing machine resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1324,19 +1454,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "machine_action",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/machines.MachineRetrievalRequest"
-                        }
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -1361,7 +1490,12 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete machine",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting existing machine resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1375,19 +1509,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "machine_action",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/machines.MachineDeletionRequest"
-                        }
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -1412,7 +1545,12 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "Updating machine",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updating machine resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1426,10 +1564,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -1465,7 +1611,12 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/machines/{machine_id}/actions/{action}": {
             "post": {
-                "description": "Action machine",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Performing action on machine resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1479,19 +1630,23 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "machine_action",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/machines.MachineActionsRequest"
-                        }
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "ttl",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2382,36 +2537,6 @@ const docTemplate = `{
                 }
             }
         },
-        "entitlements.EntitlementDeletionRequest": {
-            "type": "object",
-            "required": [
-                "entitlementID",
-                "tenantName"
-            ],
-            "properties": {
-                "entitlementID": {
-                    "type": "string",
-                    "example": "test"
-                },
-                "tenantName": {
-                    "type": "string",
-                    "example": "test"
-                }
-            }
-        },
-        "entitlements.EntitlementListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
-                }
-            }
-        },
         "entitlements.EntitlementRegistrationRequest": {
             "type": "object",
             "required": [
@@ -2433,23 +2558,6 @@ const docTemplate = `{
                 }
             }
         },
-        "entitlements.EntitlementRetrievalRequest": {
-            "type": "object",
-            "required": [
-                "entitlementID",
-                "tenantName"
-            ],
-            "properties": {
-                "entitlementID": {
-                    "type": "string",
-                    "example": "test"
-                },
-                "tenantName": {
-                    "type": "string",
-                    "example": "test"
-                }
-            }
-        },
         "licenses.LicenseActionsRequest": {
             "type": "object",
             "properties": {
@@ -2464,36 +2572,6 @@ const docTemplate = `{
                 },
                 "nonce": {
                     "type": "integer"
-                }
-            }
-        },
-        "licenses.LicenseDeletionRequest": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "licenseID": {
-                    "type": "string"
-                },
-                "licenseKey": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
-        "licenses.LicenseListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
                 }
             }
         },
@@ -2539,23 +2617,6 @@ const docTemplate = `{
                 }
             }
         },
-        "licenses.LicenseRetrievalRequest": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "licenseID": {
-                    "type": "string"
-                },
-                "licenseKey": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
         "licenses.LicenseUpdateRequest": {
             "type": "object",
             "required": [
@@ -2598,47 +2659,6 @@ const docTemplate = `{
                 }
             }
         },
-        "machines.MachineActionsRequest": {
-            "type": "object",
-            "properties": {
-                "machineAction": {
-                    "type": "string"
-                },
-                "machineID": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
-        "machines.MachineDeletionRequest": {
-            "type": "object",
-            "properties": {
-                "machineAction": {
-                    "type": "string"
-                },
-                "machineID": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
-        "machines.MachineListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
-                }
-            }
-        },
         "machines.MachineRegistrationRequest": {
             "type": "object",
             "properties": {
@@ -2673,20 +2693,6 @@ const docTemplate = `{
                 },
                 "platform": {
                     "description": "The platform of the machine.",
-                    "type": "string"
-                }
-            }
-        },
-        "machines.MachineRetrievalRequest": {
-            "type": "object",
-            "properties": {
-                "machineAction": {
-                    "type": "string"
-                },
-                "machineID": {
-                    "type": "string"
-                },
-                "tenantName": {
                     "type": "string"
                 }
             }

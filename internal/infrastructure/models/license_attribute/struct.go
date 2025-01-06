@@ -10,7 +10,6 @@ import (
 type LicenseCommonURI struct {
 	TenantName *string `uri:"tenant_name"`
 	LicenseID  *string `uri:"license_id"`
-	LicenseKey *string `uri:"license_key"`
 	Action     *string `uri:"action"`
 }
 

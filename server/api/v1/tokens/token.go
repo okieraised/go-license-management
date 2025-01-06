@@ -28,10 +28,7 @@ func (r *TokenRouter) Routes(engine *gin.RouterGroup, path string) {
 	}
 }
 
-// create Generate a new token resource for a user, using the user's email and password.
-// Server does not store your tokens for security reasons. After a token is generated, it cannot be recovered if lost.
-// The token will need to be revoked if lost, and a new token should be generated.
-// Alternatively, the existing token can be regenerated (rolled).
+// create Generate a new token resource for a user
 func (r *TokenRouter) create(ctx *gin.Context) {
 
 }
@@ -46,14 +43,13 @@ func (r *TokenRouter) revoke(ctx *gin.Context) {
 
 }
 
-// list returns a list of tokens. The tokens are returned sorted by creation date,
-// with the most recent tokens appearing first.
+// list returns a list of tokens.
+// The tokens are returned sorted by creation date, with the most recent tokens appearing first.
 func (r *TokenRouter) list(ctx *gin.Context) {
 
 }
 
-// regenerate regenerates an existing token resource. This will replace the token attribute with a new secure token,
-// and extend the token's expiry by 2 weeks from the current time.
+// regenerate regenerates an existing token resource.
 func (r *TokenRouter) regenerate(ctx *gin.Context) {
 
 }

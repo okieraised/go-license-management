@@ -66,27 +66,6 @@ definitions:
     - password
     - role
     type: object
-  entitlements.EntitlementDeletionRequest:
-    properties:
-      entitlementID:
-        example: test
-        type: string
-      tenantName:
-        example: test
-        type: string
-    required:
-    - entitlementID
-    - tenantName
-    type: object
-  entitlements.EntitlementListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
-        type: integer
-    type: object
   entitlements.EntitlementRegistrationRequest:
     properties:
       code:
@@ -102,18 +81,6 @@ definitions:
     - code
     - name
     type: object
-  entitlements.EntitlementRetrievalRequest:
-    properties:
-      entitlementID:
-        example: test
-        type: string
-      tenantName:
-        example: test
-        type: string
-    required:
-    - entitlementID
-    - tenantName
-    type: object
   licenses.LicenseActionsRequest:
     properties:
       decrement:
@@ -123,26 +90,6 @@ definitions:
       license_key:
         type: string
       nonce:
-        type: integer
-    type: object
-  licenses.LicenseDeletionRequest:
-    properties:
-      action:
-        type: string
-      licenseID:
-        type: string
-      licenseKey:
-        type: string
-      tenantName:
-        type: string
-    type: object
-  licenses.LicenseListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
         type: integer
     type: object
   licenses.LicenseRegistrationRequest:
@@ -176,17 +123,6 @@ definitions:
     - policy_id
     - product_id
     type: object
-  licenses.LicenseRetrievalRequest:
-    properties:
-      action:
-        type: string
-      licenseID:
-        type: string
-      licenseKey:
-        type: string
-      tenantName:
-        type: string
-    type: object
   licenses.LicenseUpdateRequest:
     properties:
       expiry:
@@ -218,33 +154,6 @@ definitions:
     - policy_id
     - product_id
     type: object
-  machines.MachineActionsRequest:
-    properties:
-      machineAction:
-        type: string
-      machineID:
-        type: string
-      tenantName:
-        type: string
-    type: object
-  machines.MachineDeletionRequest:
-    properties:
-      machineAction:
-        type: string
-      machineID:
-        type: string
-      tenantName:
-        type: string
-    type: object
-  machines.MachineListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
-        type: integer
-    type: object
   machines.MachineRegistrationRequest:
     properties:
       cores:
@@ -272,15 +181,6 @@ definitions:
         type: string
       platform:
         description: The platform of the machine.
-        type: string
-    type: object
-  machines.MachineRetrievalRequest:
-    properties:
-      machineAction:
-        type: string
-      machineID:
-        type: string
-      tenantName:
         type: string
     type: object
   machines.MachineUpdateRequest:
@@ -851,7 +751,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Listing accounts
+      description: Listing account resources
       parameters:
       - description: tenant_name
         in: path
@@ -883,7 +783,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
-      summary: API to list existing accounts
+      summary: API to list existing account resources
       tags:
       - account
     post:
@@ -1035,7 +935,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Actions accounts
+      description: Performing actions on account resource
       parameters:
       - in: path
         name: action
@@ -1069,7 +969,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
-      summary: API to perform action with account
+      summary: API to perform action on account resource
       tags:
       - account
   /tenants/{tenant_name}/auth/login:
@@ -1116,19 +1016,26 @@ paths:
     get:
       consumes:
       - application/json
-      description: Listing entitlements
+      description: Listing existing entitlement resources
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - example: test
+        in: path
+        name: entitlement_id
         required: true
         type: string
-      - description: request
-        in: body
-        name: payload
+      - example: test
+        in: path
+        name: tenant_name
         required: true
-        schema:
-          $ref: '#/definitions/entitlements.EntitlementListRequest'
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -1144,17 +1051,24 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to list entitlement resources
+      security:
+      - BearerAuth: []
+      summary: API to list existing entitlement resources
       tags:
       - entitlement
     post:
       consumes:
       - application/json
-      description: Register new entitlement
+      description: Creating new entitlement resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - example: test
+        in: path
+        name: entitlement_id
+        required: true
+        type: string
+      - example: test
+        in: path
+        name: tenant_name
         required: true
         type: string
       - description: request
@@ -1178,26 +1092,27 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to register new entitlement resource
+      security:
+      - BearerAuth: []
+      summary: API to create new entitlement resource
       tags:
       - entitlement
   /tenants/{tenant_name}/entitlements/{entitlement_id}:
     delete:
       consumes:
       - application/json
-      description: Deleting entitlement
+      description: Deleting existing entitlement
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - example: test
+        in: path
+        name: entitlement_id
         required: true
         type: string
-      - description: request
-        in: body
-        name: payload
+      - example: test
+        in: path
+        name: tenant_name
         required: true
-        schema:
-          $ref: '#/definitions/entitlements.EntitlementDeletionRequest'
+        type: string
       produces:
       - application/json
       responses:
@@ -1213,6 +1128,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to delete entitlement resource
       tags:
       - entitlement
@@ -1221,17 +1138,16 @@ paths:
       - application/json
       description: Retrieving entitlement
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - example: test
+        in: path
+        name: entitlement_id
         required: true
         type: string
-      - description: request
-        in: body
-        name: payload
+      - example: test
+        in: path
+        name: tenant_name
         required: true
-        schema:
-          $ref: '#/definitions/entitlements.EntitlementRetrievalRequest'
+        type: string
       produces:
       - application/json
       responses:
@@ -1247,6 +1163,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to retrieve entitlement resource
       tags:
       - entitlement
@@ -1254,19 +1172,25 @@ paths:
     get:
       consumes:
       - application/json
-      description: Listing licenses
+      description: Listing existing license resources
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/licenses.LicenseListRequest'
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -1282,7 +1206,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to list license resources
+      security:
+      - BearerAuth: []
+      summary: API to list existing license resources
       tags:
       - license
     post:
@@ -1290,10 +1216,14 @@ paths:
       - application/json
       description: Register new license
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1316,6 +1246,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to register new license resource
       tags:
       - license
@@ -1325,17 +1257,15 @@ paths:
       - application/json
       description: Deleting license
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/licenses.LicenseDeletionRequest'
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -1351,6 +1281,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to delete license resource
       tags:
       - license
@@ -1359,17 +1291,15 @@ paths:
       - application/json
       description: Retrieve license
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/licenses.LicenseRetrievalRequest'
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -1385,6 +1315,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to retrieve license resource
       tags:
       - license
@@ -1393,10 +1325,14 @@ paths:
       - application/json
       description: Updating license
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1419,19 +1355,25 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to update license resource
       tags:
       - license
-  /tenants/{tenant_name}/licenses/{license_id}/actions/{action}:
+  /tenants/{tenant_name}/licenses/actions/{action}:
     post:
       consumes:
       - application/json
-      description: Action licenses
+      description: Performing action on license resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1454,26 +1396,34 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to perform action on license resources
+      security:
+      - BearerAuth: []
+      summary: API to perform action on license resource
       tags:
       - license
   /tenants/{tenant_name}/machines:
     get:
       consumes:
       - application/json
-      description: Listing machine
+      description: Listing existing machine resources
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: machine_action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/machines.MachineListRequest'
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -1489,18 +1439,24 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to list machine resource
+      security:
+      - BearerAuth: []
+      summary: API to list machine resources
       tags:
       - machine
     post:
       consumes:
       - application/json
-      description: Register new machine
+      description: Creating new machine resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1523,6 +1479,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to register new machine resource
       tags:
       - machine
@@ -1530,19 +1488,17 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete machine
+      description: Deleting existing machine resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: machine_action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/machines.MachineDeletionRequest'
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -1558,25 +1514,25 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to delete machine resource
       tags:
       - machine
     get:
       consumes:
       - application/json
-      description: Retrieve machine
+      description: Retrieving existing machine resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: machine_action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/machines.MachineRetrievalRequest'
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -1592,18 +1548,24 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to retrieve machine resource
       tags:
       - machine
     patch:
       consumes:
       - application/json
-      description: Updating machine
+      description: Updating machine resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1626,6 +1588,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to update machine resource
       tags:
       - machine
@@ -1633,19 +1597,20 @@ paths:
     post:
       consumes:
       - application/json
-      description: Action machine
+      description: Performing action on machine resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: machine_action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/machines.MachineActionsRequest'
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: query
+        name: ttl
+        type: integer
       produces:
       - application/json
       responses:
@@ -1661,6 +1626,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to perform action on machine resource
       tags:
       - machine

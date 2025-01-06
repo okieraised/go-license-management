@@ -46,12 +46,13 @@ func (r *EntitlementRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new entitlement resource.
 //
-// @Summary 		API to register new entitlement resource
-// @Description 	Register new entitlement
+// @Summary 		API to create new entitlement resource
+// @Description 	Creating new entitlement resource
 // @Tags 			entitlement
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 											true 	"authorization"
+// @Security        BearerAuth
+// @Param 			param    			path 		entitlement_attribute.EntitlementCommonURI 	    true 	"path_param"
 // @Param 			payload 			body 		entitlements.EntitlementRegistrationRequest 	true 	"request"
 // @Success 		201 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -145,8 +146,8 @@ func (r *EntitlementRouter) create(ctx *gin.Context) {
 // @Tags 			entitlement
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 										true 	"authorization"
-// @Param 			payload 			body 		entitlements.EntitlementRetrievalRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		entitlements.EntitlementRetrievalRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -214,13 +215,14 @@ func (r *EntitlementRouter) retrieve(ctx *gin.Context) {
 
 // delete permanently deletes an entitlement.
 // The entitlement will immediately be removed from all licenses and policies
+//
 // @Summary 		API to delete entitlement resource
-// @Description 	Deleting entitlement
+// @Description 	Deleting existing entitlement
 // @Tags 			entitlement
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 										true 	"authorization"
-// @Param 			payload 			body 		entitlements.EntitlementDeletionRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		entitlements.EntitlementDeletionRequest 	true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -284,13 +286,14 @@ func (r *EntitlementRouter) delete(ctx *gin.Context) {
 // list returns a list of entitlements. The entitlements are returned sorted by creation date,
 // with the most recent entitlements appearing first.
 //
-// @Summary 		API to list entitlement resources
-// @Description 	Listing entitlements
+// @Summary 		API to list existing entitlement resources
+// @Description 	Listing existing entitlement resources
 // @Tags 			entitlement
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 									true 	"authorization"
-// @Param 			payload 			body 		entitlements.EntitlementListRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param    			path 		entitlement_attribute.EntitlementCommonURI 	    true 	"path_param"
+// @Param 			payload 			query 		entitlements.EntitlementListRequest 	        true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -360,5 +363,4 @@ func (r *EntitlementRouter) list(ctx *gin.Context) {
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, result.Count)
 	ctx.JSON(http.StatusOK, resp)
 	return
-
 }

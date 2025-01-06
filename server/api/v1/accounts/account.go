@@ -395,8 +395,8 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 // list returns a list of accounts. The accounts are returned sorted by creation date,
 // with the most recent accounts appearing first.
 //
-// @Summary 		API to list existing accounts
-// @Description 	Listing accounts
+// @Summary 		API to list existing account resources
+// @Description 	Listing account resources
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json
@@ -484,8 +484,8 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 
 // actions performs account action
 //
-// @Summary 		API to perform action with account
-// @Description 	Actions accounts
+// @Summary 		API to perform action on account resource
+// @Description 	Performing actions on account resource
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json

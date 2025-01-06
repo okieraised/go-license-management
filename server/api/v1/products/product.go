@@ -59,7 +59,8 @@ func (r *ProductRouter) Routes(engine *gin.RouterGroup, path string) {
 // @Tags 			product
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Security        BearerAuth
+// @Param 			param    			path 		product_attribute.ProductCommonURI   	true 	"path_param"
 // @Param 			payload 			body 		products.ProductRegistrationRequest 	true 	"request"
 // @Success 		201 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -149,13 +150,13 @@ func (r *ProductRouter) create(ctx *gin.Context) {
 
 // retrieve retrieves the details of an existing product.
 //
-// @Summary 		API to retrieve product resource
-// @Description 	Retrieve product
+// @Summary 		API to retrieve existing product resource
+// @Description 	Retrieving existing product resource
 // @Tags 			product
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
-// @Param 			payload 			body 		products.ProductRetrievalRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		products.ProductRetrievalRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -228,8 +229,9 @@ func (r *ProductRouter) retrieve(ctx *gin.Context) {
 // @Tags 			product
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		products.ProductUpdateRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param    			path 		product_attribute.ProductCommonURI 	true 	"path_param"
+// @Param 			payload 			body 		products.ProductUpdateRequest 	    true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -315,8 +317,8 @@ func (r *ProductRouter) update(ctx *gin.Context) {
 // @Tags 			product
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
-// @Param 			payload 			body 		products.ProductDeletionRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		products.ProductDeletionRequest 	true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -385,8 +387,8 @@ func (r *ProductRouter) delete(ctx *gin.Context) {
 // @Tags 			product
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		products.ProductListRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		products.ProductListRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -470,8 +472,9 @@ func (r *ProductRouter) list(ctx *gin.Context) {
 // @Tags 			product
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		products.ProductTokenRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param    			path 		product_attribute.ProductCommonURI 	true 	"path_param"
+// @Param 			payload 			body 		products.ProductTokenRequest 	    true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response

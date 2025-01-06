@@ -49,11 +49,12 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 // create creates, or activates, a new machine resource for a license.
 //
 // @Summary 		API to register new machine resource
-// @Description 	Register new machine
+// @Description 	Creating new machine resource
 // @Tags 			machine
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Security        BearerAuth
+// @Param 			param    			path 		machine_attribute.MachineCommonURI 	    true 	"path_param"
 // @Param 			payload 			body 		machines.MachineRegistrationRequest 	true 	"request"
 // @Success 		201 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -138,12 +139,13 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 // update updates the specified machine resource.
 //
 // @Summary 		API to update machine resource
-// @Description 	Updating machine
+// @Description 	Updating machine resource
 // @Tags 			machine
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		machines.MachineUpdateRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param    			path 		machine_attribute.MachineCommonURI 	true 	"path_param"
+// @Param 			payload 			body 		machines.MachineUpdateRequest 	    true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -228,12 +230,12 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 // retrieve retrieves the details of an existing machine.
 //
 // @Summary 		API to retrieve machine resource
-// @Description 	Retrieve machine
+// @Description 	Retrieving existing machine resource
 // @Tags 			machine
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		machines.MachineRetrievalRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		machines.MachineRetrievalRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -301,12 +303,12 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 // delete permanently deletes, or deactivates, a machine. It cannot be undone.
 //
 // @Summary 		API to delete machine resource
-// @Description 	Delete machine
+// @Description 	Deleting existing machine resource
 // @Tags 			machine
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		machines.MachineDeletionRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		machines.MachineDeletionRequest 	true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -370,13 +372,14 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 // list returns a list of machines. The machines are returned sorted by creation date,
 // with the most recent machines appearing first.
 //
-// @Summary 		API to list machine resource
-// @Description 	Listing machine
+// @Summary 		API to list machine resources
+// @Description 	Listing existing machine resources
 // @Tags 			machine
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		machines.MachineListRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param 			    path 		machine_attribute.MachineCommonURI 	true 	"path_param"
+// @Param 			payload 			query 		machines.MachineListRequest 	    true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -452,17 +455,16 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 	return
 }
 
-// action actions to check out a machine. This will generate a snapshot of the machine at time of checkout,
-// encoded into a machine file certificate that can be decoded and used for licensing offline and air-gapped environments.
-// The algorithm will depend on the license policy's scheme.
+// action performs machine resource's action
 //
 // @Summary 		API to perform action on machine resource
-// @Description 	Action machine
+// @Description 	Performing action on machine resource
 // @Tags 			machine
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		machines.MachineActionsRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param 			    path 		machines.MachineActionsRequest 	            true 	"path_param"
+// @Param 			payload 			query 		machine_attribute.MachineActionsQueryParam 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -543,5 +545,4 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	r.logger.GetLogger().Info("completed handling machine action")
 	resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 	ctx.JSON(http.StatusOK, resp)
-
 }

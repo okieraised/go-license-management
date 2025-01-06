@@ -53,7 +53,8 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 // @Tags 			license
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Security        BearerAuth
+// @Param 			param 			    path 		license_attribute.LicenseCommonURI   	true 	"path_param"
 // @Param 			payload 			body 		licenses.LicenseRegistrationRequest 	true 	"request"
 // @Success 		201 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -139,8 +140,8 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 // @Tags 			license
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
-// @Param 			payload 			body 		licenses.LicenseRetrievalRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		licenses.LicenseRetrievalRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -212,8 +213,9 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 // @Tags 			license
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		licenses.LicenseUpdateRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param 			    path 		license_attribute.LicenseCommonURI   	true 	"path_param"
+// @Param 			payload 			body 		licenses.LicenseUpdateRequest 	        true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -301,8 +303,8 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 // @Tags 			license
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		licenses.LicenseDeletionRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		licenses.LicenseDeletionRequest 	true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -364,13 +366,14 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 // list returns a list of licenses. The licenses are returned sorted by creation date,
 // with the most recent licenses appearing first.
 //
-// @Summary 		API to list license resources
-// @Description 	Listing licenses
+// @Summary 		API to list existing license resources
+// @Description 	Listing existing license resources
 // @Tags 			license
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		licenses.LicenseListRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param 			    path 		license_attribute.LicenseCommonURI   	true 	"path_param"
+// @Param 			payload 			query 		licenses.LicenseListRequest 	        true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -464,17 +467,18 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 //   - decrement-usage: Action to decrement a license's uses attribute in accordance with its policy's maxUses attribute.
 //   - reset-usage: Action to reset a license's uses attribute to 0.
 //
-// @Summary 		API to perform action on license resources
-// @Description 	Action licenses
+// @Summary 		API to perform action on license resource
+// @Description 	Performing action on license resource
 // @Tags 			license
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		licenses.LicenseActionsRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param 			    path 		license_attribute.LicenseCommonURI   	true 	"path_param"
+// @Param 			payload 			body 		licenses.LicenseActionsRequest 	        true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
-// @Router 			/tenants/{tenant_name}/licenses/{license_id}/actions/{action} [post]
+// @Router 			/tenants/{tenant_name}/licenses/actions/{action} [post]
 func (r *LicenseRouter) action(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
