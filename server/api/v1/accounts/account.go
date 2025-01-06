@@ -52,12 +52,13 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new account resource.
 //
-// @Summary 		API to register new account
-// @Description 	Register new account
+// @Summary 		API to register new account resource
+// @Description 	Register new account resource
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 									true 	"authorization"
+// @Security        BearerAuth
+// @Param        	tenant_name    	    path     	string  				true  	"tenant_name"
 // @Param 			payload 			body 		accounts.AccountRegistrationRequest 	true 	"request"
 // @Success 		201 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -152,8 +153,8 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
-// @Param 			payload 			body 		accounts.AccountRetrievalRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		accounts.AccountRetrievalRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -229,8 +230,9 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
-// @Param 			payload 			body 		accounts.AccountUpdateRequest	 	true 	"request"
+// @Security        BearerAuth
+// @Param 			param    			path 		account_attribute.AccountCommonURI	 	true 	"path_param"
+// @Param 			payload 			body 		accounts.AccountUpdateRequest	        true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -330,8 +332,8 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
-// @Param 			payload 			body 		accounts.AccountDeletionRequest	 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			path 		accounts.AccountDeletionRequest	 	true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -398,8 +400,9 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
-// @Param 			payload 			body 		accounts.AccountListRequest	 	true 	"request"
+// @Security        BearerAuth
+// @Param        	tenant_name    	    path     	string  				        true  	"tenant_name"
+// @Param 			payload 			query 		accounts.AccountListRequest	 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -486,12 +489,13 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 // @Tags 			account
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Security        BearerAuth
+// @Param        	param       	    path     	account_attribute.AccountCommonURI  true  	"path_param"
 // @Param 			payload 			body 		accounts.AccountActionRequest	 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
-// @Router 			/tenants/{tenant_name}/accounts/{username} [post]
+// @Router 			/tenants/{tenant_name}/accounts/{username}/actions/{action} [post]
 func (r *AccountRouter) actions(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

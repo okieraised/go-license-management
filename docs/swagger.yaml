@@ -12,24 +12,6 @@ definitions:
         example: test
         type: string
     type: object
-  accounts.AccountDeletionRequest:
-    properties:
-      action:
-        type: string
-      tenantName:
-        type: string
-      username:
-        type: string
-    type: object
-  accounts.AccountListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
-        type: integer
-    type: object
   accounts.AccountRegistrationRequest:
     properties:
       email:
@@ -58,15 +40,6 @@ definitions:
     - password
     - role
     - username
-    type: object
-  accounts.AccountRetrievalRequest:
-    properties:
-      action:
-        type: string
-      tenantName:
-        type: string
-      username:
-        type: string
     type: object
   accounts.AccountUpdateRequest:
     properties:
@@ -697,20 +670,6 @@ definitions:
       server_time:
         type: integer
     type: object
-  tenants.TenantDeletionRequest:
-    properties:
-      tenantName:
-        type: string
-    required:
-    - tenantName
-    type: object
-  tenants.TenantRegenerationRequest:
-    properties:
-      tenantName:
-        type: string
-    required:
-    - tenantName
-    type: object
   tenants.TenantRegistrationRequest:
     properties:
       name:
@@ -718,13 +677,6 @@ definitions:
         type: string
     required:
     - name
-    type: object
-  tenants.TenantRetrievalRequest:
-    properties:
-      tenantName:
-        type: string
-    required:
-    - tenantName
     type: object
 host: localhost:8888
 info:
@@ -775,7 +727,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Listings existing tenant
+      description: Listings existing tenant resources
       parameters:
       - example: 10
         in: query
@@ -802,19 +754,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - BearerAuth: []
-      summary: API to list existing tenants
+      summary: API to list existing tenant resources
       tags:
       - tenant
     post:
       consumes:
       - application/json
-      description: Register new tenant
+      description: Register new tenant resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: request
         in: body
         name: payload
@@ -836,26 +783,21 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to register new tenant
+      security:
+      - BearerAuth: []
+      summary: API to register new tenant resource
       tags:
       - tenant
   /tenants/{tenant_name}:
     delete:
       consumes:
       - application/json
-      description: Deleting tenant
+      description: Delete an existing tenant and all associated data
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - in: path
+        name: tenant_name
         required: true
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/tenants.TenantDeletionRequest'
       produces:
       - application/json
       responses:
@@ -871,6 +813,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to delete tenant
       tags:
       - tenant
@@ -879,17 +823,10 @@ paths:
       - application/json
       description: Retrieving tenant
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - in: path
+        name: tenant_name
         required: true
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/tenants.TenantRetrievalRequest'
       produces:
       - application/json
       responses:
@@ -905,6 +842,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to retrieve tenant
       tags:
       - tenant
@@ -914,17 +853,19 @@ paths:
       - application/json
       description: Listing accounts
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - description: tenant_name
+        in: path
+        name: tenant_name
         required: true
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/accounts.AccountListRequest'
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -940,17 +881,19 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to list existing accounts
       tags:
       - account
     post:
       consumes:
       - application/json
-      description: Register new account
+      description: Register new account resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - description: tenant_name
+        in: path
+        name: tenant_name
         required: true
         type: string
       - description: request
@@ -974,7 +917,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to register new account
+      security:
+      - BearerAuth: []
+      summary: API to register new account resource
       tags:
       - account
   /tenants/{tenant_name}/accounts/{username}:
@@ -983,17 +928,15 @@ paths:
       - application/json
       description: Deleting account
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/accounts.AccountDeletionRequest'
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
+        type: string
       produces:
       - application/json
       responses:
@@ -1009,6 +952,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to delete existing account
       tags:
       - account
@@ -1017,17 +962,15 @@ paths:
       - application/json
       description: Retrieving account
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/accounts.AccountRetrievalRequest'
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
+        type: string
       produces:
       - application/json
       responses:
@@ -1043,6 +986,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to retrieve existing account
       tags:
       - account
@@ -1051,10 +996,14 @@ paths:
       - application/json
       description: Retrieving account
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
         type: string
       - description: request
         in: body
@@ -1077,18 +1026,25 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to retrieve existing account
       tags:
       - account
+  /tenants/{tenant_name}/accounts/{username}/actions/{action}:
     post:
       consumes:
       - application/json
       description: Actions accounts
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
         type: string
       - description: request
         in: body
@@ -1111,6 +1067,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to perform action with account
       tags:
       - account
@@ -2192,14 +2150,12 @@ paths:
     post:
       consumes:
       - application/json
-      description: Regenerating tenant
+      description: Replace tenant resource's private/public key pair
       parameters:
-      - description: request
-        in: body
-        name: payload
+      - in: path
+        name: tenant_name
         required: true
-        schema:
-          $ref: '#/definitions/tenants.TenantRegenerationRequest'
+        type: string
       produces:
       - application/json
       responses:
@@ -2215,7 +2171,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to regenerate tenant
+      security:
+      - BearerAuth: []
+      summary: API to replace tenant resource's private/public key pair
       tags:
       - tenant
 securityDefinitions:

@@ -48,8 +48,8 @@ func (r *TenantRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // create creates a new tenant resource.
 //
-// @Summary 		API to register new tenant
-// @Description 	Register new tenant
+// @Summary 		API to register new tenant resource
+// @Description 	Register new tenant resource
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
@@ -122,8 +122,8 @@ func (r *TenantRouter) create(ctx *gin.Context) {
 
 // list lists tenant resources.
 //
-// @Summary 		API to list existing tenants
-// @Description 	Listings existing tenant
+// @Summary 		API to list existing tenant resources
+// @Description 	Listings existing tenant resources
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
@@ -197,7 +197,7 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 // @Accept 			json
 // @Produce 		json
 // @Security        BearerAuth
-// @Param 			payload 			body 		tenants.TenantRetrievalRequest 	true 	"request"
+// @Param 			payload 			path 		tenants.TenantRetrievalRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -266,12 +266,12 @@ func (r *TenantRouter) retrieve(ctx *gin.Context) {
 // delete deletes a tenant resource by id.
 //
 // @Summary 		API to delete tenant
-// @Description 	Deleting tenant
+// @Description 	Delete an existing tenant and all associated data
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
 // @Security        BearerAuth
-// @Param 			payload 			body 		tenants.TenantDeletionRequest 	true 	"request"
+// @Param 			payload 			path 		tenants.TenantDeletionRequest 	true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -334,13 +334,13 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 
 // regenerate generates a new private/public key pair for a tenant resource by id.
 //
-// @Summary 		API to regenerate tenant
-// @Description 	Regenerating tenant
+// @Summary 		API to replace tenant resource's private/public key pair
+// @Description 	Replace tenant resource's private/public key pair
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
 // @Security        BearerAuth
-// @Param 			payload 			body 		tenants.TenantRegenerationRequest 	true 	"request"
+// @Param 			payload 			path 		tenants.TenantRegenerationRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response

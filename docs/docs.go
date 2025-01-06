@@ -77,7 +77,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Listings existing tenant",
+                "description": "Listings existing tenant resources",
                 "consumes": [
                     "application/json"
                 ],
@@ -87,7 +87,7 @@ const docTemplate = `{
                 "tags": [
                     "tenant"
                 ],
-                "summary": "API to list existing tenants",
+                "summary": "API to list existing tenant resources",
                 "parameters": [
                     {
                         "type": "integer",
@@ -124,7 +124,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Register new tenant",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Register new tenant resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -134,15 +139,8 @@ const docTemplate = `{
                 "tags": [
                     "tenant"
                 ],
-                "summary": "API to register new tenant",
+                "summary": "API to register new tenant resource",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "request",
                         "name": "payload",
@@ -177,6 +175,11 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieving tenant",
                 "consumes": [
                     "application/json"
@@ -191,19 +194,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "name": "tenant_name",
+                        "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tenants.TenantRetrievalRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -228,7 +221,12 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deleting tenant",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an existing tenant and all associated data",
                 "consumes": [
                     "application/json"
                 ],
@@ -242,19 +240,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "name": "tenant_name",
+                        "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tenants.TenantDeletionRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -281,6 +269,11 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/accounts": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Listing accounts",
                 "consumes": [
                     "application/json"
@@ -295,19 +288,22 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "description": "tenant_name",
+                        "name": "tenant_name",
+                        "in": "path",
                         "required": true
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/accounts.AccountListRequest"
-                        }
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -332,7 +328,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Register new account",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Register new account resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -342,13 +343,13 @@ const docTemplate = `{
                 "tags": [
                     "account"
                 ],
-                "summary": "API to register new account",
+                "summary": "API to register new account resource",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
+                        "description": "tenant_name",
+                        "name": "tenant_name",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -385,6 +386,11 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/accounts/{username}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieving account",
                 "consumes": [
                     "application/json"
@@ -399,70 +405,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "action",
+                        "in": "path"
                     },
-                    {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/accounts.AccountRetrievalRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Actions accounts",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "account"
-                ],
-                "summary": "API to perform action with account",
-                "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/accounts.AccountActionRequest"
-                        }
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -487,6 +441,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Deleting account",
                 "consumes": [
                     "application/json"
@@ -501,19 +460,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "action",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/accounts.AccountDeletionRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -538,6 +496,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieving account",
                 "consumes": [
                     "application/json"
@@ -552,10 +515,18 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -564,6 +535,72 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/accounts.AccountUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/accounts/{username}/actions/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Actions accounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "API to perform action with account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AccountActionRequest"
                         }
                     }
                 ],
@@ -2207,7 +2244,12 @@ const docTemplate = `{
         },
         "/tenants/{tenant_name}/regenerate": {
             "post": {
-                "description": "Regenerating tenant",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Replace tenant resource's private/public key pair",
                 "consumes": [
                     "application/json"
                 ],
@@ -2217,16 +2259,13 @@ const docTemplate = `{
                 "tags": [
                     "tenant"
                 ],
-                "summary": "API to regenerate tenant",
+                "summary": "API to replace tenant resource's private/public key pair",
                 "parameters": [
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tenants.TenantRegenerationRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2270,33 +2309,6 @@ const docTemplate = `{
                 }
             }
         },
-        "accounts.AccountDeletionRequest": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "accounts.AccountListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
-                }
-            }
-        },
         "accounts.AccountRegistrationRequest": {
             "type": "object",
             "required": [
@@ -2333,20 +2345,6 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "test"
-                }
-            }
-        },
-        "accounts.AccountRetrievalRequest": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
@@ -3191,28 +3189,6 @@ const docTemplate = `{
                 }
             }
         },
-        "tenants.TenantDeletionRequest": {
-            "type": "object",
-            "required": [
-                "tenantName"
-            ],
-            "properties": {
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
-        "tenants.TenantRegenerationRequest": {
-            "type": "object",
-            "required": [
-                "tenantName"
-            ],
-            "properties": {
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
         "tenants.TenantRegistrationRequest": {
             "type": "object",
             "required": [
@@ -3222,17 +3198,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "test"
-                }
-            }
-        },
-        "tenants.TenantRetrievalRequest": {
-            "type": "object",
-            "required": [
-                "tenantName"
-            ],
-            "properties": {
-                "tenantName": {
-                    "type": "string"
                 }
             }
         }
