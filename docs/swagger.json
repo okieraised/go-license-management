@@ -1667,7 +1667,12 @@
         },
         "/tenants/{tenant_name}/policies": {
             "get": {
-                "description": "Listing policy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing policy resources",
                 "consumes": [
                     "application/json"
                 ],
@@ -1677,23 +1682,29 @@
                 "tags": [
                     "policy"
                 ],
-                "summary": "API to list policy resource",
+                "summary": "API to list policy resources",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/policies.PolicyListRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1718,7 +1729,12 @@
                 }
             },
             "post": {
-                "description": "Register new policy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creating new policy resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1732,10 +1748,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -1771,6 +1790,11 @@
         },
         "/tenants/{tenant_name}/policies/{policy_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieving policy",
                 "consumes": [
                     "application/json"
@@ -1785,19 +1809,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/policies.PolicyRetrievalRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -1822,7 +1840,12 @@
                 }
             },
             "delete": {
-                "description": "Deleting policy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting existing policy resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1832,23 +1855,17 @@
                 "tags": [
                     "policy"
                 ],
-                "summary": "API to delete policy resource",
+                "summary": "API to delete existing policy resource",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/policies.PolicyDeletionRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -1873,7 +1890,12 @@
                 }
             },
             "patch": {
-                "description": "Updating policy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updating policy resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1887,10 +1909,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -1926,7 +1951,12 @@
         },
         "/tenants/{tenant_name}/policies/{policy_id}/entitlements": {
             "get": {
-                "description": "List entitlement for policy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing entitlements for policy resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1940,19 +1970,25 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/policies.PolicyEntitlementListRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1977,7 +2013,12 @@
                 }
             },
             "post": {
-                "description": "Attach entitlement to policy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Attaching entitlement to policy resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -1991,10 +2032,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -2028,7 +2072,12 @@
                 }
             },
             "delete": {
-                "description": "Detach entitlement from policy",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Detaching entitlement from policy resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -2042,10 +2091,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -2081,6 +2133,11 @@
         },
         "/tenants/{tenant_name}/products": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Listing products",
                 "consumes": [
                     "application/json"
@@ -2094,20 +2151,16 @@
                 "summary": "API to list product resources",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/products.ProductListRequest"
-                        }
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -2132,6 +2185,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Register new product",
                 "consumes": [
                     "application/json"
@@ -2146,10 +2204,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -2185,7 +2246,12 @@
         },
         "/tenants/{tenant_name}/products/{product_id}": {
             "get": {
-                "description": "Retrieve product",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving existing product resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -2195,23 +2261,17 @@
                 "tags": [
                     "product"
                 ],
-                "summary": "API to retrieve product resource",
+                "summary": "API to retrieve existing product resource",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "product_id",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/products.ProductRetrievalRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -2236,6 +2296,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete product",
                 "consumes": [
                     "application/json"
@@ -2250,19 +2315,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "product_id",
+                        "in": "path"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/products.ProductDeletionRequest"
-                        }
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -2287,6 +2346,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Updating product",
                 "consumes": [
                     "application/json"
@@ -2301,10 +2365,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -2340,6 +2407,11 @@
         },
         "/tenants/{tenant_name}/products/{product_id}/tokens": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Generate product token",
                 "consumes": [
                     "application/json"
@@ -2354,10 +2426,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
                     },
                     {
                         "description": "request",
@@ -2740,17 +2815,6 @@
                 }
             }
         },
-        "policies.PolicyDeletionRequest": {
-            "type": "object",
-            "properties": {
-                "policyID": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
         "policies.PolicyDetachmentRequest": {
             "type": "object",
             "properties": {
@@ -2759,32 +2823,6 @@
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "policies.PolicyEntitlementListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
-                }
-            }
-        },
-        "policies.PolicyListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
                 }
             }
         },
@@ -2900,17 +2938,6 @@
                 }
             }
         },
-        "policies.PolicyRetrievalRequest": {
-            "type": "object",
-            "properties": {
-                "policyID": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
         "policies.PolicyUpdateRequest": {
             "type": "object",
             "required": [
@@ -3012,30 +3039,6 @@
                 }
             }
         },
-        "products.ProductDeletionRequest": {
-            "type": "object",
-            "properties": {
-                "productID": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
-                }
-            }
-        },
-        "products.ProductListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
-                }
-            }
-        },
         "products.ProductRegistrationRequest": {
             "type": "object",
             "required": [
@@ -3080,17 +3083,6 @@
                 "url": {
                     "type": "string",
                     "example": "test"
-                }
-            }
-        },
-        "products.ProductRetrievalRequest": {
-            "type": "object",
-            "properties": {
-                "productID": {
-                    "type": "string"
-                },
-                "tenantName": {
-                    "type": "string"
                 }
             }
         },

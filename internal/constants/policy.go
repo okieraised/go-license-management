@@ -2,11 +2,9 @@ package constants
 
 const (
 	// PolicySchemeED25519 signs license keys with your account's Ed25519 signing key,
-	// using elliptic curve cryptography and SHA512. The given license key data will be base64url encoded.
 	PolicySchemeED25519 = "ED25519"
 
-	// PolicySchemeRSA2048PKCS1 signs license keys with your account's 2048-bit RSA private key using RSA
-	// PKCS1 v1.5 padding, with a SHA256 digest. The given license key data will be base64url encoded.
+	// PolicySchemeRSA2048PKCS1 signs license keys with your account's 2048-bit RSA private key using RSA PKCS1 v1.5 padding
 	PolicySchemeRSA2048PKCS1 = "RSA2048PKCS1"
 )
 
@@ -17,24 +15,17 @@ var ValidPolicySchemeMapper = map[string]bool{
 
 const (
 	// PolicyExpirationStrategyRestrictAccess - expired licenses can continue to access releases published prior to
-	// their license expiry. Automatic upgrades are enabled, but only for releases published prior to their expiry.
-	// Validation scopes take precedence over expiry check during license validation. This is the default.
+	// their license expiry. This is the default.
 	PolicyExpirationStrategyRestrictAccess = "restrict"
 
-	// PolicyExpirationStrategyRevokeAccess - Expired licenses are no longer able to access any releases,
-	// including past releases. Automatic upgrades are disabled. Expiry check takes precedence over
-	// scopes during license validation.
+	// PolicyExpirationStrategyRevokeAccess - Expired licenses are no longer able to access any releases.
 	PolicyExpirationStrategyRevokeAccess = "revoke"
 
 	// PolicyExpirationStrategyMaintainAccess - Expired licenses can continue to access releases published prior to their
-	// license expiry. Automatic upgrades are enabled, but only for releases published prior to their expiry.
-	// Validation scopes take precedence over expiry check during license validation. In addition,
-	// validations with an EXPIRED code will return valid=true
+	// license expiry.
 	PolicyExpirationStrategyMaintainAccess = "maintain"
 
-	// PolicyExpirationStrategyAllowAccess - Expired licenses can access any releases, including past releases and
-	// future releases. Automatic upgrades are enabled. Validation scopes take precedence over expiry check during
-	// license validation. In addition, validations with an EXPIRED code will return valid=true.
+	// PolicyExpirationStrategyAllowAccess - Expired licenses can access any releases.
 	PolicyExpirationStrategyAllowAccess = "allow"
 )
 
@@ -52,7 +43,7 @@ const (
 	PolicyCheckinIntervalWeekly = "weekly"
 	// PolicyCheckinIntervalMonthly requires a license implementing the policy checkin at least once every month to remain valid.
 	PolicyCheckinIntervalMonthly = "monthly"
-	// PolicyCheckinIntervalYearly requires a license implementing the policy to check-in at least once every year to remain valid.
+	// PolicyCheckinIntervalYearly requires a license implementing the policy to check in at least once every year to remain valid.
 	PolicyCheckinIntervalYearly = "yearly"
 )
 
@@ -142,28 +133,3 @@ var ValidPolicyOverageStrategyMapper = map[string]bool{
 	PolicyOverageStrategyNoOverage:   true,
 	PolicyOverageStrategyAlwaysAllow: true,
 }
-
-const (
-	// PolicyTransferStrategyResetExpiry resets the transferred license's expiry from the time of transfer.
-	PolicyTransferStrategyResetExpiry = "reset_expiry"
-	// PolicyTransferStrategyKeepExpiry keeps the license's current expiry.
-	PolicyTransferStrategyKeepExpiry = "keep_expiry"
-)
-
-const (
-	// PolicyHeartbeatCullPolicyDeactivateDead - Automatically deactivate machines that fail to maintain their heartbeat pings. This is the default.
-	PolicyHeartbeatCullPolicyDeactivateDead = "deactivate_dead"
-	// PolicyHeartbeatCullPolicyKeepDead - Mark machines that fail to maintain their heartbeat pings as dead, but do not deactivate.
-	PolicyHeartbeatCullPolicyKeepDead = "keep_dead"
-)
-
-const (
-	// PolicyHeartbeatResurrectionPolicyNoRevive -  Do not allow dead machines and processes to be revived. This is the default.
-	PolicyHeartbeatResurrectionPolicyNoRevive = "no_revive"
-	// PolicyHeartbeatResurrectionPolicyOneMinute - A machine or process can be revived if it sends a ping within 1 minute from its time of death.
-	PolicyHeartbeatResurrectionPolicyOneMinute = "1_minute"
-	// PolicyHeartbeatResurrectionPolicyOneHour - A machine or process can be revived if it sends a ping within 1 hour from its time of death.
-	PolicyHeartbeatResurrectionPolicyOneHour = "1_hour"
-	// PolicyHeartbeatResurrectionPolicyAlwaysRevive - A machine or process can always be revived.
-	PolicyHeartbeatResurrectionPolicyAlwaysRevive = "always_revive"
-)

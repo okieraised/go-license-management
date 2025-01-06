@@ -219,37 +219,12 @@ definitions:
           type: string
         type: array
     type: object
-  policies.PolicyDeletionRequest:
-    properties:
-      policyID:
-        type: string
-      tenantName:
-        type: string
-    type: object
   policies.PolicyDetachmentRequest:
     properties:
       id:
         items:
           type: string
         type: array
-    type: object
-  policies.PolicyEntitlementListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
-        type: integer
-    type: object
-  policies.PolicyListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
-        type: integer
     type: object
   policies.PolicyRegistrationRequest:
     properties:
@@ -350,13 +325,6 @@ definitions:
     - name
     - product_id
     type: object
-  policies.PolicyRetrievalRequest:
-    properties:
-      policyID:
-        type: string
-      tenantName:
-        type: string
-    type: object
   policies.PolicyUpdateRequest:
     properties:
       authentication_strategy:
@@ -448,22 +416,6 @@ definitions:
     required:
     - name
     type: object
-  products.ProductDeletionRequest:
-    properties:
-      productID:
-        type: string
-      tenantName:
-        type: string
-    type: object
-  products.ProductListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
-        type: integer
-    type: object
   products.ProductRegistrationRequest:
     properties:
       code:
@@ -496,13 +448,6 @@ definitions:
     required:
     - code
     - name
-    type: object
-  products.ProductRetrievalRequest:
-    properties:
-      productID:
-        type: string
-      tenantName:
-        type: string
     type: object
   products.ProductTokenRequest:
     properties:
@@ -1635,19 +1580,22 @@ paths:
     get:
       consumes:
       - application/json
-      description: Listing policy
+      description: Listing policy resources
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/policies.PolicyListRequest'
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -1663,18 +1611,21 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to list policy resource
+      security:
+      - BearerAuth: []
+      summary: API to list policy resources
       tags:
       - policy
     post:
       consumes:
       - application/json
-      description: Register new policy
+      description: Creating new policy resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1697,6 +1648,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to register new policy resource
       tags:
       - policy
@@ -1704,19 +1657,14 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Deleting policy
+      description: Deleting existing policy resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/policies.PolicyDeletionRequest'
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -1732,7 +1680,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to delete policy resource
+      security:
+      - BearerAuth: []
+      summary: API to delete existing policy resource
       tags:
       - policy
     get:
@@ -1740,17 +1690,12 @@ paths:
       - application/json
       description: Retrieving policy
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/policies.PolicyRetrievalRequest'
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -1766,18 +1711,21 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to retrieve policy resource
       tags:
       - policy
     patch:
       consumes:
       - application/json
-      description: Updating policy
+      description: Updating policy resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1800,6 +1748,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to update policy resource
       tags:
       - policy
@@ -1807,12 +1757,13 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Detach entitlement from policy
+      description: Detaching entitlement from policy resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1835,25 +1786,30 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to detach entitlement from policy resource
       tags:
       - policy
     get:
       consumes:
       - application/json
-      description: List entitlement for policy
+      description: Listing entitlements for policy resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/policies.PolicyEntitlementListRequest'
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -1869,18 +1825,21 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to list entitlements for policy resource
       tags:
       - policy
     post:
       consumes:
       - application/json
-      description: Attach entitlement to policy
+      description: Attaching entitlement to policy resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1903,6 +1862,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to attach entitlement to policy resource
       tags:
       - policy
@@ -1912,17 +1873,14 @@ paths:
       - application/json
       description: Listing products
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/products.ProductListRequest'
+      - example: 10
+        in: path
+        name: limit
+        type: integer
+      - example: 10
+        in: path
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -1938,6 +1896,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to list product resources
       tags:
       - product
@@ -1946,10 +1906,11 @@ paths:
       - application/json
       description: Register new product
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -1972,6 +1933,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to register new product resource
       tags:
       - product
@@ -1981,17 +1944,12 @@ paths:
       - application/json
       description: Delete product
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: product_id
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/products.ProductDeletionRequest'
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -2007,25 +1965,22 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to delete product resource
       tags:
       - product
     get:
       consumes:
       - application/json
-      description: Retrieve product
+      description: Retrieving existing product resource
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: product_id
         type: string
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/products.ProductRetrievalRequest'
+      - in: path
+        name: tenant_name
+        type: string
       produces:
       - application/json
       responses:
@@ -2041,7 +1996,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
-      summary: API to retrieve product resource
+      security:
+      - BearerAuth: []
+      summary: API to retrieve existing product resource
       tags:
       - product
     patch:
@@ -2049,10 +2006,11 @@ paths:
       - application/json
       description: Updating product
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -2075,6 +2033,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to update product resource
       tags:
       - product
@@ -2084,10 +2044,11 @@ paths:
       - application/json
       description: Generate product token
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
         type: string
       - description: request
         in: body
@@ -2110,6 +2071,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to generate product token resource
       tags:
       - product
