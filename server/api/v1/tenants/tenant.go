@@ -53,7 +53,7 @@ func (r *TenantRouter) Routes(engine *gin.RouterGroup, path string) {
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
+// @Security        BearerAuth
 // @Param 			payload 			body 		tenants.TenantRegistrationRequest 	true 	"request"
 // @Success 		201 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -196,7 +196,7 @@ func (r *TenantRouter) list(ctx *gin.Context) {
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Security        BearerAuth
 // @Param 			payload 			body 		tenants.TenantRetrievalRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -270,7 +270,7 @@ func (r *TenantRouter) retrieve(ctx *gin.Context) {
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 							true 	"authorization"
+// @Security        BearerAuth
 // @Param 			payload 			body 		tenants.TenantDeletionRequest 	true 	"request"
 // @Success 		204 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
@@ -339,6 +339,7 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
+// @Security        BearerAuth
 // @Param 			payload 			body 		tenants.TenantRegenerationRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response

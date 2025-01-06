@@ -15,6 +15,13 @@ However, what to do with this information is entirely up to the client applicati
 This repository requires PostgreSQL as the backend database. 
 Support for other databases are not yet implemented at this time.
 
+If you want to build an image and push to the local registry on your computer, I have included an example docker-compose file.
+Run the following command to set up a local registry:
+```shell
+docker compose up -d local-registry
+```
+You should have a up-and-running local registry on port 5000 in no time.
+
 To build this repository as a Docker image, clone this repository to your local computer and run:
 ```shell
 make build

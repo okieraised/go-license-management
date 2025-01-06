@@ -1,4 +1,12 @@
+version: '3.9'
+
 services:
+  local-registry:
+    image: 'registry:2.7'
+    container_name: local_registry
+    ports:
+      - '5000:5000'
+
   postgres:
     container_name: postgres_container
     image: postgres
