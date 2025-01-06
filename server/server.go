@@ -45,7 +45,12 @@ func StartServer(appService *api.AppService, quit chan os.Signal) {
 	rootRouter := api.New(appService)
 	rootRouter.InitRouters(router)
 
-	serverAddr := "0.0.0.0:" + viper.GetString(config.ServerHttpPort)
+	serverPort := "8888"
+	if viper.GetString(config.ServerHttpPort) != "" {
+		serverPort = viper.GetString(config.ServerHttpPort)
+	}
+
+	serverAddr := fmt.Sprintf("0.0.0.0:%s", serverPort)
 	srv := &http.Server{
 		Addr:    serverAddr,
 		Handler: router,
