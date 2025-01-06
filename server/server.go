@@ -21,6 +21,7 @@ import (
 	"time"
 )
 
+// StartServer starts the API server
 func StartServer(appService *api.AppService, quit chan os.Signal) {
 	gin.SetMode(viper.GetString(config.ServerMode))
 	router := gin.New()

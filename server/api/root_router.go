@@ -50,6 +50,10 @@ func (rr *RootRouter) InitRouters(engine *gin.Engine) {
 		productRoute := products.NewProductRouter(rr.AppService.GetV1Svc().GetProduct())
 		productRoute.Routes(v1Router, prefix)
 
+		// Entitlement routes
+		entitlementRoute := entitlements.NewEntitlementRouter(rr.AppService.GetV1Svc().GetEntitlement())
+		entitlementRoute.Routes(v1Router, prefix)
+
 		// Policy routes
 		policyRoute := policies.NewPolicyRouter(rr.AppService.GetV1Svc().GetPolicy())
 		policyRoute.Routes(v1Router, prefix)
@@ -57,10 +61,6 @@ func (rr *RootRouter) InitRouters(engine *gin.Engine) {
 		// License routes
 		licenseRoute := licenses.NewLicenseRouter(rr.AppService.GetV1Svc().GetLicense())
 		licenseRoute.Routes(v1Router, prefix)
-
-		// Entitlement routes
-		entitlementRoute := entitlements.NewEntitlementRouter(rr.AppService.GetV1Svc().GetEntitlement())
-		entitlementRoute.Routes(v1Router, prefix)
 
 		// Machine routes
 		machineRoute := machines.NewMachineRouter(rr.AppService.GetV1Svc().GetMachine())

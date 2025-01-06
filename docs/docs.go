@@ -10,13 +10,73 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Validating account and generate a JWT token if valid, without tenant_name path parameter, one must provide the superadmin credentials",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "API to validate existing account and return a corresponding jwt token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/tenants": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Listings existing tenant",
                 "consumes": [
                     "application/json"
@@ -30,20 +90,16 @@ const docTemplate = `{
                 "summary": "API to list existing tenants",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
                     },
                     {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tenants.TenantListRequest"
-                        }
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -509,6 +565,64 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/accounts.AccountUpdateRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/auth/login": {
+            "post": {
+                "description": "Validating account and generate a JWT token if valid, without tenant_name path parameter, one must provide the superadmin credentials",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "API to validate existing account and return a corresponding jwt token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "tenant_name",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1028,52 +1142,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/licenses.LicenseActionsRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/tenants/{tenant_name}/login": {
-            "post": {
-                "description": "Validating account",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "authentication"
-                ],
-                "summary": "API to validate existing account and return jwt token",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/authentications.AuthenticationLoginRequest"
                         }
                     }
                 ],
@@ -2152,13 +2220,6 @@ const docTemplate = `{
                 "summary": "API to regenerate tenant",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "request",
                         "name": "payload",
                         "in": "body",
@@ -2318,23 +2379,6 @@ const docTemplate = `{
                     "example": "test"
                 },
                 "role": {
-                    "type": "string",
-                    "example": "test"
-                }
-            }
-        },
-        "authentications.AuthenticationLoginRequest": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "test"
-                },
-                "username": {
                     "type": "string",
                     "example": "test"
                 }
@@ -3158,19 +3202,6 @@ const docTemplate = `{
                 }
             }
         },
-        "tenants.TenantListRequest": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer",
-                    "example": 10
-                },
-                "offset": {
-                    "type": "integer",
-                    "example": 10
-                }
-            }
-        },
         "tenants.TenantRegenerationRequest": {
             "type": "object",
             "required": [
@@ -3205,17 +3236,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "0.1.0",
+	Host:             "localhost:8888",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Go License Management API",
+	Description:      "Go License Management Server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

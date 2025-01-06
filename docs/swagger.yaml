@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   accounts.AccountActionRequest:
     properties:
@@ -91,18 +92,6 @@ definitions:
     - email
     - password
     - role
-    type: object
-  authentications.AuthenticationLoginRequest:
-    properties:
-      password:
-        example: test
-        type: string
-      username:
-        example: test
-        type: string
-    required:
-    - password
-    - username
     type: object
   entitlements.EntitlementDeletionRequest:
     properties:
@@ -715,15 +704,6 @@ definitions:
     required:
     - tenantName
     type: object
-  tenants.TenantListRequest:
-    properties:
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 10
-        type: integer
-    type: object
   tenants.TenantRegenerationRequest:
     properties:
       tenantName:
@@ -746,26 +726,33 @@ definitions:
     required:
     - tenantName
     type: object
+host: localhost:8888
 info:
   contact: {}
+  description: Go License Management Server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Go License Management API
+  version: 0.1.0
 paths:
-  /tenants:
-    get:
+  /auth/login:
+    post:
       consumes:
-      - application/json
-      description: Listings existing tenant
+      - multipart/form-data
+      description: Validating account and generate a JWT token if valid, without tenant_name
+        path parameter, one must provide the superadmin credentials
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
+      - description: username
+        in: formData
+        name: username
         required: true
         type: string
-      - description: request
-        in: body
-        name: payload
+      - description: password
+        in: formData
+        name: password
         required: true
-        schema:
-          $ref: '#/definitions/tenants.TenantListRequest'
+        type: string
       produces:
       - application/json
       responses:
@@ -781,6 +768,40 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
+      summary: API to validate existing account and return a corresponding jwt token
+      tags:
+      - authentication
+  /tenants:
+    get:
+      consumes:
+      - application/json
+      description: Listings existing tenant
+      parameters:
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: API to list existing tenants
       tags:
       - tenant
@@ -1093,6 +1114,46 @@ paths:
       summary: API to perform action with account
       tags:
       - account
+  /tenants/{tenant_name}/auth/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Validating account and generate a JWT token if valid, without tenant_name
+        path parameter, one must provide the superadmin credentials
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: tenant_name
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to validate existing account and return a corresponding jwt token
+      tags:
+      - authentication
   /tenants/{tenant_name}/entitlements:
     get:
       consumes:
@@ -1438,36 +1499,6 @@ paths:
       summary: API to perform action on license resources
       tags:
       - license
-  /tenants/{tenant_name}/login:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Validating account
-      parameters:
-      - description: request
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/authentications.AuthenticationLoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: API to validate existing account and return jwt token
-      tags:
-      - authentication
   /tenants/{tenant_name}/machines:
     get:
       consumes:
@@ -2163,11 +2194,6 @@ paths:
       - application/json
       description: Regenerating tenant
       parameters:
-      - description: authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: request
         in: body
         name: payload
@@ -2192,4 +2218,9 @@ paths:
       summary: API to regenerate tenant
       tags:
       - tenant
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -155,6 +155,19 @@ func NewAppService(ds *api.DataSource) *api.AppService {
 	return appSvc
 }
 
+// @title           Go License Management API
+// @version         0.1.0
+// @description     Go License Management Server.
+//
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+//
+// @host      localhost:8888
+// @BasePath  /api/v1
+//
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	quit := make(chan os.Signal)
 	serverQuit := make(chan os.Signal)

@@ -44,16 +44,19 @@ func (r *AuthenticationRouter) Routes(engine *gin.RouterGroup, path string) {
 
 // login validates existing account resource.
 //
-// @Summary 		API to validate existing account and return jwt token
-// @Description 	Validating account
+// @Summary 		API to validate existing account and return a corresponding jwt token
+// @Description 	Validating account and generate a JWT token if valid, without tenant_name path parameter, one must provide the superadmin credentials
 // @Tags 			authentication
 // @Accept 			mpfd
 // @Produce 		json
-// @Param 			payload 			body 		authentications.AuthenticationLoginRequest 	true 	"request"
+// @Param 			username 			formData 	string 					true 	"username"
+// @Param 			password 			formData 	string 					true 	"password"
+// @Param        	tenant_name    	    path     	string  				true  	"tenant_name"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
-// @Router 			/tenants/{tenant_name}/login [post]
+// @Router 			/tenants/{tenant_name}/auth/login [post]
+// @Router 			/auth/login [post]
 func (r *AuthenticationRouter) login(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,

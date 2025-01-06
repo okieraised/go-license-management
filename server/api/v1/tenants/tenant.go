@@ -127,8 +127,8 @@ func (r *TenantRouter) create(ctx *gin.Context) {
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 						true 	"authorization"
-// @Param 			payload 			body 		tenants.TenantListRequest 	true 	"request"
+// @Security        BearerAuth
+// @Param 			payload 			query 		tenants.TenantListRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
@@ -339,7 +339,6 @@ func (r *TenantRouter) delete(ctx *gin.Context) {
 // @Tags 			tenant
 // @Accept 			json
 // @Produce 		json
-// @Param 			Authorization 		header 		string 								true 	"authorization"
 // @Param 			payload 			body 		tenants.TenantRegenerationRequest 	true 	"request"
 // @Success 		200 				{object} 	response.Response
 // @Failure 		400 				{object} 	response.Response
