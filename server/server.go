@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "go-license-management/docs"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
