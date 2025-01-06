@@ -59,7 +59,7 @@ This service support 2 ways to specify environmental variables, using ```conf.to
 
 ---
 ### Authorization and Permissions
-Authentication with the server is handled through Json Web Token (JWT). The default token lifespan duration is 1 hour.
+Authentication with the server is handled through Json Web Token (JWT). The token lifespan duration is hard coded to 1 hour.
 
 Authorization (Permissions) is handled using Casbin. The model configuration is as follows:
 ```text
@@ -83,21 +83,35 @@ for more information about Casbin, refer to [Casbin](https://casbin.org/docs/ove
 
 ---
 ### Tenant
+Tenants are globally unique, in the context of this repository, 
+you can think of tenant as 
+
+Tenant-related APIs can only be authorized with superadmin's permissions.
 
 
 ### Account
+An account represent an entity (user, admin) with permissions to communicate with the licensing server
+and perform authorized actions such as creating a new product, checking out a license, or validate license.
+At this time, an account can be one of the three roles: ```superadmin```, ```admin```, or ```user```.
 
 
 ### Product
-
+A product is essentially any software or application that you want to license.
+Each tenant can have multiple products where each of them can have multiple attributes 
+such as supported platforms, product code, etc. Any policy, license created must 
+be associated with a product. A single product can have multiple associated policies and licenses.
 
 ### Policy
-
+A policy is a set of rules that specify how a license should behave for a product. 
+It controls the scopes and limits of licenses issued.
 
 ### License
-
+License represents the rights to use the defined product. A license must be associated with a policy.
+It allows you to enforce your licensing models. Online and offline verifications are done through license.
 
 ### Machine
+Machine represents a server or computer on which the license is activated. 
+They are used to track license activations and enforce licensing rules.
 
 ---
 ### Roadmap
@@ -128,18 +142,31 @@ for more information about Casbin, refer to [Casbin](https://casbin.org/docs/ove
 | **Node-locked License** | Optional        | 1                 | Optional       | Yes             |
 | **Feature License**     | Optional        | Optional          | Yes            | Yes             |
 
+---
+### Use Cases
+TODO
 
 ---
-### Authentication and Authorization
-**Todo**
+### API Request
+Any request made to the licensing server is assigned a request id that can be used to track the execution
+and tracing if needed.
 
 ---
 ### API Response
-For every successful request, a Content-Digest header is included. Client application should verify this 
+
+ALl returned response follow a common format, as shown below:
+Example Response
+```json
+
+```
+Every response includes a ```request_id``` in uuid v4 format, a ```server_time``` in unix epoch int64 format, 
+error ```code``` and ```message```, if any. For every successful request, a ```Content-Digest``` header is included. Client applications should verify this 
 hash using sha256 algorithm.
 ```text
 sha256=bc08aa0cbd668c66d1a40e447a64cf887824670c7d098f75fcd3d8e0280b158f
 ```
+
+
 
 
 
