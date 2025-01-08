@@ -37,7 +37,7 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/licenses")
-		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseCreate), r.generate)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseCreate), r.create)
 		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseRead), r.list)
 		routes.GET("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseRead), r.retrieve)
 		routes.PATCH("/:license_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.LicenseUpdate), r.update)
@@ -46,7 +46,7 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 	}
 }
 
-// generate creates a new license resource.
+// create creates a new license resource.
 //
 // @Summary 		API to register new license resource
 // @Description 	Register new license
@@ -60,7 +60,7 @@ func (r *LicenseRouter) Routes(engine *gin.RouterGroup, path string) {
 // @Failure 		400 				{object} 	response.Response
 // @Failure 		500 				{object} 	response.Response
 // @Router 			/tenants/{tenant_name}/licenses [post]
-func (r *LicenseRouter) generate(ctx *gin.Context) {
+func (r *LicenseRouter) create(ctx *gin.Context) {
 	rootCtx, span := r.tracer.Start(ctx, ctx.Request.URL.Path, trace.WithAttributes(attribute.KeyValue{
 		Key:   constants.RequestIDField,
 		Value: attribute.StringValue(ctx.GetString(constants.RequestIDField)),
@@ -75,6 +75,7 @@ func (r *LicenseRouter) generate(ctx *gin.Context) {
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	r.logger.GetLogger().Info("validating license creation request")
 	var uriReq license_attribute.LicenseCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
 	if err != nil {
@@ -160,6 +161,7 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	).Info("received new license retrieval request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating license retrieval request")
 	var req LicenseRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
@@ -235,6 +237,7 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	r.logger.GetLogger().Info("validating license update request")
 	var uriReq license_attribute.LicenseCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
 	if err != nil {
@@ -324,6 +327,7 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 
 	// serializer
 	var req LicenseDeletionRequest
+	r.logger.GetLogger().Info("validating license deletion request")
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
 	if err != nil {
@@ -392,6 +396,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 	).Info("received new license history request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating license listing request")
 	var uriReq license_attribute.LicenseCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&uriReq)
@@ -494,6 +499,7 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	r.logger.GetLogger().Info("validating license action request")
 	var uriReq license_attribute.LicenseCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
 	if err != nil {

@@ -31,6 +31,7 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 		ProductID:  product.ID,
 		Name:       utils.DerefPointer(input.Name),
 		Status:     constants.LicenseStatusNotActivated,
+		Metadata:   input.Metadata,
 		CreatedAt:  now,
 		UpdatedAt:  now,
 	}
@@ -44,6 +45,10 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 	// Check for policy expiration
 	svc.logger.GetLogger().Info(fmt.Sprintf("verifying policy [%s] duration", policy.ID))
 	policyDuration := policy.Duration
+
+	// If policy duration (in seconds) > 0:
+	// if license expiration is specified, add the expiry date with policy duration
+	// else, add the current time with policy duration
 	if policy.Duration > 0 {
 		if expiry.IsZero() {
 			license.Expiry = now.Add(time.Duration(policyDuration) * time.Second)
@@ -51,11 +56,13 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 			license.Expiry = expiry.Add(time.Duration(policyDuration) * time.Second)
 		}
 	} else {
+		// No expiration
 		license.Expiry = expiry
 	}
 
 	// Check for license max uses
 	svc.logger.GetLogger().Info("verifying license max uses")
+	// Override max_uses if specified, else use the default value from policy
 	license.MaxUses = policy.MaxUses
 	if input.MaxUses != nil {
 		license.MaxUses = utils.DerefPointer(input.MaxUses)
@@ -63,6 +70,7 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 
 	// Check for license max machines
 	svc.logger.GetLogger().Info("verifying license max machines")
+	// Override max_machines if specified, else use the default value from policy
 	license.MaxMachines = policy.MaxMachines
 	if input.MaxMachines != nil {
 		license.MaxMachines = utils.DerefPointer(input.MaxMachines)
@@ -70,6 +78,7 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 
 	// Check for license max users
 	svc.logger.GetLogger().Info("verifying license max users")
+	// Override max_users if specified, else use the default value from policy
 	license.MaxUsers = policy.MaxUsers
 	if input.MaxUsers != nil {
 		license.MaxUsers = utils.DerefPointer(input.MaxUsers)
@@ -340,6 +349,8 @@ func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, decrement int
 
 	return license, nil
 }
+
+// resetUsageLicense sets the license uses back to 0
 func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
 
 	license.Uses = 0

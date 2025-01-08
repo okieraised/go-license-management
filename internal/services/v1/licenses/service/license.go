@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
+	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/response"
 	"go-license-management/internal/services/v1/licenses/models"
@@ -43,6 +44,7 @@ func WithRepository(repo repository.ILicense) func(*LicenseService) {
 	}
 }
 
+// Create handles new license logics.
 func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistrationInput) (*response.BaseOutput, error) {
 	rootCtx, span := input.Tracer.Start(input.TracerCtx, "create-handler")
 	defer span.End()
@@ -187,8 +189,8 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	return resp, nil
 }
 
+// Update handles the license update logics.
 func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateInput) (*response.BaseOutput, error) {
-
 	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
 	defer span.End()
 
@@ -235,26 +237,30 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 	}
 	cSpan.End()
 
-	// validate policyID exists
+	policy := license.Policy
+	// validate policyID exists and replace existing license values with new policy values
 	if input.PolicyID != nil {
 		_, cSpan = input.Tracer.Start(rootCtx, "check-policy-exist")
 		policyID := uuid.MustParse(utils.DerefPointer(input.PolicyID))
-
-		exist, err := svc.repo.CheckPolicyExist(ctx, policyID)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
-		}
-
-		if !exist {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-			return resp, comerrors.ErrPolicyIDIsInvalid
-		} else {
-			license.PolicyID = policyID
+		if policyID != license.PolicyID {
+			policy, err = svc.repo.SelectPolicyByPK(ctx, policyID)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
+				if errors.Is(err, sql.ErrNoRows) {
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
+					return resp, comerrors.ErrPolicyIDIsInvalid
+				} else {
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+					return resp, comerrors.ErrGenericInternalServer
+				}
+			}
+			license.MaxUsers = policy.MaxUsers
+			license.MaxMachines = policy.MaxMachines
+			license.MaxUses = policy.MaxUses
+			license.PolicyID = policy.ID
 		}
 		cSpan.End()
 	}
@@ -283,26 +289,46 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 		cSpan.End()
 	}
 
+	// Update expiration if specified
+	var expiry time.Time
 	if input.Expiry != nil {
-		license.Expiry, _ = time.Parse(time.RFC3339, utils.DerefPointer(input.Expiry))
+		expiry, _ = time.Parse(time.RFC3339, utils.DerefPointer(input.Expiry))
 	}
 
+	if policy.Duration > 0 {
+		if expiry.IsZero() {
+			license.Expiry = time.Now().Add(time.Duration(policy.Duration) * time.Second)
+		} else {
+			license.Expiry = expiry.Add(time.Duration(policy.Duration) * time.Second)
+		}
+	} else {
+		// Only update is expiry is not zero
+		if !expiry.IsZero() {
+			license.Expiry = expiry
+		}
+	}
+
+	// Update max_users if specified
 	if input.MaxUsers != nil {
 		license.MaxUsers = utils.DerefPointer(input.MaxUsers)
 	}
 
+	// Update max_uses if specified
 	if input.MaxUses != nil {
 		license.MaxUsers = utils.DerefPointer(input.MaxUses)
 	}
 
+	// Update max_machines if specified
 	if input.MaxMachines != nil {
 		license.MaxMachines = utils.DerefPointer(input.MaxMachines)
 	}
 
+	// Update license name is specified
 	if input.Name != nil {
 		license.Name = utils.DerefPointer(input.Name)
 	}
 
+	// Update metadata is specified
 	if input.Metadata != nil {
 		license.Metadata = input.Metadata
 	}
@@ -375,6 +401,7 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 	return resp, nil
 }
 
+// Retrieve handles the license retrieval logics.
 func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetrievalInput) (*response.BaseOutput, error) {
 	rootCtx, span := input.Tracer.Start(input.TracerCtx, "list-handler")
 	defer span.End()
@@ -676,10 +703,11 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 	}
 	cSpan.End()
 
+	_, cSpan = input.Tracer.Start(rootCtx, "perform-license-action")
 	licenseAction := utils.DerefPointer(input.Action)
 	switch licenseAction {
 	case constants.LicenseActionValidate:
-		validated, err := svc.validateLicense(ctx, license)
+		output, err := svc.validateLicense(ctx, license)
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
@@ -687,7 +715,7 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 			return resp, comerrors.ErrGenericInternalServer
 		}
-		resp.Data = validated
+		resp.Data = output
 	case constants.LicenseActionCheckout:
 		output, err := svc.checkoutLicense(ctx, license)
 		if err != nil {
@@ -698,390 +726,100 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			return resp, comerrors.ErrGenericInternalServer
 		}
 		resp.Data = output
-	case constants.LicenseActionCheckin:
-		output, err := svc.checkinLicense(ctx, license)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
-		}
-		resp.Data = models.LicenseInfoOutput{
-			LicenseID:      output.ID.String(),
-			ProductID:      output.ProductID.String(),
-			PolicyID:       output.PolicyID.String(),
-			Name:           output.Name,
-			LicenseKey:     output.Key,
-			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
-			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
-			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
-			Status:         output.Status,
-			Metadata:       output.Metadata,
-			Expiry:         output.Expiry,
-			CreatedAt:      output.CreatedAt,
-			UpdatedAt:      output.UpdatedAt,
-			LicensePolicy: models.LicensePolicyOutput{
-				PolicyScheme:           license.Policy.Scheme,
-				PolicyPublicKey:        license.Policy.PublicKey,
-				ExpirationStrategy:     license.Policy.ExpirationStrategy,
-				ExpirationBasis:        license.Policy.ExpirationBasis,
-				AuthenticationStrategy: license.Policy.AuthenticationStrategy,
-				CheckInInterval:        license.Policy.CheckInInterval,
-				OverageStrategy:        license.Policy.OverageStrategy,
-				HeartbeatBasis:         license.Policy.HeartbeatBasis,
-				RenewalBasis:           license.Policy.RenewalBasis,
-				RequireCheckIn:         license.Policy.RequireCheckIn,
-				RequireHeartbeat:       license.Policy.RequireHeartbeat,
-				Strict:                 license.Policy.Strict,
-				Floating:               license.Policy.Floating,
-				UsePool:                license.Policy.UsePool,
-				RateLimited:            license.Policy.RateLimited,
-				Encrypted:              license.Policy.Encrypted,
-				Protected:              license.Policy.Protected,
-				Duration:               license.Policy.Duration,
-				MaxMachines:            license.Policy.MaxMachines,
-				MaxUses:                license.Policy.MaxUses,
-				MaxUsers:               license.Policy.MaxUsers,
-				HeartbeatDuration:      license.Policy.HeartbeatDuration,
-			},
-			LicenseProduct: models.LicenseProductOutput{
-				Name:                 license.Product.Name,
-				DistributionStrategy: license.Product.DistributionStrategy,
-				Code:                 license.Product.Code,
-				URL:                  license.Product.URL,
-				Platforms:            license.Product.Platforms,
-				Metadata:             license.Product.Metadata,
-				CreatedAt:            license.Product.CreatedAt,
-				UpdatedAt:            license.Product.UpdatedAt,
-			},
-		}
-	case constants.LicenseActionSuspend:
-		output, err := svc.suspendLicense(ctx, license)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			switch {
-			case errors.Is(err, comerrors.ErrLicenseNotActivated):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseNotActivated]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseNotActivated]
-				return resp, comerrors.ErrLicenseNotActivated
-			default:
+	default:
+		var output *entities.License
+		switch licenseAction {
+		case constants.LicenseActionCheckin:
+			output, err = svc.checkinLicense(ctx, license)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
 				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 				return resp, comerrors.ErrGenericInternalServer
 			}
-		}
-		resp.Data = models.LicenseInfoOutput{
-			LicenseID:      output.ID.String(),
-			ProductID:      output.ProductID.String(),
-			PolicyID:       output.PolicyID.String(),
-			Name:           output.Name,
-			LicenseKey:     output.Key,
-			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
-			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
-			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
-			Status:         output.Status,
-			Metadata:       output.Metadata,
-			Expiry:         output.Expiry,
-			CreatedAt:      output.CreatedAt,
-			UpdatedAt:      output.UpdatedAt,
-			LicensePolicy: models.LicensePolicyOutput{
-				PolicyScheme:           license.Policy.Scheme,
-				PolicyPublicKey:        license.Policy.PublicKey,
-				ExpirationStrategy:     license.Policy.ExpirationStrategy,
-				ExpirationBasis:        license.Policy.ExpirationBasis,
-				AuthenticationStrategy: license.Policy.AuthenticationStrategy,
-				CheckInInterval:        license.Policy.CheckInInterval,
-				OverageStrategy:        license.Policy.OverageStrategy,
-				HeartbeatBasis:         license.Policy.HeartbeatBasis,
-				RenewalBasis:           license.Policy.RenewalBasis,
-				RequireCheckIn:         license.Policy.RequireCheckIn,
-				RequireHeartbeat:       license.Policy.RequireHeartbeat,
-				Strict:                 license.Policy.Strict,
-				Floating:               license.Policy.Floating,
-				UsePool:                license.Policy.UsePool,
-				RateLimited:            license.Policy.RateLimited,
-				Encrypted:              license.Policy.Encrypted,
-				Protected:              license.Policy.Protected,
-				Duration:               license.Policy.Duration,
-				MaxMachines:            license.Policy.MaxMachines,
-				MaxUses:                license.Policy.MaxUses,
-				MaxUsers:               license.Policy.MaxUsers,
-				HeartbeatDuration:      license.Policy.HeartbeatDuration,
-			},
-			LicenseProduct: models.LicenseProductOutput{
-				Name:                 license.Product.Name,
-				DistributionStrategy: license.Product.DistributionStrategy,
-				Code:                 license.Product.Code,
-				URL:                  license.Product.URL,
-				Platforms:            license.Product.Platforms,
-				Metadata:             license.Product.Metadata,
-				CreatedAt:            license.Product.CreatedAt,
-				UpdatedAt:            license.Product.UpdatedAt,
-			},
-		}
-	case constants.LicenseActionReinstate:
-		output, err := svc.reinstateLicense(ctx, license)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			switch {
-			case errors.Is(err, comerrors.ErrLicenseStatusInvalidToReinstate):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
-				return resp, comerrors.ErrLicenseStatusInvalidToReinstate
-			default:
+		case constants.LicenseActionSuspend:
+			output, err = svc.suspendLicense(ctx, license)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
+				switch {
+				case errors.Is(err, comerrors.ErrLicenseNotActivated):
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseNotActivated]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseNotActivated]
+					return resp, comerrors.ErrLicenseNotActivated
+				default:
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+					return resp, comerrors.ErrGenericInternalServer
+				}
+			}
+		case constants.LicenseActionReinstate:
+			output, err = svc.reinstateLicense(ctx, license)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
+				switch {
+				case errors.Is(err, comerrors.ErrLicenseStatusInvalidToReinstate):
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
+					return resp, comerrors.ErrLicenseStatusInvalidToReinstate
+				default:
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+					return resp, comerrors.ErrGenericInternalServer
+				}
+			}
+		case constants.LicenseActionRenew:
+			output, err = svc.renewLicense(ctx, license)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
 				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 				return resp, comerrors.ErrGenericInternalServer
 			}
-		}
-		resp.Data = models.LicenseInfoOutput{
-			LicenseID:      output.ID.String(),
-			ProductID:      output.ProductID.String(),
-			PolicyID:       output.PolicyID.String(),
-			Name:           output.Name,
-			LicenseKey:     output.Key,
-			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
-			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
-			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
-			Status:         output.Status,
-			Metadata:       output.Metadata,
-			Expiry:         output.Expiry,
-			CreatedAt:      output.CreatedAt,
-			UpdatedAt:      output.UpdatedAt,
-			LicensePolicy: models.LicensePolicyOutput{
-				PolicyScheme:           license.Policy.Scheme,
-				PolicyPublicKey:        license.Policy.PublicKey,
-				ExpirationStrategy:     license.Policy.ExpirationStrategy,
-				ExpirationBasis:        license.Policy.ExpirationBasis,
-				AuthenticationStrategy: license.Policy.AuthenticationStrategy,
-				CheckInInterval:        license.Policy.CheckInInterval,
-				OverageStrategy:        license.Policy.OverageStrategy,
-				HeartbeatBasis:         license.Policy.HeartbeatBasis,
-				RenewalBasis:           license.Policy.RenewalBasis,
-				RequireCheckIn:         license.Policy.RequireCheckIn,
-				RequireHeartbeat:       license.Policy.RequireHeartbeat,
-				Strict:                 license.Policy.Strict,
-				Floating:               license.Policy.Floating,
-				UsePool:                license.Policy.UsePool,
-				RateLimited:            license.Policy.RateLimited,
-				Encrypted:              license.Policy.Encrypted,
-				Protected:              license.Policy.Protected,
-				Duration:               license.Policy.Duration,
-				MaxMachines:            license.Policy.MaxMachines,
-				MaxUses:                license.Policy.MaxUses,
-				MaxUsers:               license.Policy.MaxUsers,
-				HeartbeatDuration:      license.Policy.HeartbeatDuration,
-			},
-			LicenseProduct: models.LicenseProductOutput{
-				Name:                 license.Product.Name,
-				DistributionStrategy: license.Product.DistributionStrategy,
-				Code:                 license.Product.Code,
-				URL:                  license.Product.URL,
-				Platforms:            license.Product.Platforms,
-				Metadata:             license.Product.Metadata,
-				CreatedAt:            license.Product.CreatedAt,
-				UpdatedAt:            license.Product.UpdatedAt,
-			},
-		}
-	case constants.LicenseActionRenew:
-		output, err := svc.renewLicense(ctx, license)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
-		}
-		resp.Data = models.LicenseInfoOutput{
-			LicenseID:      output.ID.String(),
-			ProductID:      output.ProductID.String(),
-			PolicyID:       output.PolicyID.String(),
-			Name:           output.Name,
-			LicenseKey:     output.Key,
-			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
-			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
-			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
-			Status:         output.Status,
-			Metadata:       output.Metadata,
-			Expiry:         output.Expiry,
-			CreatedAt:      output.CreatedAt,
-			UpdatedAt:      output.UpdatedAt,
-			LicensePolicy: models.LicensePolicyOutput{
-				PolicyScheme:           license.Policy.Scheme,
-				PolicyPublicKey:        license.Policy.PublicKey,
-				ExpirationStrategy:     license.Policy.ExpirationStrategy,
-				ExpirationBasis:        license.Policy.ExpirationBasis,
-				AuthenticationStrategy: license.Policy.AuthenticationStrategy,
-				CheckInInterval:        license.Policy.CheckInInterval,
-				OverageStrategy:        license.Policy.OverageStrategy,
-				HeartbeatBasis:         license.Policy.HeartbeatBasis,
-				RenewalBasis:           license.Policy.RenewalBasis,
-				RequireCheckIn:         license.Policy.RequireCheckIn,
-				RequireHeartbeat:       license.Policy.RequireHeartbeat,
-				Strict:                 license.Policy.Strict,
-				Floating:               license.Policy.Floating,
-				UsePool:                license.Policy.UsePool,
-				RateLimited:            license.Policy.RateLimited,
-				Encrypted:              license.Policy.Encrypted,
-				Protected:              license.Policy.Protected,
-				Duration:               license.Policy.Duration,
-				MaxMachines:            license.Policy.MaxMachines,
-				MaxUses:                license.Policy.MaxUses,
-				MaxUsers:               license.Policy.MaxUsers,
-				HeartbeatDuration:      license.Policy.HeartbeatDuration,
-			},
-			LicenseProduct: models.LicenseProductOutput{
-				Name:                 license.Product.Name,
-				DistributionStrategy: license.Product.DistributionStrategy,
-				Code:                 license.Product.Code,
-				URL:                  license.Product.URL,
-				Platforms:            license.Product.Platforms,
-				Metadata:             license.Product.Metadata,
-				CreatedAt:            license.Product.CreatedAt,
-				UpdatedAt:            license.Product.UpdatedAt,
-			},
-		}
-	case constants.LicenseActionIncrementUsage:
-		output, err := svc.incrementUsageLicense(ctx, utils.DerefPointer(input.Increment), license)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			switch {
-			case errors.Is(err, comerrors.ErrLicenseMaxUsesExceeded):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxUsesExceeded]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxUsesExceeded]
-				return resp, comerrors.ErrLicenseMaxUsesExceeded
-			default:
+		case constants.LicenseActionIncrementUsage:
+			output, err = svc.incrementUsageLicense(ctx, utils.DerefPointer(input.Increment), license)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
+				switch {
+				case errors.Is(err, comerrors.ErrLicenseMaxUsesExceeded):
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxUsesExceeded]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxUsesExceeded]
+					return resp, comerrors.ErrLicenseMaxUsesExceeded
+				default:
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+					return resp, comerrors.ErrGenericInternalServer
+				}
+			}
+		case constants.LicenseActionDecrementUsage:
+			output, err = svc.decrementUsageLicense(ctx, utils.DerefPointer(input.Decrement), license)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
+				switch {
+				case errors.Is(err, comerrors.ErrLicenseIncrementIsInvalid):
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIncrementIsInvalid]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIncrementIsInvalid]
+					return resp, comerrors.ErrLicenseIncrementIsInvalid
+				default:
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+					return resp, comerrors.ErrGenericInternalServer
+				}
+			}
+		case constants.LicenseActionResetUsage:
+			output, err = svc.resetUsageLicense(ctx, license)
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
 				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
 				return resp, comerrors.ErrGenericInternalServer
 			}
-		}
-		resp.Data = models.LicenseInfoOutput{
-			LicenseID:      output.ID.String(),
-			ProductID:      output.ProductID.String(),
-			PolicyID:       output.PolicyID.String(),
-			Name:           output.Name,
-			LicenseKey:     output.Key,
-			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
-			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
-			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
-			Status:         output.Status,
-			Metadata:       output.Metadata,
-			Expiry:         output.Expiry,
-			CreatedAt:      output.CreatedAt,
-			UpdatedAt:      output.UpdatedAt,
-			LicensePolicy: models.LicensePolicyOutput{
-				PolicyScheme:           license.Policy.Scheme,
-				PolicyPublicKey:        license.Policy.PublicKey,
-				ExpirationStrategy:     license.Policy.ExpirationStrategy,
-				ExpirationBasis:        license.Policy.ExpirationBasis,
-				AuthenticationStrategy: license.Policy.AuthenticationStrategy,
-				CheckInInterval:        license.Policy.CheckInInterval,
-				OverageStrategy:        license.Policy.OverageStrategy,
-				HeartbeatBasis:         license.Policy.HeartbeatBasis,
-				RenewalBasis:           license.Policy.RenewalBasis,
-				RequireCheckIn:         license.Policy.RequireCheckIn,
-				RequireHeartbeat:       license.Policy.RequireHeartbeat,
-				Strict:                 license.Policy.Strict,
-				Floating:               license.Policy.Floating,
-				UsePool:                license.Policy.UsePool,
-				RateLimited:            license.Policy.RateLimited,
-				Encrypted:              license.Policy.Encrypted,
-				Protected:              license.Policy.Protected,
-				Duration:               license.Policy.Duration,
-				MaxMachines:            license.Policy.MaxMachines,
-				MaxUses:                license.Policy.MaxUses,
-				MaxUsers:               license.Policy.MaxUsers,
-				HeartbeatDuration:      license.Policy.HeartbeatDuration,
-			},
-			LicenseProduct: models.LicenseProductOutput{
-				Name:                 license.Product.Name,
-				DistributionStrategy: license.Product.DistributionStrategy,
-				Code:                 license.Product.Code,
-				URL:                  license.Product.URL,
-				Platforms:            license.Product.Platforms,
-				Metadata:             license.Product.Metadata,
-				CreatedAt:            license.Product.CreatedAt,
-				UpdatedAt:            license.Product.UpdatedAt,
-			},
-		}
-	case constants.LicenseActionDecrementUsage:
-		output, err := svc.decrementUsageLicense(ctx, utils.DerefPointer(input.Decrement), license)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			switch {
-			case errors.Is(err, comerrors.ErrLicenseIncrementIsInvalid):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIncrementIsInvalid]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIncrementIsInvalid]
-				return resp, comerrors.ErrLicenseIncrementIsInvalid
-			default:
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
-			}
-		}
-		resp.Data = models.LicenseInfoOutput{
-			LicenseID:      output.ID.String(),
-			ProductID:      output.ProductID.String(),
-			PolicyID:       output.PolicyID.String(),
-			Name:           output.Name,
-			LicenseKey:     output.Key,
-			MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(output.Key))),
-			Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(output.Key))),
-			Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(output.Key))),
-			Status:         output.Status,
-			Metadata:       output.Metadata,
-			Expiry:         output.Expiry,
-			CreatedAt:      output.CreatedAt,
-			UpdatedAt:      output.UpdatedAt,
-			LicensePolicy: models.LicensePolicyOutput{
-				PolicyScheme:           license.Policy.Scheme,
-				PolicyPublicKey:        license.Policy.PublicKey,
-				ExpirationStrategy:     license.Policy.ExpirationStrategy,
-				ExpirationBasis:        license.Policy.ExpirationBasis,
-				AuthenticationStrategy: license.Policy.AuthenticationStrategy,
-				CheckInInterval:        license.Policy.CheckInInterval,
-				OverageStrategy:        license.Policy.OverageStrategy,
-				HeartbeatBasis:         license.Policy.HeartbeatBasis,
-				RenewalBasis:           license.Policy.RenewalBasis,
-				RequireCheckIn:         license.Policy.RequireCheckIn,
-				RequireHeartbeat:       license.Policy.RequireHeartbeat,
-				Strict:                 license.Policy.Strict,
-				Floating:               license.Policy.Floating,
-				UsePool:                license.Policy.UsePool,
-				RateLimited:            license.Policy.RateLimited,
-				Encrypted:              license.Policy.Encrypted,
-				Protected:              license.Policy.Protected,
-				Duration:               license.Policy.Duration,
-				MaxMachines:            license.Policy.MaxMachines,
-				MaxUses:                license.Policy.MaxUses,
-				MaxUsers:               license.Policy.MaxUsers,
-				HeartbeatDuration:      license.Policy.HeartbeatDuration,
-			},
-			LicenseProduct: models.LicenseProductOutput{
-				Name:                 license.Product.Name,
-				DistributionStrategy: license.Product.DistributionStrategy,
-				Code:                 license.Product.Code,
-				URL:                  license.Product.URL,
-				Platforms:            license.Product.Platforms,
-				Metadata:             license.Product.Metadata,
-				CreatedAt:            license.Product.CreatedAt,
-				UpdatedAt:            license.Product.UpdatedAt,
-			},
-		}
-	case constants.LicenseActionResetUsage:
-		output, err := svc.resetUsageLicense(ctx, license)
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
 		}
 		resp.Data = models.LicenseInfoOutput{
 			LicenseID:      output.ID.String(),
