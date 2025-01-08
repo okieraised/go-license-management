@@ -116,7 +116,7 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	}
 
 	machine.LastCheckOutAt = time.Now()
-	err = svc.repo.UpdateMachineByPK(ctx, machine)
+	machine, err = svc.repo.UpdateMachineByPK(ctx, machine)
 	if err != nil {
 		return nil, err
 	}
@@ -136,27 +136,26 @@ func (svc *MachineService) pingHeartbeat(ctx *gin.Context, input *models.Machine
 	}
 
 	machine.LastHeartbeatAt = time.Now()
-	err = svc.repo.UpdateMachineByPK(ctx, machine)
+	machine, err = svc.repo.UpdateMachineByPK(ctx, machine)
 	if err != nil {
 		return nil, err
 	}
 
 	return &models.MachineInfoOutput{
-		ID:                   machine.ID,
-		TenantName:           machine.TenantName,
-		LicenseKey:           machine.LicenseKey,
-		Fingerprint:          machine.Fingerprint,
-		IP:                   machine.IP,
-		Hostname:             machine.Hostname,
-		Platform:             machine.Platform,
-		Name:                 machine.Name,
-		Metadata:             machine.Metadata,
-		Cores:                machine.Cores,
-		LastHeartbeatAt:      machine.LastHeartbeatAt,
-		LastDeathEventSentAt: machine.LastDeathEventSentAt,
-		LastCheckOutAt:       machine.LastCheckOutAt,
-		CreatedAt:            machine.CreatedAt,
-		UpdatedAt:            machine.UpdatedAt,
+		ID:              machine.ID,
+		TenantName:      machine.TenantName,
+		LicenseKey:      machine.LicenseKey,
+		Fingerprint:     machine.Fingerprint,
+		IP:              machine.IP,
+		Hostname:        machine.Hostname,
+		Platform:        machine.Platform,
+		Name:            machine.Name,
+		Metadata:        machine.Metadata,
+		Cores:           machine.Cores,
+		LastHeartbeatAt: machine.LastHeartbeatAt,
+		LastCheckOutAt:  machine.LastCheckOutAt,
+		CreatedAt:       machine.CreatedAt,
+		UpdatedAt:       machine.UpdatedAt,
 	}, nil
 }
 
@@ -172,26 +171,25 @@ func (svc *MachineService) resetHeartbeat(ctx *gin.Context, input *models.Machin
 	}
 
 	machine.LastHeartbeatAt = time.Time{}
-	err = svc.repo.UpdateMachineByPK(ctx, machine)
+	machine, err = svc.repo.UpdateMachineByPK(ctx, machine)
 	if err != nil {
 		return nil, err
 	}
 
 	return &models.MachineInfoOutput{
-		ID:                   machine.ID,
-		TenantName:           machine.TenantName,
-		LicenseKey:           machine.LicenseKey,
-		Fingerprint:          machine.Fingerprint,
-		IP:                   machine.IP,
-		Hostname:             machine.Hostname,
-		Platform:             machine.Platform,
-		Name:                 machine.Name,
-		Metadata:             machine.Metadata,
-		Cores:                machine.Cores,
-		LastHeartbeatAt:      machine.LastHeartbeatAt,
-		LastDeathEventSentAt: machine.LastDeathEventSentAt,
-		LastCheckOutAt:       machine.LastCheckOutAt,
-		CreatedAt:            machine.CreatedAt,
-		UpdatedAt:            machine.UpdatedAt,
+		ID:              machine.ID,
+		TenantName:      machine.TenantName,
+		LicenseKey:      machine.LicenseKey,
+		Fingerprint:     machine.Fingerprint,
+		IP:              machine.IP,
+		Hostname:        machine.Hostname,
+		Platform:        machine.Platform,
+		Name:            machine.Name,
+		Metadata:        machine.Metadata,
+		Cores:           machine.Cores,
+		LastHeartbeatAt: machine.LastHeartbeatAt,
+		LastCheckOutAt:  machine.LastCheckOutAt,
+		CreatedAt:       machine.CreatedAt,
+		UpdatedAt:       machine.UpdatedAt,
 	}, nil
 }
