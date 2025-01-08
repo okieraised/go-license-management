@@ -174,6 +174,7 @@ func (r *PolicyRouter) update(ctx *gin.Context) {
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	r.logger.GetLogger().Info("validating policy update request")
 	var uriReq policy_attribute.PolicyCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
 	if err != nil {
@@ -268,6 +269,7 @@ func (r *PolicyRouter) retrieve(ctx *gin.Context) {
 	).Info("received new policy retrieval request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating policy retrieval request")
 	var req PolicyRetrievalRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
@@ -343,6 +345,7 @@ func (r *PolicyRouter) delete(ctx *gin.Context) {
 	).Info("received new policy deletion request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating policy deletion request")
 	var req PolicyDeletionRequest
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&req)
@@ -412,6 +415,7 @@ func (r *PolicyRouter) list(ctx *gin.Context) {
 	).Info("received new policy history request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating policy listing request")
 	var uriReq policy_attribute.PolicyCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&uriReq)
@@ -497,6 +501,7 @@ func (r *PolicyRouter) attach(ctx *gin.Context) {
 	).Info("received new policy entitlement attachment request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating policy attachment request")
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	var uriReq policy_attribute.PolicyCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
@@ -594,6 +599,7 @@ func (r *PolicyRouter) detach(ctx *gin.Context) {
 
 	// serializer
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
+	r.logger.GetLogger().Info("validating policy detachment request")
 	var uriReq policy_attribute.PolicyCommonURI
 	err := ctx.ShouldBindUri(&uriReq)
 	if err != nil {
@@ -689,6 +695,7 @@ func (r *PolicyRouter) listEntitlement(ctx *gin.Context) {
 	).Info("received new policy entitlement list request")
 
 	// serializer
+	r.logger.GetLogger().Info("validating policy entitlement listing request")
 	var uriReq policy_attribute.PolicyCommonURI
 	_, cSpan := r.tracer.Start(rootCtx, "serializer")
 	err := ctx.ShouldBindUri(&uriReq)

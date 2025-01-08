@@ -1,5 +1,4 @@
 [server]
-http_port=8888
 mode="debug"
 
 [postgres]

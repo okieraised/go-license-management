@@ -14,15 +14,17 @@ import (
 type PolicyRegistrationRequest struct {
 	ProductID *string `json:"product_id" validate:"required" example:"test"`
 	policy_attribute.PolicyAttributeModel
-	policy_attribute.PolicyCommonURI
 }
 
 func (req *PolicyRegistrationRequest) Validate() error {
-	// Must have
+	// Validate must-have field
+
+	// Policy name
 	if req.Name == nil {
 		return comerrors.ErrPolicyNameIsEmpty
 	}
 
+	// Product ID
 	if req.ProductID == nil {
 		return comerrors.ErrProductIDIsEmpty
 	}
@@ -31,13 +33,18 @@ func (req *PolicyRegistrationRequest) Validate() error {
 	if err != nil {
 		return comerrors.ErrProductIDIsInvalid
 	}
+
+	// Strict policy - all categories must valid in order for the license to be considered valid. Default: false
 	if req.Strict == nil {
 		req.Strict = utils.RefPointer(false)
 	}
+
+	// When true, license that implements the policy will be valid across multiple machines. Default: false
 	if req.Floating == nil {
 		req.Floating = utils.RefPointer(false)
 	}
 
+	// The encryption/signature scheme used on license keys. Default to ED25519
 	if req.Scheme == nil {
 		req.Scheme = utils.RefPointer(constants.PolicySchemeED25519)
 	} else {
@@ -46,6 +53,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// The strategy for expired licenses during a license validation.
 	if req.ExpirationStrategy == nil {
 		req.ExpirationStrategy = utils.RefPointer(constants.PolicyExpirationStrategyRevokeAccess)
 	} else {
@@ -54,6 +62,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// The strategy used for authenticating as a license, for client-side integrations.
 	if req.AuthenticationStrategy == nil {
 		req.AuthenticationStrategy = utils.RefPointer(constants.PolicyAuthenticationStrategyLicense)
 	} else {
@@ -62,6 +71,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// Control when a license's initial expiry is set.
 	if req.ExpirationBasis == nil {
 		req.ExpirationBasis = utils.RefPointer(constants.PolicyExpirationBasisFromCreation)
 	} else {
@@ -70,6 +80,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// The strategy used for allowing machine overages. Default to not allowed any overage
 	if req.OverageStrategy == nil {
 		req.OverageStrategy = utils.RefPointer(constants.PolicyOverageStrategyNoOverage)
 	} else {
@@ -78,6 +89,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// Control how a license's expiry is extended during renewal.
 	if req.RenewalBasis == nil {
 		req.RenewalBasis = utils.RefPointer(constants.PolicyRenewalBasisFromExpiry)
 	} else {
@@ -86,6 +98,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// Control when a machine's initial heartbeat is started.
 	if req.HeartbeatBasis == nil {
 		req.HeartbeatBasis = utils.RefPointer(constants.PolicyHeartbeatBasisFromCreation)
 	} else {
@@ -94,6 +107,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// Control the time duration between each checkin
 	if req.CheckInInterval == nil {
 		req.CheckInInterval = utils.RefPointer(constants.PolicyCheckinIntervalDaily)
 	} else {
@@ -102,26 +116,39 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
-	// Optional
+	// Optional parameters
+
+	// When true, require check-in at a predefined interval to continue to pass validation. Default: false
 	if req.RequireCheckIn == nil {
 		req.RequireCheckIn = utils.RefPointer(false)
 	}
+
+	// Whether the policy requires its machines to maintain a heartbeat.
 	if req.RequireHeartbeat == nil {
 		req.RequireHeartbeat = utils.RefPointer(false)
 	}
+
+	//  Whether to pull license keys from a finite pool of pre-determined keys
 	if req.UsePool == nil {
 		req.UsePool = utils.RefPointer(false)
 	}
+
+	//  Whether the policy is protected.
 	if req.Protected == nil {
 		req.Protected = utils.RefPointer(false)
 	}
+
+	// Whether the policy is for rate limiting feature. Default: false
 	if req.RateLimited == nil {
 		req.RateLimited = utils.RefPointer(false)
 	}
+
+	// Whether to encrypt the license file
 	if req.Encrypted == nil {
 		req.Encrypted = utils.RefPointer(false)
 	}
 
+	// The length of time that a policy is valid. Zero value means there is no expiration
 	if req.Duration == nil {
 		req.Duration = utils.RefPointer(int64(0))
 	} else {
@@ -130,6 +157,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// The maximum number of machines a license implementing the policy can have associated with it.
 	if req.MaxMachines == nil {
 		req.MaxMachines = utils.RefPointer(0)
 	} else {
@@ -138,6 +166,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// The maximum number of uses a license implementing the policy can have.
 	if req.MaxUses == nil {
 		req.MaxUses = utils.RefPointer(0)
 	} else {
@@ -146,6 +175,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// The heartbeat duration for the policy, in seconds.
 	if req.HeartbeatDuration == nil {
 		req.HeartbeatDuration = utils.RefPointer(0)
 	} else {
@@ -154,6 +184,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
+	// The maximum number of users a license implementing the policy can have associated with it
 	if req.MaxUsers == nil {
 		req.MaxUsers = utils.RefPointer(0)
 	} else {

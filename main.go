@@ -99,7 +99,7 @@ func init() {
 func newDataSource() (*api.DataSource, error) {
 	dataSource := &api.DataSource{}
 
-	// tracer
+	// initialize tracer
 	err := tracer.NewTracerProvider(
 		viper.GetString(config.TracerURI),
 		constants.AppName,
@@ -109,10 +109,10 @@ func newDataSource() (*api.DataSource, error) {
 		return dataSource, err
 	}
 
-	// database
+	// initialize database
 	dataSource.SetDatabase(postgres.GetInstance())
 
-	// casbin adapter
+	// initialize casbin adapter
 	dataSource.SetCasbin(casbin_adapter.GetAdapter())
 
 	return dataSource, nil

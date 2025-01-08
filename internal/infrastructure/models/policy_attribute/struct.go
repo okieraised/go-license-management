@@ -43,10 +43,10 @@ type PolicyAttributeModel struct {
 	Duration               *int64                 `json:"duration" validate:"optional"`                // Duration: The length of time that a policy is valid
 	CheckInInterval        *string                `json:"check_in_interval" validate:"optional"`       // CheckInInterval: The time duration between each checkin
 	HeartbeatBasis         *string                `json:"heartbeat_basis" validate:"optional"`         // HeartbeatBasis: Control when a machine's initial heartbeat is started.
-	ExpirationStrategy     *string                `json:"expiration_strategy" validate:"optional"`     // ExpirationStrategy: The strategy for expired licenses during a license validation and when accessing releases.
+	ExpirationStrategy     *string                `json:"expiration_strategy" validate:"optional"`     // ExpirationStrategy: The strategy for expired licenses during a license validation.
 	ExpirationBasis        *string                `json:"expiration_basis" validate:"optional"`        // ExpirationBasis: Control when a license's initial expiry is set.
 	RenewalBasis           *string                `json:"renewal_basis" validate:"optional"`           // RenewalBasis: Control how a license's expiry is extended during renewal.
 	AuthenticationStrategy *string                `json:"authentication_strategy" validate:"optional"` // AuthenticationStrategy: The strategy used for authenticating as a license, for client-side integrations.
-	OverageStrategy        *string                `json:"overage_strategy" validate:"optional"`        // OverageStrategy: The strategy used for allowing machine, core and process overages.
+	OverageStrategy        *string                `json:"overage_strategy" validate:"optional"`        // OverageStrategy: The strategy used for allowing machine overages.
 	Metadata               map[string]interface{} `json:"metadata" validate:"optional"`                // Metadata: Policy metadata.
 }

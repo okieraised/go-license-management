@@ -69,8 +69,8 @@ func StartServer(appService *api.AppService, quit chan os.Signal) {
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logging.GetInstance().GetLogger().Error(err.Error())
 		}
-		logging.GetInstance().GetLogger().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
 	}()
+	logging.GetInstance().GetLogger().Info(fmt.Sprintf("startup completed at: %s", serverAddr))
 
 	<-quit
 
