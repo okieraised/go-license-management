@@ -86,8 +86,6 @@ type MachineActionsInput struct {
 }
 
 type MachineActionCheckoutOutput struct {
-	ID          uuid.UUID `json:"id"`
-	Type        string    `json:"type"`
 	Certificate string    `json:"certificate"`
 	TTL         int       `json:"ttl"`
 	IssuedAt    time.Time `json:"issued_at"`

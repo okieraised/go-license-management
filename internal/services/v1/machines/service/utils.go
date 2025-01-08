@@ -1,7 +1,6 @@
 package service
 
 import (
-	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
@@ -28,16 +27,9 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 			return nil, err
 		}
 	}
-	// Query license info
-	license, err := svc.repo.SelectLicenseByPK(ctx, machine.LicenseID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, sql.ErrNoRows
-		} else {
-			return nil, err
-		}
-	}
+
 	// Query policy
+	license := machine.License
 	policy, err := svc.repo.SelectPolicyByPK(ctx, license.PolicyID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -51,34 +43,37 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	expiredAt := issuedAt.Add(time.Duration(ttl) * time.Second)
 	alg := policy.Scheme
 
-	licenseContent := machine_attribute.MachineLicenseField{
-		TenantName:         machine.TenantName,
-		ProductID:          policy.ProductID.String(),
-		PolicyID:           policy.ID.String(),
-		LicenseID:          license.ID.String(),
-		MachineFingerprint: machine.Fingerprint,
-		Metadata: map[string]interface{}{
-			"machine": &machine,
-		},
-		TTL:       ttl,
-		Expiry:    expiredAt,
-		CreatedAt: issuedAt,
+	machineContent := models.MachineInfoOutput{
+		ID:              machine.ID,
+		LicenseKey:      machine.LicenseKey,
+		TenantName:      machine.TenantName,
+		Fingerprint:     machine.Fingerprint,
+		IP:              machine.IP,
+		Hostname:        machine.Hostname,
+		Platform:        machine.Platform,
+		Name:            machine.Name,
+		Metadata:        machine.Metadata,
+		Cores:           machine.Cores,
+		LastHeartbeatAt: machine.LastHeartbeatAt,
+		LastCheckOutAt:  machine.LastCheckOutAt,
+		CreatedAt:       machine.CreatedAt,
+		UpdatedAt:       machine.UpdatedAt,
 	}
 
 	svc.logger.GetLogger().Info(fmt.Sprintf("generate new machine file using [%s] scheme", alg))
 	var machineLicense string
 	switch alg {
 	case constants.PolicySchemeED25519:
-		machineLicense, err = utils.NewLicenseKeyWithEd25519(policy.PrivateKey, licenseContent)
+		machineLicense, err = utils.NewLicenseKeyWithEd25519(policy.PrivateKey, machineContent)
 	case constants.PolicySchemeRSA2048PKCS1:
-		machineLicense, err = utils.NewLicenseKeyWithRSA2048PKCS1(policy.PrivateKey, licenseContent)
+		machineLicense, err = utils.NewLicenseKeyWithRSA2048PKCS1(policy.PrivateKey, machineContent)
 	}
 	if err != nil {
 		return nil, err
 	}
 	parts := strings.Split(machineLicense, ".")
-	signature := parts[1]
-	encoded := parts[0]
+	signature := parts[0]
+	encoded := parts[1]
 
 	jsonMachineCert := machine_attribute.MachineLicenseFileContent{
 		Enc: encoded,
@@ -90,25 +85,10 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 		return nil, err
 	}
 	// convert the cert to base64
-	b64MachineCert := base64.StdEncoding.EncodeToString(bMachineCert)
+	machineCert := base64.StdEncoding.EncodeToString(bMachineCert)
 
-	// generate encryption key from hash of signature and machine fingerprint
-	svc.logger.GetLogger().Info(fmt.Sprintf("encrypting machine file for machine [%s]", machine.ID.String()))
-	h := sha256.New()
-	h.Write([]byte(signature + machine.Fingerprint))
-	sha := h.Sum(nil)
-
-	// (FE) public key -> sign request body -> services decrypt
-
-	encryptedMachineCert, err := utils.Encrypt([]byte(b64MachineCert), sha)
-	if err != nil {
-		return nil, err
-	}
-
-	finalCertificate := fmt.Sprintf(constants.MachineFileFormat, base64.StdEncoding.EncodeToString(encryptedMachineCert))
+	finalCertificate := fmt.Sprintf(constants.MachineFileFormat, machineCert)
 	output := &models.MachineActionCheckoutOutput{
-		ID:          machine.ID,
-		Type:        "machine",
 		Certificate: finalCertificate,
 		TTL:         ttl,
 		IssuedAt:    issuedAt,

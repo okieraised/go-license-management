@@ -404,8 +404,8 @@ func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.L
 	return &models.LicenseActionCheckoutOutput{
 		Certificate: licenseCert,
 		TTL:         ttl,
-		Expiry:      expiry,
-		Issued:      issued,
+		ExpiryAt:    expiry,
+		IssuedAt:    issued,
 	}, nil
 }
 

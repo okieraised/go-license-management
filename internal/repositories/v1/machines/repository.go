@@ -185,7 +185,7 @@ func (repo *MachineRepository) SelectLicenseByLicenseKey(ctx context.Context, li
 
 	license := &entities.License{Key: licenseKey}
 
-	err := repo.database.NewSelect().Model(license).Where("key = ?", licenseKey).Scan(ctx)
+	err := repo.database.NewSelect().Model(license).Relation("Policy").Relation("Product").Where("key = ?", licenseKey).Scan(ctx)
 	if err != nil {
 		return license, err
 	}
@@ -295,6 +295,9 @@ func (repo *MachineRepository) UpdateMachineByPKAndLicense(ctx context.Context, 
 	if newLicense != nil {
 		currentLicense.UpdatedAt = time.Now()
 		currentLicense.MachinesCount -= 1
+		if currentLicense.MachinesCount == 0 {
+			currentLicense.Status = constants.LicenseStatusInactive
+		}
 		_, err = tx.NewUpdate().Model(currentLicense).WherePK().Exec(ctx)
 		if err != nil {
 			_ = tx.Rollback()

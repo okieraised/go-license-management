@@ -123,6 +123,16 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 		return resp, comerrors.ErrMachineFingerprintAssociatedWithLicense
 	}
 
+	// Check max machine of the license
+	if license.MachinesCount != 0 {
+		if license.MachinesCount+1 > license.MaxMachines && license.Policy.OverageStrategy == constants.PolicyOverageStrategyNoOverage {
+			svc.logger.GetLogger().Error("license max machine exceeded")
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxMachineExceeded]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxMachineExceeded]
+			return resp, comerrors.ErrLicenseMaxMachineExceeded
+		}
+	}
+
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-machine")
 	machineID := uuid.New()
 	now := time.Now()
@@ -302,6 +312,14 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseHasExpired]
 				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseHasExpired]
 				return resp, comerrors.ErrLicenseHasExpired
+			}
+			if license.MachinesCount != 0 {
+				if license.MachinesCount+1 > license.MaxMachines && license.Policy.OverageStrategy == constants.PolicyOverageStrategyNoOverage {
+					svc.logger.GetLogger().Error("license max machine exceeded")
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxMachineExceeded]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxMachineExceeded]
+					return resp, comerrors.ErrLicenseMaxMachineExceeded
+				}
 			}
 
 			machine.LicenseKey = utils.DerefPointer(input.LicenseKey)
@@ -615,11 +633,6 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 		}
 		resp.Data = respData
 		cSpan.End()
-	default:
-		svc.logger.GetLogger().Error(fmt.Sprintf("invalid machine action [%s]", utils.DerefPointer(input.MachineAction)))
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineActionIsInvalid]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineActionIsInvalid]
-		return resp, comerrors.ErrMachineActionIsInvalid
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]

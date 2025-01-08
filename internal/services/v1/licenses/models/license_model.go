@@ -126,6 +126,6 @@ type LicenseValidationOutput struct {
 type LicenseActionCheckoutOutput struct {
 	Certificate string    `json:"certificate"`
 	TTL         int       `json:"ttl"`
-	Expiry      time.Time `json:"expiry"`
-	Issued      time.Time `json:"issued"`
+	ExpiryAt    time.Time `json:"expiry_at"`
+	IssuedAt    time.Time `json:"issued_at"`
 }
