@@ -86,6 +86,7 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	}
 	cSpan.End()
 
+	// If license status is either suspended, banned, or expired, return error
 	if license.Suspended {
 		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsSuspended]
 		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsSuspended]
@@ -167,21 +168,20 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	cSpan.End()
 
 	respData := models.MachineInfoOutput{
-		ID:                   machine.ID,
-		TenantName:           machine.TenantName,
-		LicenseKey:           machine.LicenseKey,
-		Fingerprint:          machine.Fingerprint,
-		IP:                   machine.IP,
-		Hostname:             machine.Hostname,
-		Platform:             machine.Platform,
-		Name:                 machine.Name,
-		Metadata:             machine.Metadata,
-		Cores:                machine.Cores,
-		LastHeartbeatAt:      machine.LastHeartbeatAt,
-		LastDeathEventSentAt: machine.LastDeathEventSentAt,
-		LastCheckOutAt:       machine.LastCheckOutAt,
-		CreatedAt:            machine.CreatedAt,
-		UpdatedAt:            machine.UpdatedAt,
+		ID:              machine.ID,
+		TenantName:      machine.TenantName,
+		LicenseKey:      machine.LicenseKey,
+		Fingerprint:     machine.Fingerprint,
+		IP:              machine.IP,
+		Hostname:        machine.Hostname,
+		Platform:        machine.Platform,
+		Name:            machine.Name,
+		Metadata:        machine.Metadata,
+		Cores:           machine.Cores,
+		LastHeartbeatAt: machine.LastHeartbeatAt,
+		LastCheckOutAt:  machine.LastCheckOutAt,
+		CreatedAt:       machine.CreatedAt,
+		UpdatedAt:       machine.UpdatedAt,
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
@@ -263,46 +263,54 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 		machine.Fingerprint = utils.DerefPointer(input.Fingerprint)
 	}
 
+	// Update license key if specified
+	currentLicense := machine.License
+	var newLicense *entities.License
 	if input.LicenseKey != nil {
-		_, cSpan = input.Tracer.Start(rootCtx, "query-license-id")
-		license, err := svc.repo.SelectLicenseByLicenseKey(ctx, utils.DerefPointer(input.LicenseKey))
-		if err != nil {
-			svc.logger.GetLogger().Error(err.Error())
-			cSpan.End()
-			switch {
-			case errors.Is(err, sql.ErrNoRows):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineLicenseIsInvalid]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineLicenseIsInvalid]
-				return resp, comerrors.ErrMachineLicenseIsInvalid
-			default:
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+		// Only update if license key is different from the current key
+		if machine.LicenseKey != utils.DerefPointer(input.LicenseKey) {
+			_, cSpan = input.Tracer.Start(rootCtx, "query-license-id")
+			license, err := svc.repo.SelectLicenseByLicenseKey(ctx, utils.DerefPointer(input.LicenseKey))
+			if err != nil {
+				svc.logger.GetLogger().Error(err.Error())
+				cSpan.End()
+				switch {
+				case errors.Is(err, sql.ErrNoRows):
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseKeyIsInvalid]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseKeyIsInvalid]
+					return resp, comerrors.ErrLicenseKeyIsInvalid
+				default:
+					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
+					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
+					return resp, comerrors.ErrGenericInternalServer
+				}
 			}
-		}
-		cSpan.End()
-		if license.Suspended {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsSuspended]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsSuspended]
-			return resp, comerrors.ErrLicenseIsSuspended
-		}
+			cSpan.End()
+			if license.Suspended {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsSuspended]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsSuspended]
+				return resp, comerrors.ErrLicenseIsSuspended
+			}
 
-		if license.Status == constants.LicenseStatusBanned {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsBanned]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsBanned]
-			return resp, comerrors.ErrLicenseIsBanned
-		}
+			if license.Status == constants.LicenseStatusBanned {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsBanned]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsBanned]
+				return resp, comerrors.ErrLicenseIsBanned
+			}
 
-		if license.Status == constants.LicenseStatusExpired {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseHasExpired]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseHasExpired]
-			return resp, comerrors.ErrLicenseHasExpired
-		}
+			if license.Status == constants.LicenseStatusExpired {
+				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseHasExpired]
+				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseHasExpired]
+				return resp, comerrors.ErrLicenseHasExpired
+			}
 
-		machine.LicenseKey = utils.DerefPointer(input.LicenseKey)
+			machine.LicenseKey = utils.DerefPointer(input.LicenseKey)
+			newLicense = license
+		}
 	}
 
-	err = svc.repo.UpdateMachineByPK(ctx, machine)
+	_, cSpan = input.Tracer.Start(rootCtx, "update-machine")
+	machine, err = svc.repo.UpdateMachineByPKAndLicense(ctx, machine, currentLicense, newLicense)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
@@ -313,21 +321,20 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 	cSpan.End()
 
 	respData := models.MachineInfoOutput{
-		ID:                   machine.ID,
-		TenantName:           machine.TenantName,
-		LicenseKey:           machine.LicenseKey,
-		Fingerprint:          machine.Fingerprint,
-		IP:                   machine.IP,
-		Hostname:             machine.Hostname,
-		Platform:             machine.Platform,
-		Name:                 machine.Name,
-		Metadata:             machine.Metadata,
-		Cores:                machine.Cores,
-		LastHeartbeatAt:      machine.LastHeartbeatAt,
-		LastDeathEventSentAt: machine.LastDeathEventSentAt,
-		LastCheckOutAt:       machine.LastCheckOutAt,
-		CreatedAt:            machine.CreatedAt,
-		UpdatedAt:            machine.UpdatedAt,
+		ID:              machine.ID,
+		TenantName:      machine.TenantName,
+		LicenseKey:      machine.LicenseKey,
+		Fingerprint:     machine.Fingerprint,
+		IP:              machine.IP,
+		Hostname:        machine.Hostname,
+		Platform:        machine.Platform,
+		Name:            machine.Name,
+		Metadata:        machine.Metadata,
+		Cores:           machine.Cores,
+		LastHeartbeatAt: machine.LastHeartbeatAt,
+		LastCheckOutAt:  machine.LastCheckOutAt,
+		CreatedAt:       machine.CreatedAt,
+		UpdatedAt:       machine.UpdatedAt,
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
@@ -383,21 +390,20 @@ func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetri
 	cSpan.End()
 
 	respData := &models.MachineInfoOutput{
-		ID:                   machine.ID,
-		TenantName:           machine.TenantName,
-		LicenseKey:           machine.LicenseKey,
-		Fingerprint:          machine.Fingerprint,
-		IP:                   machine.IP,
-		Hostname:             machine.Hostname,
-		Platform:             machine.Platform,
-		Name:                 machine.Name,
-		Metadata:             machine.Metadata,
-		Cores:                machine.Cores,
-		LastHeartbeatAt:      machine.LastHeartbeatAt,
-		LastDeathEventSentAt: machine.LastDeathEventSentAt,
-		LastCheckOutAt:       machine.LastCheckOutAt,
-		CreatedAt:            machine.CreatedAt,
-		UpdatedAt:            machine.UpdatedAt,
+		ID:              machine.ID,
+		TenantName:      machine.TenantName,
+		LicenseKey:      machine.LicenseKey,
+		Fingerprint:     machine.Fingerprint,
+		IP:              machine.IP,
+		Hostname:        machine.Hostname,
+		Platform:        machine.Platform,
+		Name:            machine.Name,
+		Metadata:        machine.Metadata,
+		Cores:           machine.Cores,
+		LastHeartbeatAt: machine.LastHeartbeatAt,
+		LastCheckOutAt:  machine.LastCheckOutAt,
+		CreatedAt:       machine.CreatedAt,
+		UpdatedAt:       machine.UpdatedAt,
 	}
 
 	resp.Code = comerrors.ErrCodeMapper[nil]
@@ -498,22 +504,21 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 	machineOutput := make([]models.MachineListOutput, 0)
 	for _, machine := range machines {
 		machineOutput = append(machineOutput, models.MachineListOutput{
-			ID:                   machine.ID,
-			LicenseID:            machine.LicenseID,
-			LicenseKey:           machine.LicenseKey,
-			TenantName:           machine.TenantName,
-			Fingerprint:          machine.Fingerprint,
-			IP:                   machine.IP,
-			Hostname:             machine.Hostname,
-			Platform:             machine.Platform,
-			Name:                 machine.Name,
-			Metadata:             machine.Metadata,
-			Cores:                machine.Cores,
-			LastHeartbeatAt:      machine.LastHeartbeatAt,
-			LastDeathEventSentAt: machine.LastDeathEventSentAt,
-			LastCheckOutAt:       machine.LastCheckOutAt,
-			CreatedAt:            machine.CreatedAt,
-			UpdatedAt:            machine.UpdatedAt,
+			ID:              machine.ID,
+			LicenseID:       machine.LicenseID,
+			LicenseKey:      machine.LicenseKey,
+			TenantName:      machine.TenantName,
+			Fingerprint:     machine.Fingerprint,
+			IP:              machine.IP,
+			Hostname:        machine.Hostname,
+			Platform:        machine.Platform,
+			Name:            machine.Name,
+			Metadata:        machine.Metadata,
+			Cores:           machine.Cores,
+			LastHeartbeatAt: machine.LastHeartbeatAt,
+			LastCheckOutAt:  machine.LastCheckOutAt,
+			CreatedAt:       machine.CreatedAt,
+			UpdatedAt:       machine.UpdatedAt,
 		})
 	}
 

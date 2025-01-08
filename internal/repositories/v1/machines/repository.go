@@ -45,7 +45,7 @@ func (repo *MachineRepository) SelectMachineByPK(ctx context.Context, machineID 
 
 	machine := &entities.Machine{ID: machineID}
 
-	err := repo.database.NewSelect().Model(machine).WherePK().Scan(ctx)
+	err := repo.database.NewSelect().Model(machine).Relation("License").WherePK().Scan(ctx)
 	if err != nil {
 		return machine, err
 	}
@@ -246,9 +246,9 @@ func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Cont
 
 	if license.Status == constants.LicenseStatusNotActivated || license.Status == constants.LicenseStatusInactive {
 		license.Status = constants.LicenseStatusActive
-		license.UpdatedAt = time.Now()
-		license.MachinesCount += 1
 	}
+	license.UpdatedAt = time.Now()
+	license.MachinesCount += 1
 
 	_, err = tx.NewUpdate().Model(license).WherePK().Exec(ctx)
 	if err != nil {
@@ -265,15 +265,58 @@ func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Cont
 	return nil
 }
 
-func (repo *MachineRepository) UpdateMachineByPK(ctx context.Context, machine *entities.Machine) error {
+func (repo *MachineRepository) UpdateMachineByPK(ctx context.Context, machine *entities.Machine) (*entities.Machine, error) {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return machine, comerrors.ErrInvalidDatabaseClient
 	}
 
 	machine.UpdatedAt = time.Now()
 	_, err := repo.database.NewUpdate().Model(machine).WherePK().Exec(ctx)
 	if err != nil {
-		return err
+		return machine, err
 	}
-	return nil
+	return machine, nil
+}
+
+func (repo *MachineRepository) UpdateMachineByPKAndLicense(ctx context.Context, machine *entities.Machine, currentLicense, newLicense *entities.License) (*entities.Machine, error) {
+	if repo.database == nil {
+		return machine, comerrors.ErrInvalidDatabaseClient
+	}
+
+	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})
+	defer func() {
+		cErr := tx.Commit()
+		if cErr != nil && err == nil {
+			err = cErr
+		}
+	}()
+
+	// Only perform update on license if the new license is not nil
+	if newLicense != nil {
+		currentLicense.UpdatedAt = time.Now()
+		currentLicense.MachinesCount -= 1
+		_, err = tx.NewUpdate().Model(currentLicense).WherePK().Exec(ctx)
+		if err != nil {
+			_ = tx.Rollback()
+			return machine, err
+		}
+
+		if newLicense.Status == constants.LicenseStatusNotActivated || newLicense.Status == constants.LicenseStatusInactive {
+			newLicense.Status = constants.LicenseStatusActive
+		}
+		newLicense.UpdatedAt = time.Now()
+		newLicense.MachinesCount += 1
+		_, err = tx.NewUpdate().Model(newLicense).WherePK().Exec(ctx)
+		if err != nil {
+			_ = tx.Rollback()
+			return machine, err
+		}
+	}
+
+	machine.UpdatedAt = time.Now()
+	_, err = tx.NewUpdate().Model(machine).WherePK().Exec(ctx)
+	if err != nil {
+		return machine, err
+	}
+	return machine, nil
 }

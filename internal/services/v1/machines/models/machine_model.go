@@ -17,21 +17,20 @@ type MachineRegistrationInput struct {
 }
 
 type MachineInfoOutput struct {
-	ID                   uuid.UUID              `json:"id"`
-	LicenseKey           string                 `json:"license_key"`
-	TenantName           string                 `json:"tenant_name"`
-	Fingerprint          string                 `json:"fingerprint"`
-	IP                   string                 `json:"ip"`
-	Hostname             string                 `json:"hostname"`
-	Platform             string                 `json:"platform"`
-	Name                 string                 `json:"name"`
-	Metadata             map[string]interface{} `json:"metadata"`
-	Cores                int                    `json:"cores"`
-	LastHeartbeatAt      time.Time              `json:"last_heartbeat_at"`
-	LastDeathEventSentAt time.Time              `json:"last_death_event_sent_at"`
-	LastCheckOutAt       time.Time              `json:"last_check_out_at"`
-	CreatedAt            time.Time              `json:"created_at"`
-	UpdatedAt            time.Time              `json:"updated_at"`
+	ID              uuid.UUID              `json:"id"`
+	LicenseKey      string                 `json:"license_key"`
+	TenantName      string                 `json:"tenant_name"`
+	Fingerprint     string                 `json:"fingerprint"`
+	IP              string                 `json:"ip"`
+	Hostname        string                 `json:"hostname"`
+	Platform        string                 `json:"platform"`
+	Name            string                 `json:"name"`
+	Metadata        map[string]interface{} `json:"metadata"`
+	Cores           int                    `json:"cores"`
+	LastHeartbeatAt time.Time              `json:"last_heartbeat_at"`
+	LastCheckOutAt  time.Time              `json:"last_check_out_at"`
+	CreatedAt       time.Time              `json:"created_at"`
+	UpdatedAt       time.Time              `json:"updated_at"`
 }
 
 type MachineUpdateInput struct {
