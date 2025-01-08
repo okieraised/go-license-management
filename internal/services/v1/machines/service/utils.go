@@ -1,6 +1,7 @@
 package service
 
 import (
+	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
@@ -87,9 +88,20 @@ func (svc *MachineService) checkout(ctx *gin.Context, input *models.MachineActio
 	// convert the cert to base64
 	machineCert := base64.StdEncoding.EncodeToString(bMachineCert)
 
-	finalCertificate := fmt.Sprintf(constants.MachineFileFormat, machineCert)
+	if strings.ToLower(ctx.Query("encrypt")) == "true" || policy.Encrypted {
+		svc.logger.GetLogger().Info(fmt.Sprintf("encrypting machine certificate file for machine [%s]", machine.ID.String()))
+		sha256Hash := fmt.Sprintf("%x", sha256.Sum256([]byte(machineCert)))
+		encryptedCert, err := utils.Encrypt([]byte(machineCert), []byte(sha256Hash))
+		if err != nil {
+			return nil, err
+		}
+		machineCert = base64.StdEncoding.EncodeToString(encryptedCert)
+		ctx.Writer.Header().Add(constants.XMachineChecksumHeader, fmt.Sprintf("sha256=%s", sha256Hash))
+	}
+
+	machineCert = fmt.Sprintf(constants.MachineFileFormat, machineCert)
 	output := &models.MachineActionCheckoutOutput{
-		Certificate: finalCertificate,
+		Certificate: machineCert,
 		TTL:         ttl,
 		IssuedAt:    issuedAt,
 		ExpiresAt:   expiredAt,

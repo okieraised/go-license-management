@@ -40,10 +40,10 @@ type MachineActionsQueryParam struct {
 
 func (req *MachineActionsQueryParam) Validate() error {
 	if req.TTL == nil {
-		req.TTL = utils.RefPointer(2592000)
+		req.TTL = utils.RefPointer(constants.DefaultLicenseTTL)
 	} else {
 		ttl := utils.DerefPointer(req.TTL)
-		if ttl < 3600 || ttl > 31556952 {
+		if ttl < constants.MinimumLicenseTTL || ttl > constants.MaximumLicenseTTL {
 			return comerrors.ErrMachineActionCheckoutTTLIsInvalid
 		}
 	}
