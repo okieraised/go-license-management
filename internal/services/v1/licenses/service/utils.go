@@ -1,8 +1,11 @@
 package service
 
 import (
+	"crypto/md5"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -173,6 +176,19 @@ func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.L
 		}
 	}
 
+	svc.logger.GetLogger().Info(fmt.Sprintf("updating license [%s]'s last validated timestamp", license.ID))
+	bLicense, err := json.Marshal(license)
+	if err != nil {
+		return resp, err
+	}
+	hash := sha256.Sum256(bLicense)
+	license.LastValidatedChecksum = hex.EncodeToString(hash[:])
+	license.LastValidatedAt = time.Now()
+	license, err = svc.repo.UpdateLicenseByPK(ctx, license)
+	if err != nil {
+		return nil, err
+	}
+
 	return resp, nil
 }
 
@@ -259,28 +275,77 @@ func (svc *LicenseService) renewLicense(ctx *gin.Context, license *entities.Lice
 // encoded into a license file certificate that can be decoded and used for licensing offline and air-gapped
 // environments. The algorithm will depend on the policy's scheme.
 func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.License) (*models.LicenseActionCheckoutOutput, error) {
-	policy := license.Policy
-
 	var encodedLicense string
 	var err error
+	policy := license.Policy
+
+	licenseOutput := models.LicenseInfoOutput{
+		LicenseID:      license.ID.String(),
+		ProductID:      license.ProductID.String(),
+		PolicyID:       license.PolicyID.String(),
+		Name:           license.Name,
+		LicenseKey:     license.Key,
+		MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
+		Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
+		Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
+		Status:         license.Status,
+		Metadata:       license.Metadata,
+		Expiry:         license.Expiry,
+		CreatedAt:      license.CreatedAt,
+		UpdatedAt:      license.UpdatedAt,
+		LicensePolicy: models.LicensePolicyOutput{
+			PolicyScheme:       license.Policy.Scheme,
+			PolicyPublicKey:    license.Policy.PublicKey,
+			ExpirationStrategy: license.Policy.ExpirationStrategy,
+			CheckInInterval:    license.Policy.CheckInInterval,
+			OverageStrategy:    license.Policy.OverageStrategy,
+			HeartbeatBasis:     license.Policy.HeartbeatBasis,
+			RenewalBasis:       license.Policy.RenewalBasis,
+			RequireCheckIn:     license.Policy.RequireCheckIn,
+			RequireHeartbeat:   license.Policy.RequireHeartbeat,
+			Strict:             license.Policy.Strict,
+			Floating:           license.Policy.Floating,
+			UsePool:            license.Policy.UsePool,
+			RateLimited:        license.Policy.RateLimited,
+			Encrypted:          license.Policy.Encrypted,
+			Protected:          license.Policy.Protected,
+			Duration:           license.Policy.Duration,
+			MaxMachines:        license.Policy.MaxMachines,
+			MaxUses:            license.Policy.MaxUses,
+			MaxUsers:           license.Policy.MaxUsers,
+			HeartbeatDuration:  license.Policy.HeartbeatDuration,
+		},
+		LicenseProduct: models.LicenseProductOutput{
+			Name:                 license.Product.Name,
+			DistributionStrategy: license.Product.DistributionStrategy,
+			Code:                 license.Product.Code,
+			URL:                  license.Product.URL,
+			Platforms:            license.Product.Platforms,
+			Metadata:             license.Product.Metadata,
+			CreatedAt:            license.Product.CreatedAt,
+			UpdatedAt:            license.Product.UpdatedAt,
+		},
+	}
 
 	svc.logger.GetLogger().Info(fmt.Sprintf("generating snapshot of license [%s]", license.ID.String()))
 	switch policy.Scheme {
 	case constants.PolicySchemeED25519:
-		encodedLicense, err = utils.NewLicenseKeyWithEd25519(policy.PrivateKey, license)
+		encodedLicense, err = utils.NewLicenseKeyWithEd25519(policy.PrivateKey, licenseOutput)
 	case constants.PolicySchemeRSA2048PKCS1:
-		encodedLicense, err = utils.NewLicenseKeyWithRSA2048PKCS1(policy.PrivateKey, license)
+		encodedLicense, err = utils.NewLicenseKeyWithRSA2048PKCS1(policy.PrivateKey, licenseOutput)
 	}
 	if err != nil {
 		return nil, err
 	}
 
+	// Generating license content
+	svc.logger.GetLogger().Info(fmt.Sprintf("generating license file content [%s]", license.ID.String()))
 	parts := strings.Split(encodedLicense, ".")
 	signature := parts[0]
-	encoded := parts[1]
+	encodedData := parts[1]
 
 	jsonLicenseCert := license_attribute.LicenseFileContent{
-		Enc: encoded,
+		Enc: encodedData,
 		Sig: signature,
 		Alg: policy.Scheme,
 	}
@@ -288,40 +353,40 @@ func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.L
 	if err != nil {
 		return nil, err
 	}
+	licenseCert := base64.StdEncoding.EncodeToString(bLicenseCert)
 
-	certificate := base64.StdEncoding.EncodeToString(bLicenseCert)
-	if strings.ToLower(ctx.Query("encrypt")) == "true" {
+	// Encrypt key if specified
+	if strings.ToLower(ctx.Query("encrypt")) == "true" || policy.Encrypted {
 		svc.logger.GetLogger().Info(fmt.Sprintf("encrypting license certificate file for license [%s]", license.ID.String()))
-		sha256Hash := fmt.Sprintf("%x", sha256.Sum256([]byte(certificate)))
-		ctx.Writer.Header().Add(constants.ContentDigestHeader, fmt.Sprintf("sha256=%s", sha256Hash))
-		encryptedCert, err := utils.Encrypt([]byte(certificate), []byte(sha256Hash))
+		sha256Hash := fmt.Sprintf("%x", sha256.Sum256([]byte(licenseCert)))
+		encryptedCert, err := utils.Encrypt([]byte(licenseCert), []byte(sha256Hash))
 		if err != nil {
 			return nil, err
 		}
-		certificate = base64.StdEncoding.EncodeToString(encryptedCert)
+		licenseCert = base64.StdEncoding.EncodeToString(encryptedCert)
+		ctx.Writer.Header().Add(constants.XLicenseChecksumHeader, fmt.Sprintf("sha256=%s", sha256Hash))
 	}
 
-	certificate = fmt.Sprintf(constants.LicenseFileFormat, certificate)
+	licenseCert = fmt.Sprintf(constants.LicenseFileFormat, licenseCert)
 	issued := time.Now()
+
+	// Assign TTL to license certificate file
 	ttlParam := strings.ToLower(ctx.Query("ttl"))
 	ttl := constants.DefaultLicenseTTL
-
 	if ttlParam != "" {
 		ttl, err = strconv.Atoi(ttlParam)
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			ttl = constants.DefaultLicenseTTL
 		}
-	}
-
-	// If ttl is smaller than 1 hour, default to 1 hour
-	if ttl < constants.MinimumLicenseTTL {
-		ttl = constants.MinimumLicenseTTL
-	}
-
-	// If ttl is larger than 1 year, default to 1 year
-	if ttl > constants.MaximumLicenseTTL {
-		ttl = constants.MaximumLicenseTTL
+		// If ttl is smaller than 1 hour, default to 1 hour
+		if ttl < constants.MinimumLicenseTTL {
+			ttl = constants.MinimumLicenseTTL
+		}
+		// If ttl is larger than 1 year, default to 1 year
+		if ttl > constants.MaximumLicenseTTL {
+			ttl = constants.MaximumLicenseTTL
+		}
 	}
 
 	expiry := issued.Add(time.Duration(ttl) * time.Second)
@@ -337,7 +402,7 @@ func (svc *LicenseService) checkoutLicense(ctx *gin.Context, license *entities.L
 	}
 
 	return &models.LicenseActionCheckoutOutput{
-		Certificate: certificate,
+		Certificate: licenseCert,
 		TTL:         ttl,
 		Expiry:      expiry,
 		Issued:      issued,

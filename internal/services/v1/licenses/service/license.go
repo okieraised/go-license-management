@@ -684,9 +684,9 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIDIsInvalid]
-			return resp, comerrors.ErrLicenseIDIsInvalid
+			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseKeyIsInvalid]
+			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseKeyIsInvalid]
+			return resp, comerrors.ErrLicenseKeyIsInvalid
 		} else {
 			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
 			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]

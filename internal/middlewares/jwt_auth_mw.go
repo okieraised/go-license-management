@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"crypto/x509"
-	"encoding/hex"
+	"encoding/base64"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -88,7 +88,7 @@ func JWTValidationMW() gin.HandlerFunc {
 				return
 			}
 
-			publicKey, err := hex.DecodeString(tenant.Ed25519PublicKey)
+			publicKey, err := base64.StdEncoding.DecodeString(tenant.Ed25519PublicKey)
 			if err != nil {
 				logging.GetInstance().GetLogger().Error(err.Error())
 				ctx.AbortWithStatusJSON(
@@ -148,7 +148,7 @@ func JWTValidationMW() gin.HandlerFunc {
 					return
 				}
 
-				publicKey, err = hex.DecodeString(master.Ed25519PublicKey)
+				publicKey, err = base64.StdEncoding.DecodeString(master.Ed25519PublicKey)
 				if err != nil {
 					logging.GetInstance().GetLogger().Error(err.Error())
 					ctx.AbortWithStatusJSON(

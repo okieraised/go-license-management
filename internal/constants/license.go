@@ -1,8 +1,10 @@
 package constants
 
 const (
+	// DefaultLicenseTTL approximately 1 month
 	DefaultLicenseTTL = 2629746
 	MinimumLicenseTTL = 3600
+	// MaximumLicenseTTL approximately 1 year
 	MaximumLicenseTTL = 31556952
 )
 

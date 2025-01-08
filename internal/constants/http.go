@@ -51,6 +51,7 @@ const (
 	RetryAfterHeader                = "Retry-After"
 	XRateLimitRemainingHeader       = "X-RateLimit-Remaining" //	The number of requests remaining in the current rate limit window.
 	XRateLimitResetHeader           = "X-RateLimit-Reset"     //	The time at which the current rate limit window resets in UTC epoch seconds.
+	XLicenseChecksumHeader          = "X-License-Checksum"
 )
 
 const (

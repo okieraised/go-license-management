@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/ed25519"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -33,7 +34,7 @@ func (svc *AuthenticationService) generateSuperadminJWT(ctx *gin.Context, master
 		"permissions": jwtPermissions,
 	})
 
-	privateKey, err := hex.DecodeString(master.Ed25519PrivateKey)
+	privateKey, err := base64.StdEncoding.DecodeString(master.Ed25519PrivateKey)
 	if err != nil {
 		return "", 0, err
 	}

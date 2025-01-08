@@ -4,7 +4,6 @@ import (
 	"crypto/ed25519"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +11,7 @@ import (
 )
 
 // NewEd25519KeyPair generates the private signing key and the public verify key using Ed25519 algorithm
+// Return te signingKey (private key) and verifyKey (public key)
 func NewEd25519KeyPair() (string, string, error) {
 	publicKey, privateKey, err := ed25519.GenerateKey(nil)
 	if err != nil {
@@ -23,21 +23,22 @@ func NewEd25519KeyPair() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	signingKey := hex.EncodeToString(privateKeyBytes)
+	signingKey := base64.StdEncoding.EncodeToString(privateKeyBytes)
 
 	// Export the public key in SPKI DER format
 	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
 		return "", "", err
 	}
-	verifyKey := hex.EncodeToString(publicKeyBytes)
+	verifyKey := base64.StdEncoding.EncodeToString(publicKeyBytes)
 
 	return signingKey, verifyKey, nil
 }
 
 // NewLicenseKeyWithEd25519 generates new license key using Ed25519 algorithm
+// Returns a license string in format {{signature}}.{{data}}
 func NewLicenseKeyWithEd25519(signingKey string, data any) (string, error) {
-	privateKeyBytes, err := hex.DecodeString(signingKey)
+	privateKeyBytes, err := base64.StdEncoding.DecodeString(signingKey)
 	if err != nil {
 		return "", err
 	}
@@ -75,8 +76,8 @@ func VerifyLicenseKeyWithEd25519(verifyKey string, licenseKey string) (bool, []b
 	if len(parts) != 2 {
 		return false, nil, errors.New("invalid license key format")
 	}
-	encodedData := parts[1]
 	encodedSignature := parts[0]
+	encodedData := parts[1]
 
 	data, err := base64.StdEncoding.DecodeString(encodedData)
 	if err != nil {
@@ -88,7 +89,7 @@ func VerifyLicenseKeyWithEd25519(verifyKey string, licenseKey string) (bool, []b
 		return false, nil, err
 	}
 
-	publicKeyBytes, err := hex.DecodeString(verifyKey)
+	publicKeyBytes, err := base64.StdEncoding.DecodeString(verifyKey)
 	if err != nil {
 		return false, nil, err
 	}

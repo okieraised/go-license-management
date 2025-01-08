@@ -18,6 +18,7 @@ const RSAPrivateKeyStr = "RSA PRIVATE KEY"
 const RSAPublicKeyStr = "RSA PUBLIC KEY"
 
 // NewRSA2048PKCS1KeyPair generates the private key and the public key pair using RSA2048 algorithm
+// Return te signingKey (private key) and verifyKey (public key)
 func NewRSA2048PKCS1KeyPair() (string, string, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -40,6 +41,7 @@ func NewRSA2048PKCS1KeyPair() (string, string, error) {
 }
 
 // NewLicenseKeyWithRSA2048PKCS1 generates new license key using RSA2048 algorithm
+// // Returns a license string in format {{signature}}.{{data}}
 func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) {
 	bData, err := json.Marshal(data)
 	if err != nil {
@@ -49,7 +51,7 @@ func NewLicenseKeyWithRSA2048PKCS1(signingKey string, data any) (string, error) 
 	// Encode the original data to base64
 	encodedData := base64.StdEncoding.EncodeToString(bData)
 
-	// Sign the data using the private key with SHA-256 hashing
+	// Sign the data using the private key with SHA-512 hashing
 	hash := sha512.New()
 	hash.Write(bData)
 	hashed := hash.Sum(nil)
@@ -91,8 +93,8 @@ func VerifyLicenseKeyWithRSA2048PKCS1(verifyKey string, licenseKey string) (bool
 	if len(parts) != 2 {
 		return false, nil, errors.New("invalid license key format")
 	}
-	encodedData := parts[1]
 	encodedSignature := parts[0]
+	encodedData := parts[1]
 
 	data, err := base64.StdEncoding.DecodeString(encodedData)
 	if err != nil {
