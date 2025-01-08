@@ -65,14 +65,6 @@ func (svc *PolicyService) updatePolicyField(ctx *gin.Context, input *models.Poli
 		policy.ExpirationStrategy = utils.DerefPointer(input.ExpirationStrategy)
 	}
 
-	if input.AuthenticationStrategy != nil {
-		policy.AuthenticationStrategy = utils.DerefPointer(input.AuthenticationStrategy)
-	}
-
-	if input.ExpirationBasis != nil {
-		policy.ExpirationBasis = utils.DerefPointer(input.ExpirationBasis)
-	}
-
 	if input.OverageStrategy != nil {
 		policy.OverageStrategy = utils.DerefPointer(input.OverageStrategy)
 	}

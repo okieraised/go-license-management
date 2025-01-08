@@ -62,24 +62,6 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		}
 	}
 
-	// The strategy used for authenticating as a license, for client-side integrations.
-	if req.AuthenticationStrategy == nil {
-		req.AuthenticationStrategy = utils.RefPointer(constants.PolicyAuthenticationStrategyLicense)
-	} else {
-		if _, ok := constants.ValidPolicyAuthenticationStrategyMap[utils.DerefPointer(req.AuthenticationStrategy)]; !ok {
-			return comerrors.ErrPolicyInvalidAuthenticationStrategy
-		}
-	}
-
-	// Control when a license's initial expiry is set.
-	if req.ExpirationBasis == nil {
-		req.ExpirationBasis = utils.RefPointer(constants.PolicyExpirationBasisFromCreation)
-	} else {
-		if _, ok := constants.ValidPolicyExpirationBasisMapper[utils.DerefPointer(req.ExpirationBasis)]; !ok {
-			return comerrors.ErrPolicyInvalidExpirationBasis
-		}
-	}
-
 	// The strategy used for allowing machine overages. Default to not allowed any overage
 	if req.OverageStrategy == nil {
 		req.OverageStrategy = utils.RefPointer(constants.PolicyOverageStrategyNoOverage)
@@ -256,18 +238,6 @@ func (req *PolicyUpdateRequest) Validate() error {
 	if req.ExpirationStrategy != nil {
 		if _, ok := constants.ValidPolicyExpirationStrategyMapper[utils.DerefPointer(req.ExpirationStrategy)]; !ok {
 			return comerrors.ErrPolicyInvalidExpirationStrategy
-		}
-	}
-
-	if req.AuthenticationStrategy != nil {
-		if _, ok := constants.ValidPolicyAuthenticationStrategyMap[utils.DerefPointer(req.AuthenticationStrategy)]; !ok {
-			return comerrors.ErrPolicyInvalidAuthenticationStrategy
-		}
-	}
-
-	if req.ExpirationBasis != nil {
-		if _, ok := constants.ValidPolicyExpirationBasisMapper[utils.DerefPointer(req.ExpirationBasis)]; !ok {
-			return comerrors.ErrPolicyInvalidExpirationBasis
 		}
 	}
 

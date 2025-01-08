@@ -1,10 +1,12 @@
 package constants
 
 const (
-	// PolicySchemeED25519 signs license keys with your account's Ed25519 signing key,
+	// PolicySchemeED25519 signs license keys with your account's
+	// Ed25519 signing key,
 	PolicySchemeED25519 = "ED25519"
 
-	// PolicySchemeRSA2048PKCS1 signs license keys with your account's 2048-bit RSA private key using RSA PKCS1 v1.5 padding
+	// PolicySchemeRSA2048PKCS1 signs license keys with your account's
+	// 2048-bit RSA private key using RSA PKCS1 v1.5 padding
 	PolicySchemeRSA2048PKCS1 = "RSA2048PKCS1"
 )
 
@@ -14,15 +16,17 @@ var ValidPolicySchemeMapper = map[string]bool{
 }
 
 const (
-	// PolicyExpirationStrategyRestrictAccess - expired licenses can continue to access releases published prior to
+	// PolicyExpirationStrategyRestrictAccess - expired licenses can
+	// continue to access releases published prior to
 	// their license expiry. This is the default.
 	PolicyExpirationStrategyRestrictAccess = "restrict"
 
-	// PolicyExpirationStrategyRevokeAccess - Expired licenses are no longer able to access any releases.
+	// PolicyExpirationStrategyRevokeAccess - Expired licenses are
+	// no longer able to access any releases.
 	PolicyExpirationStrategyRevokeAccess = "revoke"
 
-	// PolicyExpirationStrategyMaintainAccess - Expired licenses can continue to access releases published prior to their
-	// license expiry.
+	// PolicyExpirationStrategyMaintainAccess - Expired licenses can continue
+	// to access releases published prior to their license expiry.
 	PolicyExpirationStrategyMaintainAccess = "maintain"
 
 	// PolicyExpirationStrategyAllowAccess - Expired licenses can access any releases.
@@ -37,13 +41,17 @@ var ValidPolicyExpirationStrategyMapper = map[string]bool{
 }
 
 const (
-	// PolicyCheckinIntervalDaily requires a license implementing the policy checkin at least once every day to remain valid.
+	// PolicyCheckinIntervalDaily requires a license implementing
+	//the policy checkin at least once every day to remain valid.
 	PolicyCheckinIntervalDaily = "daily"
-	// PolicyCheckinIntervalWeekly requires a license implementing the policy checkin at least once every week to remain valid.
+	// PolicyCheckinIntervalWeekly requires a license implementing
+	// the policy checkin at least once every week to remain valid.
 	PolicyCheckinIntervalWeekly = "weekly"
-	// PolicyCheckinIntervalMonthly requires a license implementing the policy checkin at least once every month to remain valid.
+	// PolicyCheckinIntervalMonthly requires a license implementing
+	// the policy checkin at least once every month to remain valid.
 	PolicyCheckinIntervalMonthly = "monthly"
-	// PolicyCheckinIntervalYearly requires a license implementing the policy to check in at least once every year to remain valid.
+	// PolicyCheckinIntervalYearly requires a license implementing
+	// the policy to check in at least once every year to remain valid.
 	PolicyCheckinIntervalYearly = "yearly"
 )
 
@@ -55,30 +63,14 @@ var ValidPolicyCheckinIntervalMapper = map[string]bool{
 }
 
 const (
-	// PolicyExpirationBasisFromCreation - License expirations are set immediately upon creation.
-	PolicyExpirationBasisFromCreation = "from_creation"
-	// PolicyExpirationBasisFromFirstActivation - License expirations are set after their first license validation event.
-	PolicyExpirationBasisFromFirstActivation = "from_first_activation"
-	// PolicyExpirationBasisFromFirstValidation - License expirations are set after their first machine activation event.
-	PolicyExpirationBasisFromFirstValidation = "from_first_validation"
-	// PolicyExpirationBasisFromFirstUse - License expirations are set after their first usage increment event.
-	PolicyExpirationBasisFromFirstUse = "from_first_use"
-)
-
-var ValidPolicyExpirationBasisMapper = map[string]bool{
-	PolicyExpirationBasisFromCreation:        true,
-	PolicyExpirationBasisFromFirstActivation: true,
-	PolicyExpirationBasisFromFirstValidation: true,
-	PolicyExpirationBasisFromFirstUse:        true,
-}
-
-const (
 	// PolicyRenewalBasisFromExpiry - License expiry is extended from the license's current expiry value,
 	// i.e. license.expiry = license.expiry + policy.duration. This is the default.
 	PolicyRenewalBasisFromExpiry = "from_expiry"
-	// PolicyRenewalFromNow - License expiry is extended from the current time, i.e. license.expiry = time.now + policy.duration.
+	// PolicyRenewalFromNow - License expiry is extended from the current time,
+	// i.e. license.expiry = time.now + policy.duration.
 	PolicyRenewalFromNow = "from_now"
-	// PolicyRenewalFromNowIfExpired - Conditionally extend license expiry from the current time if the license is expired, otherwise extend from the license's current expiry value.
+	// PolicyRenewalFromNowIfExpired - Conditionally extend license expiry from
+	// the current time if the license is expired, otherwise extend from the license's current expiry value.
 	PolicyRenewalFromNowIfExpired = "from_now_if_expired"
 )
 
@@ -86,27 +78,6 @@ var ValidPolicyRenewalBasisMapper = map[string]bool{
 	PolicyRenewalBasisFromExpiry:  true,
 	PolicyRenewalFromNow:          true,
 	PolicyRenewalFromNowIfExpired: true,
-}
-
-const (
-	// PolicyAuthenticationStrategyToken - Allow licenses to authenticate using a license token. This is the default.
-	PolicyAuthenticationStrategyToken = "auth_token"
-
-	// PolicyAuthenticationStrategyLicense - Allow licenses to authenticate using a license key.
-	PolicyAuthenticationStrategyLicense = "auth_license"
-
-	// PolicyAuthenticationStrategyMixes - Allow both license token and license key authentication.
-	PolicyAuthenticationStrategyMixes = "auth_mixed"
-
-	// PolicyAuthenticationStrategyNone - Disable the ability for licenses to authenticate with the API.
-	PolicyAuthenticationStrategyNone = "auth_none"
-)
-
-var ValidPolicyAuthenticationStrategyMap = map[string]bool{
-	PolicyAuthenticationStrategyToken:   true,
-	PolicyAuthenticationStrategyLicense: true,
-	PolicyAuthenticationStrategyMixes:   true,
-	PolicyAuthenticationStrategyNone:    true,
 }
 
 const (

@@ -97,13 +97,14 @@ func (svc *LicenseService) generateLicense(ctx *gin.Context, input *models.Licen
 func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.License) (*models.LicenseValidationOutput, error) {
 	resp := &models.LicenseValidationOutput{}
 
+	// Checking license status
 	switch license.Status {
 	case constants.LicenseStatusNotActivated:
-		resp.Valid = false
+		resp.Valid = true
 		if license.MachinesCount == 0 && license.Policy.MaxMachines == 1 {
 			resp.Code = constants.LicenseValidationStatusNoMachine
 		} else {
-			resp.Code = constants.LicenseValidationStatusNoMachine
+			resp.Code = constants.LicenseValidationStatusValid
 		}
 	case constants.LicenseStatusActive:
 		resp.Valid = true
@@ -127,9 +128,49 @@ func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.L
 		return resp, nil
 	}
 
+	// If license policy requires periodic check-in, then validate LastCheckInAt
+	if license.Policy.RequireCheckIn {
+		createdAt := license.CreatedAt
+		lastCheckedIn := license.LastCheckInAt
+		checkinPolicy := license.Policy.CheckInInterval
+		passedDuration := time.Since(createdAt)
+		if !lastCheckedIn.IsZero() {
+			passedDuration = time.Since(lastCheckedIn)
+		}
+
+		switch checkinPolicy {
+		case constants.PolicyCheckinIntervalDaily:
+			if passedDuration > 24*time.Hour {
+				resp.Valid = false
+				resp.Code = constants.LicenseValidationStatusOverdue
+			}
+		case constants.PolicyCheckinIntervalWeekly:
+			if passedDuration > 24*time.Hour {
+				resp.Valid = false
+				resp.Code = constants.LicenseValidationStatusOverdue
+			}
+		case constants.PolicyCheckinIntervalMonthly:
+			if passedDuration > 30*24*time.Hour {
+				resp.Valid = false
+				resp.Code = constants.LicenseValidationStatusOverdue
+			}
+		case constants.PolicyCheckinIntervalYearly:
+			if passedDuration > 365*24*time.Hour {
+				resp.Valid = false
+				resp.Code = constants.LicenseValidationStatusOverdue
+			}
+		}
+		return resp, nil
+	}
+
 	if license.MachinesCount > license.MaxMachines {
-		resp.Valid = false
 		resp.Code = constants.LicenseValidationStatusTooManyMachine
+		switch license.Policy.OverageStrategy {
+		case constants.PolicyOverageStrategyAlwaysAllow:
+			resp.Valid = true
+		case constants.PolicyOverageStrategyNoOverage:
+			resp.Valid = false
+		}
 	}
 
 	return resp, nil
@@ -319,11 +360,16 @@ func (svc *LicenseService) checkinLicense(ctx *gin.Context, license *entities.Li
 // incrementUsageLicense increments a license's uses attribute in accordance with its policy's maxUses attribute.
 // When the policy's maxUses limit is exceeded, the increment attempt will fail.
 // When the policy's maxUses is set to null, there is no limit on usage.
-// The uses attribute cannot be incremented more than the maximum value of a 4 byte integer, 2,147,483,647.
 func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, increment int, license *entities.License) (*entities.License, error) {
 	license.Uses = license.Uses + increment
 	if license.MaxUses != 0 && license.Uses > license.MaxUses {
-		return nil, comerrors.ErrLicenseMaxUsesExceeded
+
+		switch license.Policy.OverageStrategy {
+		case constants.PolicyOverageStrategyNoOverage:
+			return nil, comerrors.ErrLicenseMaxUsesExceeded
+		case constants.PolicyOverageStrategyAlwaysAllow:
+			// Do nothing since the policy allow overage
+		}
 	}
 
 	svc.logger.GetLogger().Info(fmt.Sprintf("incrementing license [%s] uses", license.ID.String()))

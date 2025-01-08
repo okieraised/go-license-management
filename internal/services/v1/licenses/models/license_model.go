@@ -72,29 +72,27 @@ type LicenseProductOutput struct {
 }
 
 type LicensePolicyOutput struct {
-	PolicyPublicKey        string `json:"policy_public_key"`
-	PolicyScheme           string `json:"policy_scheme"`
-	ExpirationStrategy     string `json:"expiration_strategy"`
-	ExpirationBasis        string `json:"expiration_basis"`
-	AuthenticationStrategy string `json:"authentication_strategy"`
-	CheckInInterval        string `json:"check_in_interval"`
-	OverageStrategy        string `json:"overage_strategy"`
-	HeartbeatBasis         string `json:"heartbeat_basis"`
-	RenewalBasis           string `json:"renewal_basis"`
-	RequireCheckIn         bool   `json:"require_check_in"`
-	Concurrent             bool   `json:"concurrent"`
-	RequireHeartbeat       bool   `json:"require_heartbeat"`
-	Strict                 bool   `json:"strict"`
-	Floating               bool   `json:"floating"`
-	UsePool                bool   `json:"use_pool"`
-	RateLimited            bool   `json:"rate_limited"`
-	Encrypted              bool   `json:"encrypted"`
-	Protected              bool   `json:"protected"`
-	Duration               int64  `json:"duration"`
-	MaxMachines            int    `json:"max_machines"`
-	MaxUses                int    `json:"max_uses"`
-	MaxUsers               int    `json:"max_users"`
-	HeartbeatDuration      int    `json:"heartbeat_duration"`
+	PolicyPublicKey    string `json:"policy_public_key"`
+	PolicyScheme       string `json:"policy_scheme"`
+	ExpirationStrategy string `json:"expiration_strategy"`
+	CheckInInterval    string `json:"check_in_interval"`
+	OverageStrategy    string `json:"overage_strategy"`
+	HeartbeatBasis     string `json:"heartbeat_basis"`
+	RenewalBasis       string `json:"renewal_basis"`
+	RequireCheckIn     bool   `json:"require_check_in"`
+	Concurrent         bool   `json:"concurrent"`
+	RequireHeartbeat   bool   `json:"require_heartbeat"`
+	Strict             bool   `json:"strict"`
+	Floating           bool   `json:"floating"`
+	UsePool            bool   `json:"use_pool"`
+	RateLimited        bool   `json:"rate_limited"`
+	Encrypted          bool   `json:"encrypted"`
+	Protected          bool   `json:"protected"`
+	Duration           int64  `json:"duration"`
+	MaxMachines        int    `json:"max_machines"`
+	MaxUses            int    `json:"max_uses"`
+	MaxUsers           int    `json:"max_users"`
+	HeartbeatDuration  int    `json:"heartbeat_duration"`
 }
 
 type LicenseListInput struct {
