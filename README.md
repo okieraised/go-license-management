@@ -112,6 +112,10 @@ It allows you to enforce your licensing models. Online and offline verifications
 ### Machine
 Machine represents a server or computer on which the license is activated. 
 They are used to track license activations and enforce licensing rules.
+#### 1. Machine Fingerprint
+A machine fingerprint is a unique identifier generated based on the hardware and software characteristics of a 
+specific computer or device. It is commonly used in security, licensing, or tracking to uniquely identify a 
+device without relying on user-provided information. When registering a machine, 
 
 ---
 ### Roadmap

@@ -12,10 +12,10 @@ func main() {
 		return
 	}
 
-	subject := "alice"  // the user who wants to access the resource
-	domain := "domain1" // the domain in which access is requested
-	object := "data1"   // the resource to access
-	action := "write"   // the action the user wants to perform
+	subject := "alice"
+	domain := "domain1"
+	object := "data1"
+	action := "write"
 
 	// Check if the subject has permission
 	ok, err := e.Enforce(domain, subject, object, action)
