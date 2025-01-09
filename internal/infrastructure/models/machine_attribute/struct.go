@@ -35,7 +35,8 @@ func (req *MachineCommonURI) Validate() error {
 }
 
 type MachineActionsQueryParam struct {
-	TTL *int `form:"ttl"`
+	TTL    *int  `form:"ttl"`
+	ToFile *bool `form:"to_file"`
 }
 
 func (req *MachineActionsQueryParam) Validate() error {
@@ -46,6 +47,10 @@ func (req *MachineActionsQueryParam) Validate() error {
 		if ttl < constants.MinimumLicenseTTL || ttl > constants.MaximumLicenseTTL {
 			return comerrors.ErrMachineActionCheckoutTTLIsInvalid
 		}
+	}
+
+	if req.ToFile == nil {
+		req.ToFile = utils.RefPointer(false)
 	}
 
 	return nil

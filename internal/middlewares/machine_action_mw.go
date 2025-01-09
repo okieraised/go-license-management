@@ -15,7 +15,7 @@ import (
 
 func MachineActionPermissionValidationMW() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		actions := ctx.Param("action")
+		actions := ctx.Param("machine_action")
 		if actions == "" {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
