@@ -42,7 +42,7 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 		routes.GET("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.retrieve)
 		routes.PATCH("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.update)
 		routes.DELETE("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineDelete), r.deactivate)
-		routes.POST("/:machine_id/actions/:machine_action", middlewares.JWTValidationMW(), r.action)
+		routes.POST("/:machine_id/actions/:machine_action", middlewares.JWTValidationMW(), middlewares.MachineActionPermissionValidationMW(), r.action)
 	}
 }
 
