@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
-	"go-license-management/internal/infrastructure/database/casbin_adapter"
+	"go-license-management/internal/infrastructure/casbin_adapter"
 	"go-license-management/internal/infrastructure/database/postgres"
 	"go-license-management/internal/infrastructure/logging"
 	_ "go-license-management/internal/infrastructure/logging"

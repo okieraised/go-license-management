@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-license-management/internal/comerrors"
 	"go-license-management/internal/constants"
-	"go-license-management/internal/infrastructure/database/casbin_adapter"
+	"go-license-management/internal/infrastructure/casbin_adapter"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/response"
 	"net/http"
