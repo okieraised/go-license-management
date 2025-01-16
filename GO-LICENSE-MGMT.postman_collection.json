@@ -1,0 +1,2180 @@
+{
+	"info": {
+		"_postman_id": "c59f6de8-50b7-4b27-9d8e-56788df0ce71",
+		"name": "GO-LICENSE_MGMT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27062472"
+	},
+	"item": [
+		{
+			"name": "accounts",
+			"item": [
+				{
+					"name": "post-accounts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"used1rel33u22g2dd4\",\n    \"password\": \"12324g56\",\n    \"email\": \"122eel3332d2gd2d3@gmail.com\",\n    \"role\": \"superadmin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-accounts-update-password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"current_password\": \"1234567\",\n    \"new_password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts/user1/actions/update-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts",
+								"user1",
+								"actions",
+								"update-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-accounts-ban",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts/user1/actions/ban",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts",
+								"user1",
+								"actions",
+								"ban"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-accounts-unban",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts/user1/actions/unban",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts",
+								"user1",
+								"actions",
+								"unban"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-accounts-token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts/user1/actions/password-token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts",
+								"user1",
+								"actions",
+								"password-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch-accounts",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"123456\",\n    \"email\": \"123@gmail.com\",\n    \"role\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts/user1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts",
+								"user1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-account",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts/used1relu22g2dd4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts",
+								"used1relu22g2dd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-accounts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"user1\",\n    \"password\": \"123456\",\n    \"email\": \"123@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve-account",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"user1\",\n    \"password\": \"123456\",\n    \"email\": \"123@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/accounts/user1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"accounts",
+								"user1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "tenants",
+			"item": [
+				{
+					"name": "retrieve-tenant",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-tenant",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/test2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"test2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-tenant",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								""
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-tenants",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "test",
+									"type": "text"
+								},
+								{
+									"key": "protected",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-tenants-regenerate",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "test2",
+									"type": "text"
+								},
+								{
+									"key": "protected",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/test2/regenerate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"test2",
+								"regenerate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "products",
+			"item": [
+				{
+					"name": "post-products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"test\",\n    \"code\": \"test\", \n    \"metadata\": {\n        \"key\": \"val\"\n    },\n    \"platforms\": [\"ios\", \"android\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/products/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-products-token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/products/b171af48-9c40-42d8-804a-d5a8b41c6940/tokens",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"products",
+								"b171af48-9c40-42d8-804a-d5a8b41c6940",
+								"tokens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve-products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/products/c9ec8233-bc37-4f6a-9245-73dad4fff293",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"products",
+								"c9ec8233-bc37-4f6a-9245-73dad4fff293"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/products?offset=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"products"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"faceid\",\n    \"code\": \"faceid_vinpear34\", \n    \"metadata\": {\n        \"key\": \"val2\"\n    },\n    \"platforms\": [\"ios\", \"android\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/products/c9ec8233-bc37-4f6a-9245-73dad4fff293",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"products",
+								"c9ec8233-bc37-4f6a-9245-73dad4fff293"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-products",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/products/c9ec8233-bc37-4f6a-9245-73dad4fff293",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"products",
+								"c9ec8233-bc37-4f6a-9245-73dad4fff293"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "authentication",
+			"item": [
+				{
+					"name": "post-login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									" ",
+									"    var jsonData = pm.response.json();",
+									" ",
+									"    if (!!jsonData[\"access\"]) {",
+									"        pm.environment.set(\"access\", jsonData[\"access\"]);",
+									"    } else {",
+									"        var data = pm.response.json()[\"data\"]",
+									"        pm.environment.set(\"access\", data[\"access\"]);",
+									"    }",
+									"",
+									"    if (!!jsonData[\"refresh\"]) {",
+									"        pm.environment.set(\"refresh\", jsonData[\"refresh\"]);",
+									"    } else {",
+									"        var data = pm.response.json()[\"data\"]",
+									"        pm.environment.set(\"refresh\", data[\"refresh\"]);",
+									"    }",
+									" ",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "user1",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "superadmin",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "superadmin",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-login-super",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									" ",
+									"    var jsonData = pm.response.json();",
+									" ",
+									"    if (!!jsonData[\"access\"]) {",
+									"        pm.environment.set(\"access\", jsonData[\"access\"]);",
+									"    } else {",
+									"        var data = pm.response.json()[\"data\"]",
+									"        pm.environment.set(\"access\", data[\"access\"]);",
+									"    }",
+									"",
+									"    if (!!jsonData[\"refresh\"]) {",
+									"        pm.environment.set(\"refresh\", jsonData[\"refresh\"]);",
+									"    } else {",
+									"        var data = pm.response.json()[\"data\"]",
+									"        pm.environment.set(\"refresh\", data[\"refresh\"]);",
+									"    }",
+									" ",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "user1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "superadmin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "superadmin",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "entitlement",
+			"item": [
+				{
+					"name": "post-entitlement",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Example Feature 2\",\n    \"code\": \"EXAMPLE_FEATURE2\",\n    \"metadata\": {\n        \"key\": \"val\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/entitlements",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"entitlements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve-entitlement",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/entitlements/ca19158d-8983-4602-9bdb-4ad78e0f7907",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"entitlements",
+								"ca19158d-8983-4602-9bdb-4ad78e0f7907"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-entitlement",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/entitlements",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"entitlements"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "10",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-entitlement",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/entitlements/16085815-c020-40df-9c3d-e38ad1763578",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"entitlements",
+								"16085815-c020-40df-9c3d-e38ad1763578"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "policies",
+			"item": [
+				{
+					"name": "post-policy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Max use 1 Policy\",\n    \"product_id\": \"e3ac4d57-018c-4c5e-9dd9-46ca78859d63\",\n    \"max_uses\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-policy-attachment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"entitlement_id\": [\n        \"ca19158d-8983-4602-9bdb-4ad78e0f7907\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies/c96b80d1-eca9-421f-8df6-d0c182505ca8/entitlements",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies",
+								"c96b80d1-eca9-421f-8df6-d0c182505ca8",
+								"entitlements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-policy-attachments",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"entitlement_id\": [\n        \"ca19158d-8983-4602-9bdb-4ad78e0f7907\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies/c96b80d1-eca9-421f-8df6-d0c182505ca8/entitlements",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies",
+								"c96b80d1-eca9-421f-8df6-d0c182505ca8",
+								"entitlements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-policy-detachment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": [\n        \"ca19158d-8983-4602-9bdb-4ad78e0f7907\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies/c96b80d1-eca9-421f-8df6-d0c182505ca8/entitlements",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies",
+								"c96b80d1-eca9-421f-8df6-d0c182505ca8",
+								"entitlements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-policy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Max use 100 Policy\",\n    \"product_id\": \"ad979652-8402-4c2a-b58e-0b3e531811c4\",\n    \"rate_limited\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies/c96b80d1-eca9-421f-8df6-d0c182505ca8",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies",
+								"c96b80d1-eca9-421f-8df6-d0c182505ca8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve-policy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"faceid\",\n    \"code\": \"faceid_vinpearl2\", \n    \"metadata\": {\n        \"key\": \"val\"\n    },\n    \"platforms\": [\"ios\", \"android\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies/c0e9797e-bcdc-4724-a63a-f73198ad004a",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies",
+								"c0e9797e-bcdc-4724-a63a-f73198ad004a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-policy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"faceid\",\n    \"code\": \"faceid_vinpearl2\", \n    \"metadata\": {\n        \"key\": \"val\"\n    },\n    \"platforms\": [\"ios\", \"android\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "0",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-policy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"faceid\",\n    \"code\": \"faceid_vinpearl2\", \n    \"metadata\": {\n        \"key\": \"val\"\n    },\n    \"platforms\": [\"ios\", \"android\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/policies/c0e9797e-bcdc-4724-a63a-f73198ad004a",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"policies",
+								"c0e9797e-bcdc-4724-a63a-f73198ad004a"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "license",
+			"item": [
+				{
+					"name": "post-license",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Example License 2\",\n    \"product_id\": \"e3ac4d57-018c-4c5e-9dd9-46ca78859d63\",\n    \"policy_id\": \"59f4cfdc-091f-4920-8b7f-582703f71066\",\n    \"expiry\": \"2025-12-01T00:00:00.00Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "patch-license",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Example License xxxxxxxxxxxxx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/93402695-aec9-4c66-be9c-3034f0f2a67f",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"93402695-aec9-4c66-be9c-3034f0f2a67f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "post-license-validate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_key\": \"kGt94fo8-vyJrcG1D-By5KInOA-gzoc66l6-54mY9vVe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/actions/validate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"actions",
+								"validate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve-license",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/347de5ff-8293-4525-a2d2-0cd507abafd3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"347de5ff-8293-4525-a2d2-0cd507abafd3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "renew-license",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_key\": \"6b8qMLUi-eJYoRFIn-ICTBhHtA-lJJ2Uv8Z-698i61Vy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/actions/renew",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"actions",
+								"renew"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "checkout-license",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_key\": \"ND9t2ysU-RJznF6H8-NNLivN6X-ihgI9O87-JGBZS9Bm\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/actions/checkout?encrypt=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"actions",
+								"checkout"
+							],
+							"query": [
+								{
+									"key": "encrypt",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "checkin-license",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_key\": \"IV6AmYYa-v2EJXLeX-USEEEmPB-QtYUBY5m-9GpX3a6B\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/actions/checkin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"actions",
+								"checkin"
+							],
+							"query": [
+								{
+									"key": "encrypt",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "validate-license",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_key\": \"ND9t2ysU-RJznF6H8-NNLivN6X-ihgI9O87-JGBZS9Bm\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/actions/validate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"actions",
+								"validate"
+							],
+							"query": [
+								{
+									"key": "encrypt",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-license",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/licenses/7a91b398-34eb-4a8a-b6b4-c6bd30f793b6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"licenses",
+								"7a91b398-34eb-4a8a-b6b4-c6bd30f793b6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "machine",
+			"item": [
+				{
+					"name": "create-machine",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_key\": \"tYiMwqdY-Sp25ouHj-dV7f2Vaw-BLFnvXt1-qhwo0CQg\",\n    \"fingerprint\": \"12345678999\",\n    \"cores\": 4,\n    \"name\": \"test\",\n    \"ip\": \"127.0.0.1\",\n    \"hostname\": \"test server\",\n    \"platform\": \"linux\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve-machine",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_id\": \"e005e694-9c33-4b0f-b52c-efebd14cde82\",\n    \"fingerprint\": \"12345678\",\n    \"cores\": 4,\n    \"name\": \"test\",\n    \"ip\": \"127.0.0.1\",\n    \"hostname\": \"test server\",\n    \"platform\": \"linux\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines/c89337fe-6808-4e36-b0e9-65027344cac6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines",
+								"c89337fe-6808-4e36-b0e9-65027344cac6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-machine",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_id\": \"e005e694-9c33-4b0f-b52c-efebd14cde82\",\n    \"fingerprint\": \"12345678\",\n    \"cores\": 4,\n    \"name\": \"test\",\n    \"ip\": \"127.0.0.1\",\n    \"hostname\": \"test server\",\n    \"platform\": \"linux\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-machine",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_key\": \"ND9t2ysU-RJznF6H8-NNLivN6X-ihgI9O87-JGBZS9Bm\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines/da03b2b8-c552-41d5-a440-18e61a1e3a7a",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines",
+								"da03b2b8-c552-41d5-a440-18e61a1e3a7a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-machine",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_id\": \"e005e694-9c33-4b0f-b52c-efebd14cde82\",\n    \"fingerprint\": \"12345678\",\n    \"cores\": 4,\n    \"name\": \"test\",\n    \"ip\": \"127.0.0.1\",\n    \"hostname\": \"test server\",\n    \"platform\": \"linux\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines/459eabf8-e855-4b0d-afe0-193ce235f596",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines",
+								"459eabf8-e855-4b0d-afe0-193ce235f596"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "checkout-machine",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"license_id\": \"e005e694-9c33-4b0f-b52c-efebd14cde82\",\n    \"fingerprint\": \"12345678\",\n    \"cores\": 4,\n    \"name\": \"test\",\n    \"ip\": \"127.0.0.1\",\n    \"hostname\": \"test server\",\n    \"platform\": \"linux\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines/da03b2b8-c552-41d5-a440-18e61a1e3a7a/actions/check-out",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines",
+								"da03b2b8-c552-41d5-a440-18e61a1e3a7a",
+								"actions",
+								"check-out"
+							],
+							"query": [
+								{
+									"key": "ttl",
+									"value": "123456",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ping-heartbeat-machine",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines/8a0d4596-22c6-47ef-8c80-a44e5f44d2f7/actions/ping-heartbeat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines",
+								"8a0d4596-22c6-47ef-8c80-a44e5f44d2f7",
+								"actions",
+								"ping-heartbeat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset-heartbeat-machine",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/tenants/{{tenant_name}}/machines/8a0d4596-22c6-47ef-8c80-a44e5f44d2f7/actions/reset-heartbeat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenant_name}}",
+								"machines",
+								"8a0d4596-22c6-47ef-8c80-a44e5f44d2f7",
+								"actions",
+								"reset-heartbeat"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
