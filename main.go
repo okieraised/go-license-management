@@ -29,6 +29,7 @@ import (
 	tenantSvc "go-license-management/internal/services/v1/tenants/service"
 	"go-license-management/server"
 	"go-license-management/server/api"
+	"go-license-management/server/api/v1"
 	"os"
 	"os/signal"
 	"strings"
@@ -122,36 +123,36 @@ func NewAppService(ds *api.DataSource) *api.AppService {
 	appSvc := &api.AppService{}
 
 	// register v1
-	v1 := &api.V1AppService{}
+	v1Svc := &v1.V1AppService{}
 
 	// tenant
-	v1.SetTenant(tenantSvc.NewTenantService(tenantSvc.WithRepository(tenantRepo.NewTenantRepository(ds))))
+	v1Svc.SetTenant(tenantSvc.NewTenantService(tenantSvc.WithRepository(tenantRepo.NewTenantRepository(ds))))
 
 	// auth
-	v1.SetAuth(authSvc.NewAuthenticationService(authSvc.WithRepository(authRepo.NewAuthenticationRepository(ds))))
+	v1Svc.SetAuth(authSvc.NewAuthenticationService(authSvc.WithRepository(authRepo.NewAuthenticationRepository(ds))))
 
 	// account
-	v1.SetAccount(accountSvc.NewAccountService(
+	v1Svc.SetAccount(accountSvc.NewAccountService(
 		accountSvc.WithRepository(accountRepo.NewAccountRepository(ds)),
 		accountSvc.WithCasbinAdapter(ds.GetCasbin())),
 	)
 
 	// product
-	v1.SetProduct(productSvc.NewProductService(productSvc.WithRepository(productRepo.NewProductRepository(ds))))
+	v1Svc.SetProduct(productSvc.NewProductService(productSvc.WithRepository(productRepo.NewProductRepository(ds))))
 
 	// policy
-	v1.SetPolicy(policySvc.NewPolicyService(policySvc.WithRepository(policyRepo.NewPolicyRepository(ds))))
+	v1Svc.SetPolicy(policySvc.NewPolicyService(policySvc.WithRepository(policyRepo.NewPolicyRepository(ds))))
 
 	// entitlements
-	v1.SetEntitlement(entitlementSvc.NewEntitlementService(entitlementSvc.WithRepository(entitlementRepo.NewEntitlementRepository(ds))))
+	v1Svc.SetEntitlement(entitlementSvc.NewEntitlementService(entitlementSvc.WithRepository(entitlementRepo.NewEntitlementRepository(ds))))
 
 	// licenses
-	v1.SetLicense(licenseSvc.NewLicenseService(licenseSvc.WithRepository(licenseRepo.NewLicenseRepository(ds))))
+	v1Svc.SetLicense(licenseSvc.NewLicenseService(licenseSvc.WithRepository(licenseRepo.NewLicenseRepository(ds))))
 
 	// machines
-	v1.SetMachine(machineSvc.NewMachineService(machineSvc.WithRepository(machineRepo.NewMachineRepository(ds))))
+	v1Svc.SetMachine(machineSvc.NewMachineService(machineSvc.WithRepository(machineRepo.NewMachineRepository(ds))))
 
-	appSvc.SetV1Svc(v1)
+	appSvc.SetV1Svc(v1Svc)
 	return appSvc
 }
 
