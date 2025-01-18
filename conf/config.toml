@@ -1,13 +1,12 @@
 [server]
-http_port=8888
 mode="debug"
 
-[superadmin]
-username="admin"
-password="admin"
-
 [postgres]
-host = "127.0.0.1:5432"
-username = "postgres"
-password = "123qweA#"
-database = "licenses"
+host="127.0.0.1"
+port="5432"
+username="postgres"
+password="123qweA#"
+database="licenses"
+
+[tracer]
+uri="127.0.0.1:4317"

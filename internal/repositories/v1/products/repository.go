@@ -5,28 +5,31 @@ import (
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"go-license-management/internal/comerrors"
+	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
-	"go-license-management/server/models"
+	"go-license-management/internal/utils"
+	"go-license-management/server/api"
+	"time"
 )
 
 type ProductRepository struct {
 	database *bun.DB
 }
 
-func NewProductRepository(ds *models.DataSource) *ProductRepository {
+func NewProductRepository(ds *api.DataSource) *ProductRepository {
 	return &ProductRepository{
 		database: ds.GetDatabase(),
 	}
 }
 
-func (repo *ProductRepository) SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error) {
+func (repo *ProductRepository) SelectTenantByPK(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	tenant := &entities.Tenant{}
+	tenant := &entities.Tenant{Name: tenantName}
 
-	err := repo.database.NewSelect().Model(tenant).ColumnExpr("id, name").Where("name = ?", tenantName).Scan(ctx)
+	err := repo.database.NewSelect().Model(tenant).WherePK().Scan(ctx)
 	if err != nil {
 		return tenant, err
 	}
@@ -46,17 +49,37 @@ func (repo *ProductRepository) InsertNewProduct(ctx context.Context, product *en
 	return nil
 }
 
-func (repo *ProductRepository) SelectProductByPK(ctx context.Context, tenantID, productID uuid.UUID) (*entities.Product, error) {
+func (repo *ProductRepository) SelectProductByPK(ctx context.Context, productID uuid.UUID) (*entities.Product, error) {
 	if repo.database == nil {
 		return nil, comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantID: tenantID}
-	err := repo.database.NewSelect().Model(product).Scan(ctx)
+	product := &entities.Product{ID: productID}
+	err := repo.database.NewSelect().Model(product).WherePK().Scan(ctx)
 	if err != nil {
 		return product, err
 	}
 	return product, nil
+}
+
+func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Product, int, error) {
+	var total = 0
+
+	if repo.database == nil {
+		return nil, total, comerrors.ErrInvalidDatabaseClient
+	}
+
+	products := make([]entities.Product, 0)
+	total, err := repo.database.NewSelect().Model(new(entities.Product)).
+		Where("tenant_name = ?", tenantName).
+		Order("created_at DESC").
+		Limit(utils.DerefPointer(queryParam.Limit)).
+		Offset(utils.DerefPointer(queryParam.Offset)).
+		ScanAndCount(ctx, &products)
+	if err != nil {
+		return products, total, err
+	}
+	return products, total, nil
 }
 
 func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code string) (bool, error) {
@@ -72,13 +95,38 @@ func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code
 	return exist, nil
 }
 
-func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, tenantID, productID uuid.UUID) error {
+func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, productID uuid.UUID) error {
 	if repo.database == nil {
 		return comerrors.ErrInvalidDatabaseClient
 	}
 
-	product := &entities.Product{ID: productID, TenantID: tenantID}
-	_, err := repo.database.NewDelete().Model(product).Exec(ctx)
+	product := &entities.Product{ID: productID}
+	_, err := repo.database.NewDelete().Model(product).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *ProductRepository) UpdateProductByPK(ctx context.Context, product *entities.Product) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	product.UpdatedAt = time.Now()
+	_, err := repo.database.NewUpdate().Model(product).WherePK().Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *ProductRepository) InsertNewProductToken(ctx context.Context, productToken *entities.ProductToken) error {
+	if repo.database == nil {
+		return comerrors.ErrInvalidDatabaseClient
+	}
+
+	_, err := repo.database.NewInsert().Model(productToken).Exec(ctx)
 	if err != nil {
 		return err
 	}

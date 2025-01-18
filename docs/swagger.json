@@ -1,0 +1,3204 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Go License Management Server.",
+        "title": "Go License Management API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "0.1.0"
+    },
+    "host": "localhost:8888",
+    "basePath": "/api/v1",
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Validating account and generate a JWT token if valid, without tenant_name path parameter, one must provide the superadmin credentials",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "API to validate existing account and return a corresponding jwt token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listings existing tenant resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tenant"
+                ],
+                "summary": "API to list existing tenant resources",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Register new tenant resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tenant"
+                ],
+                "summary": "API to register new tenant resource",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/tenants.TenantRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving tenant",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tenant"
+                ],
+                "summary": "API to retrieve tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an existing tenant and all associated data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tenant"
+                ],
+                "summary": "API to delete tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/accounts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing account resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "API to list existing account resources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tenant_name",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Register new account resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "API to register new account resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tenant_name",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AccountRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/accounts/{username}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "API to retrieve existing account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "API to delete existing account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "API to retrieve existing account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AccountUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/accounts/{username}/actions/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Performing actions on account resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "API to perform action on account resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "username",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.AccountActionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/auth/login": {
+            "post": {
+                "description": "Validating account and generate a JWT token if valid, without tenant_name path parameter, one must provide the superadmin credentials",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "API to validate existing account and return a corresponding jwt token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "tenant_name",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/entitlements": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing existing entitlement resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "entitlement"
+                ],
+                "summary": "API to list existing entitlement resources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creating new entitlement resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "entitlement"
+                ],
+                "summary": "API to create new entitlement resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entitlements.EntitlementRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/entitlements/{entitlement_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving entitlement",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "entitlement"
+                ],
+                "summary": "API to retrieve entitlement resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting existing entitlement",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "entitlement"
+                ],
+                "summary": "API to delete entitlement resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "entitlement_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "test",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/licenses": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing existing license resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to list existing license resources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Register new license",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to register new license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/licenses.LicenseRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/licenses/actions/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Performing action on license resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to perform action on license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/licenses.LicenseActionsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/licenses/{license_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve license",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to retrieve license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting license",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to delete license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updating license",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "license"
+                ],
+                "summary": "API to update license resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "license_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/licenses.LicenseUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/machines": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing existing machine resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine"
+                ],
+                "summary": "API to list machine resources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creating new machine resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine"
+                ],
+                "summary": "API to register new machine resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/machines.MachineRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/machines/{machine_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving existing machine resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine"
+                ],
+                "summary": "API to retrieve machine resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting existing machine resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine"
+                ],
+                "summary": "API to delete machine resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updating machine resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine"
+                ],
+                "summary": "API to update machine resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/machines.MachineUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/machines/{machine_id}/actions/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Performing action on machine resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "machine"
+                ],
+                "summary": "API to perform action on machine resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "machine_action",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "machine_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "ttl",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/policies": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing policy resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to list policy resources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creating new policy resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to register new policy resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/policies.PolicyRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/policies/{policy_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving policy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to retrieve policy resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deleting existing policy resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to delete existing policy resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updating policy resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to update policy resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/policies.PolicyUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/policies/{policy_id}/entitlements": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing entitlements for policy resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to list entitlements for policy resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Attaching entitlement to policy resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to attach entitlement to policy resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/policies.PolicyAttachmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Detaching entitlement from policy resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "policy"
+                ],
+                "summary": "API to detach entitlement from policy resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "policy_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/policies.PolicyDetachmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/products": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Listing products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product"
+                ],
+                "summary": "API to list product resources",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "offset",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Register new product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product"
+                ],
+                "summary": "API to register new product resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/products.ProductRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/products/{product_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieving existing product resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product"
+                ],
+                "summary": "API to retrieve existing product resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product"
+                ],
+                "summary": "API to delete product resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updating product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product"
+                ],
+                "summary": "API to update product resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/products.ProductUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/products/{product_id}/tokens": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate product token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "product"
+                ],
+                "summary": "API to generate product token resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "product_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path"
+                    },
+                    {
+                        "description": "request",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/products.ProductTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenants/{tenant_name}/regenerate": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Replace tenant resource's private/public key pair",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tenant"
+                ],
+                "summary": "API to replace tenant resource's private/public key pair",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "tenant_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "accounts.AccountActionRequest": {
+            "type": "object",
+            "properties": {
+                "current_password": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "new_password": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "reset_token": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "accounts.AccountRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "role",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "lastName": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "password": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "accounts.AccountUpdateRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "lastName": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "password": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "entitlements.EntitlementRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "licenses.LicenseActionsRequest": {
+            "type": "object",
+            "properties": {
+                "decrement": {
+                    "type": "integer"
+                },
+                "increment": {
+                    "type": "integer"
+                },
+                "license_key": {
+                    "type": "string"
+                },
+                "nonce": {
+                    "type": "integer"
+                }
+            }
+        },
+        "licenses.LicenseRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "policy_id",
+                "product_id"
+            ],
+            "properties": {
+                "expiry": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "max_machines": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "max_users": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "max_uses": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "policy_id": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "product_id": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "licenses.LicenseUpdateRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "policy_id",
+                "product_id"
+            ],
+            "properties": {
+                "expiry": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "max_machines": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "max_users": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "max_uses": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "policy_id": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "product_id": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "machines.MachineRegistrationRequest": {
+            "type": "object",
+            "properties": {
+                "cores": {
+                    "description": "The number of CPU cores for the machine.",
+                    "type": "integer"
+                },
+                "fingerprint": {
+                    "description": "The fingerprint of the machine. This can be an arbitrary string, but must be unique within the scope of the license it belongs to.",
+                    "type": "string"
+                },
+                "hostname": {
+                    "description": "The hostname of the machine.",
+                    "type": "string"
+                },
+                "ip": {
+                    "description": "The IP of the machine.",
+                    "type": "string"
+                },
+                "license_key": {
+                    "description": "The license key associated with the machine",
+                    "type": "string"
+                },
+                "metadata": {
+                    "description": "Object containing machine metadata.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "The human-readable name of the machine.",
+                    "type": "string"
+                },
+                "platform": {
+                    "description": "The platform of the machine.",
+                    "type": "string"
+                }
+            }
+        },
+        "machines.MachineUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "cores": {
+                    "description": "The number of CPU cores for the machine.",
+                    "type": "integer"
+                },
+                "fingerprint": {
+                    "description": "The fingerprint of the machine. This can be an arbitrary string, but must be unique within the scope of the license it belongs to.",
+                    "type": "string"
+                },
+                "hostname": {
+                    "description": "The hostname of the machine.",
+                    "type": "string"
+                },
+                "ip": {
+                    "description": "The IP of the machine.",
+                    "type": "string"
+                },
+                "license_key": {
+                    "description": "The license key associated with the machine",
+                    "type": "string"
+                },
+                "metadata": {
+                    "description": "Object containing machine metadata.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "The human-readable name of the machine.",
+                    "type": "string"
+                },
+                "platform": {
+                    "description": "The platform of the machine.",
+                    "type": "string"
+                }
+            }
+        },
+        "policies.PolicyAttachmentRequest": {
+            "type": "object",
+            "properties": {
+                "entitlement_id": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "policies.PolicyDetachmentRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "policies.PolicyRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "product_id"
+            ],
+            "properties": {
+                "authentication_strategy": {
+                    "description": "AuthenticationStrategy: The strategy used for authenticating as a license, for client-side integrations.",
+                    "type": "string"
+                },
+                "check_in_interval": {
+                    "description": "CheckInInterval: The time duration between each checkin",
+                    "type": "string"
+                },
+                "duration": {
+                    "description": "Duration: The length of time that a policy is valid",
+                    "type": "integer"
+                },
+                "encrypted": {
+                    "description": "Encrypted: Whether to encrypt the license file",
+                    "type": "boolean"
+                },
+                "expiration_basis": {
+                    "description": "ExpirationBasis: Control when a license's initial expiry is set.",
+                    "type": "string"
+                },
+                "expiration_strategy": {
+                    "description": "ExpirationStrategy: The strategy for expired licenses during a license validation and when accessing releases.",
+                    "type": "string"
+                },
+                "floating": {
+                    "description": "Floating: When true, license that implements the policy will be valid across multiple machines. Default: false",
+                    "type": "boolean"
+                },
+                "heartbeat_basis": {
+                    "description": "HeartbeatBasis: Control when a machine's initial heartbeat is started.",
+                    "type": "string"
+                },
+                "heartbeat_duration": {
+                    "description": "HeartbeatDuration: The heartbeat duration for the policy, in seconds.",
+                    "type": "integer"
+                },
+                "max_machines": {
+                    "description": "MaxMachines: The maximum number of machines a license implementing the policy can have associated with it",
+                    "type": "integer"
+                },
+                "max_users": {
+                    "description": "MaxUsers: The maximum number of users a license implementing the policy can have associated with it",
+                    "type": "integer"
+                },
+                "max_uses": {
+                    "description": "MaxUses: The maximum number of uses a license implementing the policy can have.",
+                    "type": "integer"
+                },
+                "metadata": {
+                    "description": "Metadata: Policy metadata.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "Name: name of the policy",
+                    "type": "string"
+                },
+                "overage_strategy": {
+                    "description": "OverageStrategy: The strategy used for allowing machine, core and process overages.",
+                    "type": "string"
+                },
+                "policyID": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "protected": {
+                    "description": "Protected: Whether the policy is protected.",
+                    "type": "boolean"
+                },
+                "rate_limited": {
+                    "description": "RateLimited: Whether the policy is for rate limiting feature. Default: false",
+                    "type": "boolean"
+                },
+                "renewal_basis": {
+                    "description": "RenewalBasis: Control how a license's expiry is extended during renewal.",
+                    "type": "string"
+                },
+                "require_check_in": {
+                    "description": "RequireCheckIn: When true, require check-in at a predefined interval to continue to pass validation. Default: false",
+                    "type": "boolean"
+                },
+                "require_heartbeat": {
+                    "description": "RequireHeartbeat: Whether the policy requires its machines to maintain a heartbeat.",
+                    "type": "boolean"
+                },
+                "scheme": {
+                    "description": "Scheme: The encryption/signature scheme used on license keys.",
+                    "type": "string"
+                },
+                "strict": {
+                    "description": "Strict: All categories must valid in order for the license to be considered valid. Default: false",
+                    "type": "boolean"
+                },
+                "tenantName": {
+                    "type": "string"
+                },
+                "use_pool": {
+                    "description": "UsePool: Whether to pull license keys from a finite pool of pre-determined keys",
+                    "type": "boolean"
+                }
+            }
+        },
+        "policies.PolicyUpdateRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "authentication_strategy": {
+                    "description": "AuthenticationStrategy: The strategy used for authenticating as a license, for client-side integrations.",
+                    "type": "string"
+                },
+                "check_in_interval": {
+                    "description": "CheckInInterval: The time duration between each checkin",
+                    "type": "string"
+                },
+                "duration": {
+                    "description": "Duration: The length of time that a policy is valid",
+                    "type": "integer"
+                },
+                "encrypted": {
+                    "description": "Encrypted: Whether to encrypt the license file",
+                    "type": "boolean"
+                },
+                "expiration_basis": {
+                    "description": "ExpirationBasis: Control when a license's initial expiry is set.",
+                    "type": "string"
+                },
+                "expiration_strategy": {
+                    "description": "ExpirationStrategy: The strategy for expired licenses during a license validation and when accessing releases.",
+                    "type": "string"
+                },
+                "floating": {
+                    "description": "Floating: When true, license that implements the policy will be valid across multiple machines. Default: false",
+                    "type": "boolean"
+                },
+                "heartbeat_basis": {
+                    "description": "HeartbeatBasis: Control when a machine's initial heartbeat is started.",
+                    "type": "string"
+                },
+                "heartbeat_duration": {
+                    "description": "HeartbeatDuration: The heartbeat duration for the policy, in seconds.",
+                    "type": "integer"
+                },
+                "max_machines": {
+                    "description": "MaxMachines: The maximum number of machines a license implementing the policy can have associated with it",
+                    "type": "integer"
+                },
+                "max_users": {
+                    "description": "MaxUsers: The maximum number of users a license implementing the policy can have associated with it",
+                    "type": "integer"
+                },
+                "max_uses": {
+                    "description": "MaxUses: The maximum number of uses a license implementing the policy can have.",
+                    "type": "integer"
+                },
+                "metadata": {
+                    "description": "Metadata: Policy metadata.",
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "description": "Name: name of the policy",
+                    "type": "string"
+                },
+                "overage_strategy": {
+                    "description": "OverageStrategy: The strategy used for allowing machine, core and process overages.",
+                    "type": "string"
+                },
+                "protected": {
+                    "description": "Protected: Whether the policy is protected.",
+                    "type": "boolean"
+                },
+                "rate_limited": {
+                    "description": "RateLimited: Whether the policy is for rate limiting feature. Default: false",
+                    "type": "boolean"
+                },
+                "renewal_basis": {
+                    "description": "RenewalBasis: Control how a license's expiry is extended during renewal.",
+                    "type": "string"
+                },
+                "require_check_in": {
+                    "description": "RequireCheckIn: When true, require check-in at a predefined interval to continue to pass validation. Default: false",
+                    "type": "boolean"
+                },
+                "require_heartbeat": {
+                    "description": "RequireHeartbeat: Whether the policy requires its machines to maintain a heartbeat.",
+                    "type": "boolean"
+                },
+                "scheme": {
+                    "description": "Scheme: The encryption/signature scheme used on license keys.",
+                    "type": "string"
+                },
+                "strict": {
+                    "description": "Strict: All categories must valid in order for the license to be considered valid. Default: false",
+                    "type": "boolean"
+                },
+                "use_pool": {
+                    "description": "UsePool: Whether to pull license keys from a finite pool of pre-determined keys",
+                    "type": "boolean"
+                }
+            }
+        },
+        "products.ProductRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "distribution_strategy": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "test"
+                    ]
+                },
+                "platforms": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "test"
+                    ]
+                },
+                "url": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "products.ProductTokenRequest": {
+            "type": "object",
+            "required": [
+                "permissions"
+            ],
+            "properties": {
+                "expiry": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "test"
+                    ]
+                }
+            }
+        },
+        "products.ProductUpdateRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "distribution_strategy": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "name": {
+                    "type": "string",
+                    "example": "test"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "test"
+                    ]
+                },
+                "platforms": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "test"
+                    ]
+                },
+                "url": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "agg": {},
+                "code": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "meta": {},
+                "request_id": {
+                    "type": "string"
+                },
+                "server_time": {
+                    "type": "integer"
+                }
+            }
+        },
+        "tenants.TenantRegistrationRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "test"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

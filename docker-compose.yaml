@@ -1,4 +1,26 @@
+version: '3.9'
+
 services:
+  local-registry:
+    image: 'registry:2.7'
+    container_name: local_registry
+    ports:
+      - '5000:5000'
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: backend-tracer
+    ports:
+      - "6831:6831"
+      - "6832:6832/udp"
+      - "16686:16686"
+      - "5778:5778"
+      - "4317:4317"
+      - "14250:14250"
+    networks:
+      - backend
+    restart: always
+
   postgres:
     container_name: postgres_container
     image: postgres
@@ -10,7 +32,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - postgres
+      - backend
     restart: always
 
   pgadmin:
@@ -24,9 +46,22 @@ services:
     ports:
       - "18080:80"
     networks:
+      - backend
+    restart: always
+
+  license-manager:
+    container_name: go-license-manager
+    image: go-license-manager:latest
+    volumes:
+      - ./config.toml:/opt/app/conf/config.toml
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    depends_on:
       - postgres
     restart: always
 
 networks:
-  postgres:
+  backend:
     driver: bridge

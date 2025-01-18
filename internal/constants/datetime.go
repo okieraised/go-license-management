@@ -15,5 +15,4 @@ const (
 	DateFormatHMSYMDSlash   = "15:04:05 2006/01/02" // hh:mm:ss yyyy/mm/dd
 	DateFormatHMSDMYSlash   = "15:04:05 02/01/2006" // hh:mm:ss dd/mm/yyyy
 	DateFormatHMS           = "15:04:05"            // hh:mm:ss
-
 )

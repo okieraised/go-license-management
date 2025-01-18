@@ -1,0 +1,2114 @@
+basePath: /api/v1
+definitions:
+  accounts.AccountActionRequest:
+    properties:
+      current_password:
+        example: test
+        type: string
+      new_password:
+        example: test
+        type: string
+      reset_token:
+        example: test
+        type: string
+    type: object
+  accounts.AccountRegistrationRequest:
+    properties:
+      email:
+        example: test
+        type: string
+      first_name:
+        example: test
+        type: string
+      lastName:
+        example: test
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      password:
+        example: test
+        type: string
+      role:
+        example: test
+        type: string
+      username:
+        example: test
+        type: string
+    required:
+    - email
+    - password
+    - role
+    - username
+    type: object
+  accounts.AccountUpdateRequest:
+    properties:
+      email:
+        example: test
+        type: string
+      first_name:
+        example: test
+        type: string
+      lastName:
+        example: test
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      password:
+        example: test
+        type: string
+      role:
+        example: test
+        type: string
+    required:
+    - email
+    - password
+    - role
+    type: object
+  entitlements.EntitlementRegistrationRequest:
+    properties:
+      code:
+        example: test
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        example: test
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  licenses.LicenseActionsRequest:
+    properties:
+      decrement:
+        type: integer
+      increment:
+        type: integer
+      license_key:
+        type: string
+      nonce:
+        type: integer
+    type: object
+  licenses.LicenseRegistrationRequest:
+    properties:
+      expiry:
+        example: test
+        type: string
+      max_machines:
+        example: 1
+        type: integer
+      max_users:
+        example: 1
+        type: integer
+      max_uses:
+        example: 1
+        type: integer
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        example: test
+        type: string
+      policy_id:
+        example: test
+        type: string
+      product_id:
+        example: test
+        type: string
+    required:
+    - name
+    - policy_id
+    - product_id
+    type: object
+  licenses.LicenseUpdateRequest:
+    properties:
+      expiry:
+        example: test
+        type: string
+      max_machines:
+        example: 1
+        type: integer
+      max_users:
+        example: 1
+        type: integer
+      max_uses:
+        example: 1
+        type: integer
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        example: test
+        type: string
+      policy_id:
+        example: test
+        type: string
+      product_id:
+        example: test
+        type: string
+    required:
+    - name
+    - policy_id
+    - product_id
+    type: object
+  machines.MachineRegistrationRequest:
+    properties:
+      cores:
+        description: The number of CPU cores for the machine.
+        type: integer
+      fingerprint:
+        description: The fingerprint of the machine. This can be an arbitrary string,
+          but must be unique within the scope of the license it belongs to.
+        type: string
+      hostname:
+        description: The hostname of the machine.
+        type: string
+      ip:
+        description: The IP of the machine.
+        type: string
+      license_key:
+        description: The license key associated with the machine
+        type: string
+      metadata:
+        additionalProperties: true
+        description: Object containing machine metadata.
+        type: object
+      name:
+        description: The human-readable name of the machine.
+        type: string
+      platform:
+        description: The platform of the machine.
+        type: string
+    type: object
+  machines.MachineUpdateRequest:
+    properties:
+      cores:
+        description: The number of CPU cores for the machine.
+        type: integer
+      fingerprint:
+        description: The fingerprint of the machine. This can be an arbitrary string,
+          but must be unique within the scope of the license it belongs to.
+        type: string
+      hostname:
+        description: The hostname of the machine.
+        type: string
+      ip:
+        description: The IP of the machine.
+        type: string
+      license_key:
+        description: The license key associated with the machine
+        type: string
+      metadata:
+        additionalProperties: true
+        description: Object containing machine metadata.
+        type: object
+      name:
+        description: The human-readable name of the machine.
+        type: string
+      platform:
+        description: The platform of the machine.
+        type: string
+    type: object
+  policies.PolicyAttachmentRequest:
+    properties:
+      entitlement_id:
+        items:
+          type: string
+        type: array
+    type: object
+  policies.PolicyDetachmentRequest:
+    properties:
+      id:
+        items:
+          type: string
+        type: array
+    type: object
+  policies.PolicyRegistrationRequest:
+    properties:
+      authentication_strategy:
+        description: 'AuthenticationStrategy: The strategy used for authenticating
+          as a license, for client-side integrations.'
+        type: string
+      check_in_interval:
+        description: 'CheckInInterval: The time duration between each checkin'
+        type: string
+      duration:
+        description: 'Duration: The length of time that a policy is valid'
+        type: integer
+      encrypted:
+        description: 'Encrypted: Whether to encrypt the license file'
+        type: boolean
+      expiration_basis:
+        description: 'ExpirationBasis: Control when a license''s initial expiry is
+          set.'
+        type: string
+      expiration_strategy:
+        description: 'ExpirationStrategy: The strategy for expired licenses during
+          a license validation and when accessing releases.'
+        type: string
+      floating:
+        description: 'Floating: When true, license that implements the policy will
+          be valid across multiple machines. Default: false'
+        type: boolean
+      heartbeat_basis:
+        description: 'HeartbeatBasis: Control when a machine''s initial heartbeat
+          is started.'
+        type: string
+      heartbeat_duration:
+        description: 'HeartbeatDuration: The heartbeat duration for the policy, in
+          seconds.'
+        type: integer
+      max_machines:
+        description: 'MaxMachines: The maximum number of machines a license implementing
+          the policy can have associated with it'
+        type: integer
+      max_users:
+        description: 'MaxUsers: The maximum number of users a license implementing
+          the policy can have associated with it'
+        type: integer
+      max_uses:
+        description: 'MaxUses: The maximum number of uses a license implementing the
+          policy can have.'
+        type: integer
+      metadata:
+        additionalProperties: true
+        description: 'Metadata: Policy metadata.'
+        type: object
+      name:
+        description: 'Name: name of the policy'
+        type: string
+      overage_strategy:
+        description: 'OverageStrategy: The strategy used for allowing machine, core
+          and process overages.'
+        type: string
+      policyID:
+        type: string
+      product_id:
+        example: test
+        type: string
+      protected:
+        description: 'Protected: Whether the policy is protected.'
+        type: boolean
+      rate_limited:
+        description: 'RateLimited: Whether the policy is for rate limiting feature.
+          Default: false'
+        type: boolean
+      renewal_basis:
+        description: 'RenewalBasis: Control how a license''s expiry is extended during
+          renewal.'
+        type: string
+      require_check_in:
+        description: 'RequireCheckIn: When true, require check-in at a predefined
+          interval to continue to pass validation. Default: false'
+        type: boolean
+      require_heartbeat:
+        description: 'RequireHeartbeat: Whether the policy requires its machines to
+          maintain a heartbeat.'
+        type: boolean
+      scheme:
+        description: 'Scheme: The encryption/signature scheme used on license keys.'
+        type: string
+      strict:
+        description: 'Strict: All categories must valid in order for the license to
+          be considered valid. Default: false'
+        type: boolean
+      tenantName:
+        type: string
+      use_pool:
+        description: 'UsePool: Whether to pull license keys from a finite pool of
+          pre-determined keys'
+        type: boolean
+    required:
+    - name
+    - product_id
+    type: object
+  policies.PolicyUpdateRequest:
+    properties:
+      authentication_strategy:
+        description: 'AuthenticationStrategy: The strategy used for authenticating
+          as a license, for client-side integrations.'
+        type: string
+      check_in_interval:
+        description: 'CheckInInterval: The time duration between each checkin'
+        type: string
+      duration:
+        description: 'Duration: The length of time that a policy is valid'
+        type: integer
+      encrypted:
+        description: 'Encrypted: Whether to encrypt the license file'
+        type: boolean
+      expiration_basis:
+        description: 'ExpirationBasis: Control when a license''s initial expiry is
+          set.'
+        type: string
+      expiration_strategy:
+        description: 'ExpirationStrategy: The strategy for expired licenses during
+          a license validation and when accessing releases.'
+        type: string
+      floating:
+        description: 'Floating: When true, license that implements the policy will
+          be valid across multiple machines. Default: false'
+        type: boolean
+      heartbeat_basis:
+        description: 'HeartbeatBasis: Control when a machine''s initial heartbeat
+          is started.'
+        type: string
+      heartbeat_duration:
+        description: 'HeartbeatDuration: The heartbeat duration for the policy, in
+          seconds.'
+        type: integer
+      max_machines:
+        description: 'MaxMachines: The maximum number of machines a license implementing
+          the policy can have associated with it'
+        type: integer
+      max_users:
+        description: 'MaxUsers: The maximum number of users a license implementing
+          the policy can have associated with it'
+        type: integer
+      max_uses:
+        description: 'MaxUses: The maximum number of uses a license implementing the
+          policy can have.'
+        type: integer
+      metadata:
+        additionalProperties: true
+        description: 'Metadata: Policy metadata.'
+        type: object
+      name:
+        description: 'Name: name of the policy'
+        type: string
+      overage_strategy:
+        description: 'OverageStrategy: The strategy used for allowing machine, core
+          and process overages.'
+        type: string
+      protected:
+        description: 'Protected: Whether the policy is protected.'
+        type: boolean
+      rate_limited:
+        description: 'RateLimited: Whether the policy is for rate limiting feature.
+          Default: false'
+        type: boolean
+      renewal_basis:
+        description: 'RenewalBasis: Control how a license''s expiry is extended during
+          renewal.'
+        type: string
+      require_check_in:
+        description: 'RequireCheckIn: When true, require check-in at a predefined
+          interval to continue to pass validation. Default: false'
+        type: boolean
+      require_heartbeat:
+        description: 'RequireHeartbeat: Whether the policy requires its machines to
+          maintain a heartbeat.'
+        type: boolean
+      scheme:
+        description: 'Scheme: The encryption/signature scheme used on license keys.'
+        type: string
+      strict:
+        description: 'Strict: All categories must valid in order for the license to
+          be considered valid. Default: false'
+        type: boolean
+      use_pool:
+        description: 'UsePool: Whether to pull license keys from a finite pool of
+          pre-determined keys'
+        type: boolean
+    required:
+    - name
+    type: object
+  products.ProductRegistrationRequest:
+    properties:
+      code:
+        example: test
+        type: string
+      distribution_strategy:
+        example: test
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        example: test
+        type: string
+      permissions:
+        example:
+        - test
+        items:
+          type: string
+        type: array
+      platforms:
+        example:
+        - test
+        items:
+          type: string
+        type: array
+      url:
+        example: test
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  products.ProductTokenRequest:
+    properties:
+      expiry:
+        example: test
+        type: string
+      name:
+        example: test
+        type: string
+      permissions:
+        example:
+        - test
+        items:
+          type: string
+        type: array
+    required:
+    - permissions
+    type: object
+  products.ProductUpdateRequest:
+    properties:
+      code:
+        example: test
+        type: string
+      distribution_strategy:
+        example: test
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      name:
+        example: test
+        type: string
+      permissions:
+        example:
+        - test
+        items:
+          type: string
+        type: array
+      platforms:
+        example:
+        - test
+        items:
+          type: string
+        type: array
+      url:
+        example: test
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  response.Response:
+    properties:
+      agg: {}
+      code:
+        type: string
+      count:
+        type: integer
+      data: {}
+      message:
+        type: string
+      meta: {}
+      request_id:
+        type: string
+      server_time:
+        type: integer
+    type: object
+  tenants.TenantRegistrationRequest:
+    properties:
+      name:
+        example: test
+        type: string
+    required:
+    - name
+    type: object
+host: localhost:8888
+info:
+  contact: {}
+  description: Go License Management Server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Go License Management API
+  version: 0.1.0
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Validating account and generate a JWT token if valid, without tenant_name
+        path parameter, one must provide the superadmin credentials
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to validate existing account and return a corresponding jwt token
+      tags:
+      - authentication
+  /tenants:
+    get:
+      consumes:
+      - application/json
+      description: Listings existing tenant resources
+      parameters:
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list existing tenant resources
+      tags:
+      - tenant
+    post:
+      consumes:
+      - application/json
+      description: Register new tenant resource
+      parameters:
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/tenants.TenantRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to register new tenant resource
+      tags:
+      - tenant
+  /tenants/{tenant_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing tenant and all associated data
+      parameters:
+      - in: path
+        name: tenant_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to delete tenant
+      tags:
+      - tenant
+    get:
+      consumes:
+      - application/json
+      description: Retrieving tenant
+      parameters:
+      - in: path
+        name: tenant_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve tenant
+      tags:
+      - tenant
+  /tenants/{tenant_name}/accounts:
+    get:
+      consumes:
+      - application/json
+      description: Listing account resources
+      parameters:
+      - description: tenant_name
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list existing account resources
+      tags:
+      - account
+    post:
+      consumes:
+      - application/json
+      description: Register new account resource
+      parameters:
+      - description: tenant_name
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.AccountRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to register new account resource
+      tags:
+      - account
+  /tenants/{tenant_name}/accounts/{username}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleting account
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to delete existing account
+      tags:
+      - account
+    get:
+      consumes:
+      - application/json
+      description: Retrieving account
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve existing account
+      tags:
+      - account
+    patch:
+      consumes:
+      - application/json
+      description: Retrieving account
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.AccountUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve existing account
+      tags:
+      - account
+  /tenants/{tenant_name}/accounts/{username}/actions/{action}:
+    post:
+      consumes:
+      - application/json
+      description: Performing actions on account resource
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: path
+        name: username
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.AccountActionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to perform action on account resource
+      tags:
+      - account
+  /tenants/{tenant_name}/auth/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Validating account and generate a JWT token if valid, without tenant_name
+        path parameter, one must provide the superadmin credentials
+      parameters:
+      - description: username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: tenant_name
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: API to validate existing account and return a corresponding jwt token
+      tags:
+      - authentication
+  /tenants/{tenant_name}/entitlements:
+    get:
+      consumes:
+      - application/json
+      description: Listing existing entitlement resources
+      parameters:
+      - example: test
+        in: path
+        name: entitlement_id
+        required: true
+        type: string
+      - example: test
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list existing entitlement resources
+      tags:
+      - entitlement
+    post:
+      consumes:
+      - application/json
+      description: Creating new entitlement resource
+      parameters:
+      - example: test
+        in: path
+        name: entitlement_id
+        required: true
+        type: string
+      - example: test
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/entitlements.EntitlementRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to create new entitlement resource
+      tags:
+      - entitlement
+  /tenants/{tenant_name}/entitlements/{entitlement_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleting existing entitlement
+      parameters:
+      - example: test
+        in: path
+        name: entitlement_id
+        required: true
+        type: string
+      - example: test
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to delete entitlement resource
+      tags:
+      - entitlement
+    get:
+      consumes:
+      - application/json
+      description: Retrieving entitlement
+      parameters:
+      - example: test
+        in: path
+        name: entitlement_id
+        required: true
+        type: string
+      - example: test
+        in: path
+        name: tenant_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve entitlement resource
+      tags:
+      - entitlement
+  /tenants/{tenant_name}/licenses:
+    get:
+      consumes:
+      - application/json
+      description: Listing existing license resources
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list existing license resources
+      tags:
+      - license
+    post:
+      consumes:
+      - application/json
+      description: Register new license
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/licenses.LicenseRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to register new license resource
+      tags:
+      - license
+  /tenants/{tenant_name}/licenses/{license_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleting license
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to delete license resource
+      tags:
+      - license
+    get:
+      consumes:
+      - application/json
+      description: Retrieve license
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve license resource
+      tags:
+      - license
+    patch:
+      consumes:
+      - application/json
+      description: Updating license
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/licenses.LicenseUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to update license resource
+      tags:
+      - license
+  /tenants/{tenant_name}/licenses/actions/{action}:
+    post:
+      consumes:
+      - application/json
+      description: Performing action on license resource
+      parameters:
+      - in: path
+        name: action
+        type: string
+      - in: path
+        name: license_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/licenses.LicenseActionsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to perform action on license resource
+      tags:
+      - license
+  /tenants/{tenant_name}/machines:
+    get:
+      consumes:
+      - application/json
+      description: Listing existing machine resources
+      parameters:
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list machine resources
+      tags:
+      - machine
+    post:
+      consumes:
+      - application/json
+      description: Creating new machine resource
+      parameters:
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/machines.MachineRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to register new machine resource
+      tags:
+      - machine
+  /tenants/{tenant_name}/machines/{machine_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleting existing machine resource
+      parameters:
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to delete machine resource
+      tags:
+      - machine
+    get:
+      consumes:
+      - application/json
+      description: Retrieving existing machine resource
+      parameters:
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve machine resource
+      tags:
+      - machine
+    patch:
+      consumes:
+      - application/json
+      description: Updating machine resource
+      parameters:
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/machines.MachineUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to update machine resource
+      tags:
+      - machine
+  /tenants/{tenant_name}/machines/{machine_id}/actions/{action}:
+    post:
+      consumes:
+      - application/json
+      description: Performing action on machine resource
+      parameters:
+      - in: path
+        name: machine_action
+        type: string
+      - in: path
+        name: machine_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - in: query
+        name: ttl
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to perform action on machine resource
+      tags:
+      - machine
+  /tenants/{tenant_name}/policies:
+    get:
+      consumes:
+      - application/json
+      description: Listing policy resources
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list policy resources
+      tags:
+      - policy
+    post:
+      consumes:
+      - application/json
+      description: Creating new policy resource
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/policies.PolicyRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to register new policy resource
+      tags:
+      - policy
+  /tenants/{tenant_name}/policies/{policy_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleting existing policy resource
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to delete existing policy resource
+      tags:
+      - policy
+    get:
+      consumes:
+      - application/json
+      description: Retrieving policy
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve policy resource
+      tags:
+      - policy
+    patch:
+      consumes:
+      - application/json
+      description: Updating policy resource
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/policies.PolicyUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to update policy resource
+      tags:
+      - policy
+  /tenants/{tenant_name}/policies/{policy_id}/entitlements:
+    delete:
+      consumes:
+      - application/json
+      description: Detaching entitlement from policy resource
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/policies.PolicyDetachmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to detach entitlement from policy resource
+      tags:
+      - policy
+    get:
+      consumes:
+      - application/json
+      description: Listing entitlements for policy resource
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 10
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list entitlements for policy resource
+      tags:
+      - policy
+    post:
+      consumes:
+      - application/json
+      description: Attaching entitlement to policy resource
+      parameters:
+      - in: path
+        name: policy_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/policies.PolicyAttachmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to attach entitlement to policy resource
+      tags:
+      - policy
+  /tenants/{tenant_name}/products:
+    get:
+      consumes:
+      - application/json
+      description: Listing products
+      parameters:
+      - example: 10
+        in: path
+        name: limit
+        type: integer
+      - example: 10
+        in: path
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to list product resources
+      tags:
+      - product
+    post:
+      consumes:
+      - application/json
+      description: Register new product
+      parameters:
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/products.ProductRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to register new product resource
+      tags:
+      - product
+  /tenants/{tenant_name}/products/{product_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product
+      parameters:
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to delete product resource
+      tags:
+      - product
+    get:
+      consumes:
+      - application/json
+      description: Retrieving existing product resource
+      parameters:
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to retrieve existing product resource
+      tags:
+      - product
+    patch:
+      consumes:
+      - application/json
+      description: Updating product
+      parameters:
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/products.ProductUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to update product resource
+      tags:
+      - product
+  /tenants/{tenant_name}/products/{product_id}/tokens:
+    post:
+      consumes:
+      - application/json
+      description: Generate product token
+      parameters:
+      - in: path
+        name: product_id
+        type: string
+      - in: path
+        name: tenant_name
+        type: string
+      - description: request
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/products.ProductTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to generate product token resource
+      tags:
+      - product
+  /tenants/{tenant_name}/regenerate:
+    post:
+      consumes:
+      - application/json
+      description: Replace tenant resource's private/public key pair
+      parameters:
+      - in: path
+        name: tenant_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: API to replace tenant resource's private/public key pair
+      tags:
+      - tenant
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

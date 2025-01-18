@@ -1,16 +1,25 @@
 package entities
 
 import (
-	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"time"
 )
+
+type Master struct {
+	bun.BaseModel `bun:"table:masters,alias:ms" swaggerignore:"true"`
+
+	Username          string `bun:"username,pk,type:varchar(128)"`
+	RoleName          string `bun:"role_name,type:varchar(256),notnull"`
+	PasswordDigest    string `bun:"password_digest,type:varchar(256)"`
+	Ed25519PublicKey  string `bun:"ed25519_public_key,type:varchar(512),notnull"`
+	Ed25519PrivateKey string `bun:"ed25519_private_key,type:varchar(512),notnull"`
+}
 
 type Account struct {
 	bun.BaseModel `bun:"table:accounts,alias:a" swaggerignore:"true"`
 
 	Username            string                 `bun:"username,pk,type:varchar(128)"`
-	TenantID            uuid.UUID              `bun:"tenant_id,pk,type:uuid,notnull"`
+	TenantName          string                 `bun:"tenant_name,pk,type:varchar(256),notnull"`
 	RoleName            string                 `bun:"role_name,type:varchar(256),notnull"`
 	Email               string                 `bun:"email,type:varchar(256),notnull"`
 	FirstName           string                 `bun:"first_name,type:varchar(128)"`
@@ -23,6 +32,6 @@ type Account struct {
 	BannedAt            time.Time              `bun:"banned_at,nullzero"`
 	CreatedAt           time.Time              `bun:"created_at,nullzero,notnull,default:current_timestamp"`
 	UpdatedAt           time.Time              `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
-	Tenant              *Tenant                `bun:"rel:belongs-to,join:tenant_id=id"`
+	Tenant              *Tenant                `bun:"rel:belongs-to,join:tenant_name=name"`
 	Role                *Role                  `bun:"rel:belongs-to,join:role_name=name"`
 }

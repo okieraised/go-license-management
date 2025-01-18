@@ -34,6 +34,7 @@ func LoggerMW(logger *zap.Logger) gin.HandlerFunc {
 			zap.String("ip", ctx.ClientIP()),
 			zap.String("user-agent", ctx.Request.UserAgent()),
 			zap.Int64("latency", latency),
+			zap.String(constants.ContextValueSubject, ctx.GetString(constants.ContextValueSubject)),
 		}
 		logger.Info("", fields...)
 	}

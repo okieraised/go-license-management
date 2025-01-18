@@ -10,18 +10,19 @@ import (
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "go-license-management/docs"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/middlewares"
 	"go-license-management/server/api"
-	"go-license-management/server/models"
 	"net/http"
 	"os"
 	"time"
 )
 
-func StartServer(appService *models.AppService, quit chan os.Signal) {
+// StartServer starts the API server
+func StartServer(appService *api.AppService, quit chan os.Signal) {
 	gin.SetMode(viper.GetString(config.ServerMode))
 	router := gin.New()
 	router.Use(gin.Recovery())
@@ -35,20 +36,36 @@ func StartServer(appService *models.AppService, quit chan os.Signal) {
 		AllowCredentials: true,
 	}))
 
-	router.Use(middlewares.RequestIDMW(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression), middlewares.LoggerMW(logging.GetInstance().GetLogger()), middlewares.Recovery())
+	router.Use(
+		middlewares.RequestIDMW(), middlewares.TimeoutMW(), gzip.Gzip(gzip.DefaultCompression),
+		middlewares.Recovery(), middlewares.LoggerMW(logging.GetInstance().GetLogger()), middlewares.HashHeaderMW(),
+	)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	rootRouter := api.New(appService)
 	rootRouter.InitRouters(router)
 
-	serverAddr := "0.0.0.0:" + viper.GetString(config.ServerHttpPort)
+	serverPort := "8888"
+	if viper.GetString(config.ServerHttpPort) != "" {
+		serverPort = viper.GetString(config.ServerHttpPort)
+	}
+
+	serverAddr := fmt.Sprintf("0.0.0.0:%s", serverPort)
 	srv := &http.Server{
 		Addr:    serverAddr,
 		Handler: router,
 	}
 
 	go func() {
-		err := srv.ListenAndServe()
+		var err error
+
+		if viper.GetBool(config.ServerEnableTLS) {
+			logging.GetInstance().GetLogger().Info("tls enabled")
+			err = srv.ListenAndServeTLS(viper.GetString(config.ServerCertFile), viper.GetString(config.ServerKeyFile))
+		} else {
+			logging.GetInstance().GetLogger().Info("tls disabled")
+			err = srv.ListenAndServe()
+		}
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logging.GetInstance().GetLogger().Error(err.Error())
 		}
