@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
@@ -60,13 +60,13 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -79,17 +79,17 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 
 	if !exists {
 		svc.logger.GetLogger().Info(fmt.Sprintf("product id [%s] does not exist in tenant [%s]", productID.String(), tenant.Name))
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-		return resp, comerrors.ErrProductIDIsInvalid
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+		return resp, cerrors.ErrProductIDIsInvalid
 	}
 	cSpan.End()
 
@@ -103,23 +103,23 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		privateKey, publicKey, err = utils.NewEd25519KeyPair()
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	case constants.PolicySchemeRSA2048PKCS1:
 		privateKey, publicKey, err = utils.NewRSA2048PKCS1KeyPair()
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	default:
 		svc.logger.GetLogger().Error(fmt.Sprintf("invalid supported sheme [%s]", scheme))
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicySchemeIsInvalid]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicySchemeIsInvalid]
-		return resp, comerrors.ErrPolicySchemeIsInvalid
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicySchemeIsInvalid]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicySchemeIsInvalid]
+		return resp, cerrors.ErrPolicySchemeIsInvalid
 	}
 
 	// Insert new policy
@@ -162,9 +162,9 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -199,8 +199,8 @@ func (svc *PolicyService) Create(ctx *gin.Context, input *models.PolicyRegistrat
 		},
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 	return resp, nil
 }
@@ -222,13 +222,13 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -239,13 +239,13 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -284,8 +284,8 @@ func (svc *PolicyService) List(ctx *gin.Context, input *models.PolicyListInput) 
 		})
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = total
 	resp.Data = policiesOutput
 	return resp, nil
@@ -308,13 +308,13 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -326,13 +326,13 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 		cSpan.End()
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-			return resp, comerrors.ErrPolicyIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyIDIsInvalid]
+			return resp, cerrors.ErrPolicyIDIsInvalid
 		default:
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -368,8 +368,8 @@ func (svc *PolicyService) Retrieve(ctx *gin.Context, input *models.PolicyRetriev
 		},
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -392,13 +392,13 @@ func (svc *PolicyService) Delete(ctx *gin.Context, input *models.PolicyDeletionI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -409,14 +409,14 @@ func (svc *PolicyService) Delete(ctx *gin.Context, input *models.PolicyDeletionI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }
 
@@ -438,13 +438,13 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -457,13 +457,13 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-			return resp, comerrors.ErrPolicyIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyIDIsInvalid]
+			return resp, cerrors.ErrPolicyIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -472,9 +472,9 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 	policy, err = svc.updatePolicyField(ctx, input, policy)
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 
 	// Update existing policy
@@ -485,9 +485,9 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -522,8 +522,8 @@ func (svc *PolicyService) Update(ctx *gin.Context, input *models.PolicyUpdateInp
 		},
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 	return resp, nil
 }
@@ -545,13 +545,13 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -563,13 +563,13 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-			return resp, comerrors.ErrPolicyIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyIDIsInvalid]
+			return resp, cerrors.ErrPolicyIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -585,17 +585,17 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
 	if len(entitlements) == 0 {
 		svc.logger.GetLogger().Error("no entitlement record found")
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrEntitlementIDIsInvalid]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrEntitlementIDIsInvalid]
-		return resp, comerrors.ErrEntitlementIDIsInvalid
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrEntitlementIDIsInvalid]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrEntitlementIDIsInvalid]
+		return resp, cerrors.ErrEntitlementIDIsInvalid
 	} else {
 		for _, entitlement := range entitlements {
 			exist, err := svc.repo.CheckPolicyEntitlementExistsByPolicyIDAndEntitlementID(ctx, policy.ID, entitlement.ID)
@@ -604,9 +604,9 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 				cSpan.End()
 			}
 			if exist {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyEntitlementAlreadyExist]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyEntitlementAlreadyExist]
-				return resp, comerrors.ErrPolicyEntitlementAlreadyExist
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyEntitlementAlreadyExist]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyEntitlementAlreadyExist]
+				return resp, cerrors.ErrPolicyEntitlementAlreadyExist
 			}
 		}
 	}
@@ -641,15 +641,15 @@ func (svc *PolicyService) Attach(ctx *gin.Context, input *models.PolicyAttachmen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = policyEntitlementsOutput
 
 	return resp, nil
@@ -672,13 +672,13 @@ func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmen
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -690,13 +690,13 @@ func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmen
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-			return resp, comerrors.ErrPolicyIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyIDIsInvalid]
+			return resp, cerrors.ErrPolicyIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -712,14 +712,14 @@ func (svc *PolicyService) Detach(ctx *gin.Context, input *models.PolicyDetachmen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }
 
@@ -740,13 +740,13 @@ func (svc *PolicyService) ListEntitlements(ctx *gin.Context, input *models.Polic
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -758,13 +758,13 @@ func (svc *PolicyService) ListEntitlements(ctx *gin.Context, input *models.Polic
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-			return resp, comerrors.ErrPolicyIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyIDIsInvalid]
+			return resp, cerrors.ErrPolicyIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -775,9 +775,9 @@ func (svc *PolicyService) ListEntitlements(ctx *gin.Context, input *models.Polic
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -794,8 +794,8 @@ func (svc *PolicyService) ListEntitlements(ctx *gin.Context, input *models.Polic
 		})
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = total
 	resp.Data = outputs
 	return resp, nil

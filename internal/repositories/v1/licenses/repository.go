@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
@@ -24,7 +24,7 @@ func NewLicenseRepository(ds *api.DataSource) *LicenseRepository {
 
 func (repo *LicenseRepository) SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: tenantName}
@@ -39,7 +39,7 @@ func (repo *LicenseRepository) SelectTenantByName(ctx context.Context, tenantNam
 
 func (repo *LicenseRepository) SelectProductByPK(ctx context.Context, productID uuid.UUID) (*entities.Product, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	product := &entities.Product{ID: productID}
@@ -54,7 +54,7 @@ func (repo *LicenseRepository) SelectProductByPK(ctx context.Context, productID 
 
 func (repo *LicenseRepository) SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	policy := &entities.Policy{ID: policyID}
@@ -69,7 +69,7 @@ func (repo *LicenseRepository) SelectPolicyByPK(ctx context.Context, policyID uu
 
 func (repo *LicenseRepository) InsertNewLicense(ctx context.Context, license *entities.License) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(license).Exec(ctx)
@@ -82,7 +82,7 @@ func (repo *LicenseRepository) InsertNewLicense(ctx context.Context, license *en
 
 func (repo *LicenseRepository) SelectLicenseByPK(ctx context.Context, licenseID uuid.UUID) (*entities.License, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	license := &entities.License{ID: licenseID}
@@ -99,7 +99,7 @@ func (repo *LicenseRepository) SelectLicenses(ctx context.Context, tenantName st
 	var total = 0
 
 	if repo.database == nil {
-		return nil, total, comerrors.ErrInvalidDatabaseClient
+		return nil, total, cerrors.ErrInvalidDatabaseClient
 	}
 
 	licenses := make([]entities.License, 0)
@@ -117,7 +117,7 @@ func (repo *LicenseRepository) SelectLicenses(ctx context.Context, tenantName st
 
 func (repo *LicenseRepository) SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	license := &entities.License{Key: licenseKey}
@@ -132,7 +132,7 @@ func (repo *LicenseRepository) SelectLicenseByLicenseKey(ctx context.Context, li
 
 func (repo *LicenseRepository) DeleteLicenseByPK(ctx context.Context, licenseID uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	license := &entities.License{ID: licenseID}
@@ -147,7 +147,7 @@ func (repo *LicenseRepository) DeleteLicenseByPK(ctx context.Context, licenseID 
 
 func (repo *LicenseRepository) UpdateLicenseByPK(ctx context.Context, license *entities.License) (*entities.License, error) {
 	if repo.database == nil {
-		return license, comerrors.ErrInvalidDatabaseClient
+		return license, cerrors.ErrInvalidDatabaseClient
 	}
 
 	license.UpdatedAt = time.Now()
@@ -163,7 +163,7 @@ func (repo *LicenseRepository) CheckPolicyExist(ctx context.Context, policyID uu
 	var exist bool
 
 	if repo.database == nil {
-		return exist, comerrors.ErrInvalidDatabaseClient
+		return exist, cerrors.ErrInvalidDatabaseClient
 	}
 
 	policy := &entities.Policy{ID: policyID}
@@ -179,7 +179,7 @@ func (repo *LicenseRepository) CheckProductExist(ctx context.Context, productID 
 	var exist bool
 
 	if repo.database == nil {
-		return exist, comerrors.ErrInvalidDatabaseClient
+		return exist, cerrors.ErrInvalidDatabaseClient
 	}
 
 	product := &entities.Product{ID: productID}

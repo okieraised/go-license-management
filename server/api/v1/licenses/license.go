@@ -3,7 +3,7 @@ package licenses
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/license_attribute"
@@ -81,7 +81,7 @@ func (r *LicenseRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -91,7 +91,7 @@ func (r *LicenseRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -103,7 +103,7 @@ func (r *LicenseRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -117,9 +117,9 @@ func (r *LicenseRouter) create(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
-			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
-			errors.Is(err, comerrors.ErrProductIDIsInvalid):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, cerrors.ErrPolicyIDIsInvalid),
+			errors.Is(err, cerrors.ErrProductIDIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -168,7 +168,7 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -180,7 +180,7 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -194,7 +194,7 @@ func (r *LicenseRouter) retrieve(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -243,7 +243,7 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -253,7 +253,7 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -265,7 +265,7 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -279,10 +279,10 @@ func (r *LicenseRouter) update(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
-			errors.Is(err, comerrors.ErrPolicyIDIsInvalid),
-			errors.Is(err, comerrors.ErrProductIDIsInvalid),
-			errors.Is(err, comerrors.ErrLicenseIDIsInvalid):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, cerrors.ErrPolicyIDIsInvalid),
+			errors.Is(err, cerrors.ErrProductIDIsInvalid),
+			errors.Is(err, cerrors.ErrLicenseIDIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -333,7 +333,7 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -345,7 +345,7 @@ func (r *LicenseRouter) delete(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -403,7 +403,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -413,7 +413,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -425,7 +425,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -439,7 +439,7 @@ func (r *LicenseRouter) list(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -505,7 +505,7 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -515,7 +515,7 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -528,7 +528,7 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -537,7 +537,7 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -551,7 +551,7 @@ func (r *LicenseRouter) action(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrGenericInternalServer):
+		case errors.Is(err, cerrors.ErrGenericInternalServer):
 			ctx.JSON(http.StatusInternalServerError, resp)
 		default:
 			ctx.JSON(http.StatusBadRequest, resp)

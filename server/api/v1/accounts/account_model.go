@@ -3,7 +3,7 @@ package accounts
 import (
 	"context"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/account_attribute"
 	"go-license-management/internal/services/v1/accounts/models"
@@ -23,20 +23,20 @@ type AccountRegistrationRequest struct {
 
 func (req *AccountRegistrationRequest) Validate() error {
 	if req.Username == nil {
-		return comerrors.ErrAccountUsernameIsEmpty
+		return cerrors.ErrAccountUsernameIsEmpty
 	}
 	if req.Password == nil {
-		return comerrors.ErrAccountPasswordIsEmpty
+		return cerrors.ErrAccountPasswordIsEmpty
 	}
 
 	if req.Email == nil {
-		return comerrors.ErrAccountEmailIsEmpty
+		return cerrors.ErrAccountEmailIsEmpty
 	}
 	if req.Role == nil {
 		req.Role = utils.RefPointer(constants.RoleUser)
 	} else {
 		if _, ok := constants.ValidAccountCreationRoleMapper[utils.DerefPointer(req.Role)]; !ok {
-			return comerrors.ErrAccountRoleIsInvalid
+			return cerrors.ErrAccountRoleIsInvalid
 		}
 	}
 
@@ -72,7 +72,7 @@ type AccountRetrievalRequest struct {
 
 func (req *AccountRetrievalRequest) Validate() error {
 	if req.Username == nil {
-		return comerrors.ErrAccountUsernameIsEmpty
+		return cerrors.ErrAccountUsernameIsEmpty
 	}
 	return req.AccountCommonURI.Validate()
 }
@@ -91,7 +91,7 @@ type AccountDeletionRequest struct {
 
 func (req *AccountDeletionRequest) Validate() error {
 	if req.Username == nil {
-		return comerrors.ErrAccountUsernameIsEmpty
+		return cerrors.ErrAccountUsernameIsEmpty
 	}
 	return req.AccountCommonURI.Validate()
 }
@@ -116,7 +116,7 @@ type AccountUpdateRequest struct {
 func (req *AccountUpdateRequest) Validate() error {
 	if req.Role != nil {
 		if _, ok := constants.ValidAccountCreationRoleMapper[utils.DerefPointer(req.Role)]; !ok {
-			return comerrors.ErrAccountRoleIsInvalid
+			return cerrors.ErrAccountRoleIsInvalid
 		}
 	}
 	return nil

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
@@ -62,13 +62,13 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -80,13 +80,13 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-			return resp, comerrors.ErrProductIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+			return resp, cerrors.ErrProductIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -98,13 +98,13 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 		cSpan.End()
 		svc.logger.GetLogger().Error(err.Error())
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-			return resp, comerrors.ErrPolicyIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyIDIsInvalid]
+			return resp, cerrors.ErrPolicyIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -115,9 +115,9 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	if err != nil {
 		cSpan.End()
 		svc.logger.GetLogger().Error(err.Error())
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -127,9 +127,9 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -181,8 +181,8 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 		},
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 	return resp, nil
 }
@@ -205,13 +205,13 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -224,13 +224,13 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 		cSpan.End()
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIDIsInvalid]
-			return resp, comerrors.ErrLicenseIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseIDIsInvalid]
+			return resp, cerrors.ErrLicenseIDIsInvalid
 		default:
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -246,13 +246,13 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
 				if errors.Is(err, sql.ErrNoRows) {
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrPolicyIDIsInvalid]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrPolicyIDIsInvalid]
-					return resp, comerrors.ErrPolicyIDIsInvalid
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrPolicyIDIsInvalid]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrPolicyIDIsInvalid]
+					return resp, cerrors.ErrPolicyIDIsInvalid
 				} else {
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-					return resp, comerrors.ErrGenericInternalServer
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+					return resp, cerrors.ErrGenericInternalServer
 				}
 			}
 			license.MaxUsers = policy.MaxUsers
@@ -272,15 +272,15 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 
 		if !exist {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-			return resp, comerrors.ErrProductIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+			return resp, cerrors.ErrProductIDIsInvalid
 		} else {
 			license.ProductID = productID
 		}
@@ -336,9 +336,9 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -390,8 +390,8 @@ func (svc *LicenseService) Update(ctx *gin.Context, input *models.LicenseUpdateI
 		},
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -415,13 +415,13 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -434,13 +434,13 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 		cSpan.End()
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIDIsInvalid]
-			return resp, comerrors.ErrLicenseIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseIDIsInvalid]
+			return resp, cerrors.ErrLicenseIDIsInvalid
 		default:
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -493,8 +493,8 @@ func (svc *LicenseService) Retrieve(ctx *gin.Context, input *models.LicenseRetri
 		},
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -517,13 +517,13 @@ func (svc *LicenseService) Delete(ctx *gin.Context, input *models.LicenseDeletio
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -534,14 +534,14 @@ func (svc *LicenseService) Delete(ctx *gin.Context, input *models.LicenseDeletio
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }
 
@@ -562,13 +562,13 @@ func (svc *LicenseService) List(ctx *gin.Context, input *models.LicenseListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -579,13 +579,13 @@ func (svc *LicenseService) List(ctx *gin.Context, input *models.LicenseListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-			return resp, comerrors.ErrProductIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+			return resp, cerrors.ErrProductIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -641,8 +641,8 @@ func (svc *LicenseService) List(ctx *gin.Context, input *models.LicenseListInput
 		})
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = total
 	resp.Data = licenseOutput
 
@@ -667,13 +667,13 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -684,13 +684,13 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseKeyIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseKeyIsInvalid]
-			return resp, comerrors.ErrLicenseKeyIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseKeyIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseKeyIsInvalid]
+			return resp, cerrors.ErrLicenseKeyIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -703,9 +703,9 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 		resp.Data = output
 	case constants.LicenseActionCheckout:
@@ -713,9 +713,9 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 		resp.Data = output
 	default:
@@ -726,9 +726,9 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			if err != nil {
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		case constants.LicenseActionSuspend:
 			output, err = svc.suspendLicense(ctx, license)
@@ -736,14 +736,14 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
 				switch {
-				case errors.Is(err, comerrors.ErrLicenseNotActivated):
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseNotActivated]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseNotActivated]
-					return resp, comerrors.ErrLicenseNotActivated
+				case errors.Is(err, cerrors.ErrLicenseNotActivated):
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseNotActivated]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseNotActivated]
+					return resp, cerrors.ErrLicenseNotActivated
 				default:
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-					return resp, comerrors.ErrGenericInternalServer
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+					return resp, cerrors.ErrGenericInternalServer
 				}
 			}
 		case constants.LicenseActionReinstate:
@@ -752,14 +752,14 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
 				switch {
-				case errors.Is(err, comerrors.ErrLicenseStatusInvalidToReinstate):
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseStatusInvalidToReinstate]
-					return resp, comerrors.ErrLicenseStatusInvalidToReinstate
+				case errors.Is(err, cerrors.ErrLicenseStatusInvalidToReinstate):
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseStatusInvalidToReinstate]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseStatusInvalidToReinstate]
+					return resp, cerrors.ErrLicenseStatusInvalidToReinstate
 				default:
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-					return resp, comerrors.ErrGenericInternalServer
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+					return resp, cerrors.ErrGenericInternalServer
 				}
 			}
 		case constants.LicenseActionRenew:
@@ -767,9 +767,9 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			if err != nil {
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		case constants.LicenseActionIncrementUsage:
 			output, err = svc.incrementUsageLicense(ctx, utils.DerefPointer(input.Increment), license)
@@ -777,14 +777,14 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
 				switch {
-				case errors.Is(err, comerrors.ErrLicenseMaxUsesExceeded):
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxUsesExceeded]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxUsesExceeded]
-					return resp, comerrors.ErrLicenseMaxUsesExceeded
+				case errors.Is(err, cerrors.ErrLicenseMaxUsesExceeded):
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseMaxUsesExceeded]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseMaxUsesExceeded]
+					return resp, cerrors.ErrLicenseMaxUsesExceeded
 				default:
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-					return resp, comerrors.ErrGenericInternalServer
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+					return resp, cerrors.ErrGenericInternalServer
 				}
 			}
 		case constants.LicenseActionDecrementUsage:
@@ -793,14 +793,14 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
 				switch {
-				case errors.Is(err, comerrors.ErrLicenseIncrementIsInvalid):
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIncrementIsInvalid]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIncrementIsInvalid]
-					return resp, comerrors.ErrLicenseIncrementIsInvalid
+				case errors.Is(err, cerrors.ErrLicenseIncrementIsInvalid):
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseIncrementIsInvalid]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseIncrementIsInvalid]
+					return resp, cerrors.ErrLicenseIncrementIsInvalid
 				default:
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-					return resp, comerrors.ErrGenericInternalServer
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+					return resp, cerrors.ErrGenericInternalServer
 				}
 			}
 		case constants.LicenseActionResetUsage:
@@ -808,9 +808,9 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 			if err != nil {
 				svc.logger.GetLogger().Error(err.Error())
 				cSpan.End()
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		}
 		resp.Data = models.LicenseInfoOutput{
@@ -862,7 +862,7 @@ func (svc *LicenseService) Actions(ctx *gin.Context, input *models.LicenseAction
 		}
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }

@@ -3,7 +3,7 @@ package authentications
 import (
 	"context"
 	"github.com/uptrace/bun"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/server/api"
 )
@@ -20,7 +20,7 @@ func NewAuthenticationRepository(ds *api.DataSource) *AuthenticationRepository {
 
 func (repo *AuthenticationRepository) SelectTenantByPK(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: tenantName}
@@ -35,7 +35,7 @@ func (repo *AuthenticationRepository) SelectTenantByPK(ctx context.Context, tena
 
 func (repo *AuthenticationRepository) SelectAccountByPK(ctx context.Context, tenantName, username string) (*entities.Account, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	account := &entities.Account{Username: username, TenantName: tenantName}
@@ -48,7 +48,7 @@ func (repo *AuthenticationRepository) SelectAccountByPK(ctx context.Context, ten
 
 func (repo *AuthenticationRepository) SelectMasterByPK(ctx context.Context, username string) (*entities.Master, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	master := &entities.Master{Username: username}

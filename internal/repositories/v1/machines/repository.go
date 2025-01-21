@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
@@ -25,7 +25,7 @@ func NewMachineRepository(ds *api.DataSource) *MachineRepository {
 
 func (repo *MachineRepository) SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: tenantName}
@@ -40,7 +40,7 @@ func (repo *MachineRepository) SelectTenantByName(ctx context.Context, tenantNam
 
 func (repo *MachineRepository) SelectMachineByPK(ctx context.Context, machineID uuid.UUID) (*entities.Machine, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	machine := &entities.Machine{ID: machineID}
@@ -55,7 +55,7 @@ func (repo *MachineRepository) SelectMachineByPK(ctx context.Context, machineID 
 
 func (repo *MachineRepository) InsertNewMachine(ctx context.Context, machine *entities.Machine) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(machine).Exec(ctx)
@@ -70,7 +70,7 @@ func (repo *MachineRepository) SelectMachines(ctx context.Context, tenantName st
 	var total = 0
 
 	if repo.database == nil {
-		return nil, total, comerrors.ErrInvalidDatabaseClient
+		return nil, total, cerrors.ErrInvalidDatabaseClient
 	}
 
 	machines := make([]entities.Machine, 0)
@@ -88,7 +88,7 @@ func (repo *MachineRepository) SelectMachines(ctx context.Context, tenantName st
 
 func (repo *MachineRepository) DeleteMachineByPK(ctx context.Context, machineID uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	machine := &entities.Machine{ID: machineID}
@@ -103,7 +103,7 @@ func (repo *MachineRepository) DeleteMachineByPK(ctx context.Context, machineID 
 
 func (repo *MachineRepository) DeleteMachineByPKAndUpdateLicense(ctx context.Context, machineID uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})
@@ -150,7 +150,7 @@ func (repo *MachineRepository) DeleteMachineByPKAndUpdateLicense(ctx context.Con
 
 func (repo *MachineRepository) CheckLicenseExistByPK(ctx context.Context, licenseID uuid.UUID) (bool, error) {
 	if repo.database == nil {
-		return false, comerrors.ErrInvalidDatabaseClient
+		return false, cerrors.ErrInvalidDatabaseClient
 	}
 
 	license := &entities.License{ID: licenseID}
@@ -165,7 +165,7 @@ func (repo *MachineRepository) CheckLicenseExistByPK(ctx context.Context, licens
 
 func (repo *MachineRepository) SelectLicenseByPK(ctx context.Context, licenseID uuid.UUID) (*entities.License, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	license := &entities.License{ID: licenseID}
@@ -180,7 +180,7 @@ func (repo *MachineRepository) SelectLicenseByPK(ctx context.Context, licenseID 
 
 func (repo *MachineRepository) SelectLicenseByLicenseKey(ctx context.Context, licenseKey string) (*entities.License, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	license := &entities.License{Key: licenseKey}
@@ -195,7 +195,7 @@ func (repo *MachineRepository) SelectLicenseByLicenseKey(ctx context.Context, li
 
 func (repo *MachineRepository) SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	policy := &entities.Policy{ID: policyID}
@@ -210,7 +210,7 @@ func (repo *MachineRepository) SelectPolicyByPK(ctx context.Context, policyID uu
 
 func (repo *MachineRepository) CheckMachineExistByFingerprintAndLicense(ctx context.Context, licenseKey, fingerprint string) (bool, error) {
 	if repo.database == nil {
-		return false, comerrors.ErrInvalidDatabaseClient
+		return false, cerrors.ErrInvalidDatabaseClient
 	}
 
 	exists, err := repo.database.NewSelect().Model(new(entities.Machine)).
@@ -226,7 +226,7 @@ func (repo *MachineRepository) CheckMachineExistByFingerprintAndLicense(ctx cont
 
 func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Context, machine *entities.Machine) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})
@@ -267,7 +267,7 @@ func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Cont
 
 func (repo *MachineRepository) UpdateMachineByPK(ctx context.Context, machine *entities.Machine) (*entities.Machine, error) {
 	if repo.database == nil {
-		return machine, comerrors.ErrInvalidDatabaseClient
+		return machine, cerrors.ErrInvalidDatabaseClient
 	}
 
 	machine.UpdatedAt = time.Now()
@@ -280,7 +280,7 @@ func (repo *MachineRepository) UpdateMachineByPK(ctx context.Context, machine *e
 
 func (repo *MachineRepository) UpdateMachineByPKAndLicense(ctx context.Context, machine *entities.Machine, currentLicense, newLicense *entities.License) (*entities.Machine, error) {
 	if repo.database == nil {
-		return machine, comerrors.ErrInvalidDatabaseClient
+		return machine, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})

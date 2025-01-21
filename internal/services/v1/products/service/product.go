@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
@@ -58,13 +58,13 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -74,18 +74,18 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 
 	// If product code/tenant combo already exists, return with error
 	if exists {
 		cSpan.End()
 		svc.logger.GetLogger().Info(fmt.Sprintf("product code [%s] already exists in tenant [%s]", utils.DerefPointer(input.Code), utils.DerefPointer(input.TenantName)))
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductCodeAlreadyExist]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductCodeAlreadyExist]
-		return resp, comerrors.ErrProductCodeAlreadyExist
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductCodeAlreadyExist]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductCodeAlreadyExist]
+		return resp, cerrors.ErrProductCodeAlreadyExist
 	}
 	cSpan.End()
 
@@ -111,9 +111,9 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -130,8 +130,8 @@ func (svc *ProductService) Create(ctx *gin.Context, input *models.ProductRegistr
 		UpdatedAt:            product.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -154,13 +154,13 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -172,13 +172,13 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 		cSpan.End()
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-			return resp, comerrors.ErrProductIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+			return resp, cerrors.ErrProductIDIsInvalid
 		default:
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -196,8 +196,8 @@ func (svc *ProductService) Retrieve(ctx *gin.Context, input *models.ProductRetri
 		UpdatedAt:            product.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -220,13 +220,13 @@ func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -237,13 +237,13 @@ func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-			return resp, comerrors.ErrProductIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+			return resp, cerrors.ErrProductIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -264,8 +264,8 @@ func (svc *ProductService) List(ctx *gin.Context, input *models.ProductListInput
 		})
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = total
 	resp.Data = productOutput
 
@@ -289,13 +289,13 @@ func (svc *ProductService) Delete(ctx *gin.Context, input *models.ProductDeletio
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -305,14 +305,14 @@ func (svc *ProductService) Delete(ctx *gin.Context, input *models.ProductDeletio
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }
 
@@ -333,13 +333,13 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -351,13 +351,13 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -367,17 +367,17 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 	if input.Code != nil {
 		exists, err := svc.repo.CheckProductExistByCode(ctx, utils.DerefPointer(input.Code))
 		if err != nil {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 		if !exists {
 			product.Code = utils.DerefPointer(input.Code)
 		} else {
 			svc.logger.GetLogger().Info(fmt.Sprintf("product code [%s] already exists", product.Code))
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductCodeAlreadyExist]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductCodeAlreadyExist]
-			return resp, comerrors.ErrProductCodeAlreadyExist
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductCodeAlreadyExist]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductCodeAlreadyExist]
+			return resp, cerrors.ErrProductCodeAlreadyExist
 		}
 	}
 
@@ -405,9 +405,9 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -424,8 +424,8 @@ func (svc *ProductService) Update(ctx *gin.Context, input *models.ProductUpdateI
 		UpdatedAt:            product.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -449,13 +449,13 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -468,13 +468,13 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-			return resp, comerrors.ErrProductIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+			return resp, cerrors.ErrProductIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -494,14 +494,14 @@ func (svc *ProductService) Tokens(ctx *gin.Context, input *models.ProductTokensI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = models.ProductTokenOutput{
 		ID:    id.String(),
 		Token: token,

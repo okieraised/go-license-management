@@ -1,7 +1,7 @@
 package authentication_attribute
 
 import (
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 )
 
 type AuthenticationCommonURI struct {
@@ -10,7 +10,7 @@ type AuthenticationCommonURI struct {
 
 func (req *AuthenticationCommonURI) Validate() error {
 	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
+		return cerrors.ErrTenantNameIsEmpty
 	}
 
 	return nil

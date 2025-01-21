@@ -1,4 +1,4 @@
-package comerrors
+package cerrors
 
 import "errors"
 

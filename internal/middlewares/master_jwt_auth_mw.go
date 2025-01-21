@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
@@ -27,7 +27,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
 				response.NewResponse(ctx).ToResponse(
-					comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+					cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 					"missing authorization header",
 					nil,
 					nil,
@@ -44,7 +44,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"invalid bearer authorization header",
 						nil,
 						nil,
@@ -63,8 +63,8 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusInternalServerError,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
-						comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer],
+						cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer],
 						nil,
 						nil,
 						nil,
@@ -79,8 +79,8 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusInternalServerError,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
-						comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer],
+						cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer],
 						nil,
 						nil,
 						nil,
@@ -95,8 +95,8 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusInternalServerError,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
-						comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer],
+						cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer],
 						nil,
 						nil,
 						nil,
@@ -118,8 +118,8 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
-						comerrors.ErrMessageMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
+						cerrors.ErrMessageMapper[cerrors.ErrGenericUnauthorized],
 						nil,
 						nil,
 						nil,
@@ -135,7 +135,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"invalid [exp] claim",
 						nil,
 						nil,
@@ -150,7 +150,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"token has expired",
 						nil,
 						nil,
@@ -166,7 +166,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"invalid [aud] claims",
 						nil,
 						nil,
@@ -183,7 +183,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"invalid [sub] claims",
 						nil,
 						nil,
@@ -200,7 +200,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"missing [tenant] claims",
 						nil,
 						nil,
@@ -216,7 +216,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"invalid [tenant] claims",
 						nil,
 						nil,
@@ -233,7 +233,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"missing [status] claims",
 						nil,
 						nil,
@@ -248,7 +248,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
 						"invalid [status] claims",
 						nil,
 						nil,
@@ -263,7 +263,7 @@ func JWTMasterValidationMW() gin.HandlerFunc {
 				ctx.AbortWithStatusJSON(
 					http.StatusForbidden,
 					response.NewResponse(ctx).ToResponse(
-						comerrors.ErrCodeMapper[comerrors.ErrGenericPermission],
+						cerrors.ErrCodeMapper[cerrors.ErrGenericPermission],
 						"account has been banned",
 						nil,
 						nil,

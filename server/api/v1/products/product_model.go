@@ -2,7 +2,7 @@ package products
 
 import (
 	"context"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/product_attribute"
 	"go-license-management/internal/services/v1/products/models"
@@ -17,18 +17,18 @@ type ProductRegistrationRequest struct {
 
 func (req *ProductRegistrationRequest) Validate() error {
 	if req.Name == nil {
-		return comerrors.ErrProductNameIsEmpty
+		return cerrors.ErrProductNameIsEmpty
 	}
 
 	if req.Code == nil {
-		return comerrors.ErrProductCodeIsEmpty
+		return cerrors.ErrProductCodeIsEmpty
 	}
 
 	if req.DistributionStrategy == nil {
 		req.DistributionStrategy = utils.RefPointer(constants.ProductDistributionStrategyLicensed)
 	} else {
 		if _, ok := constants.ValidProductDistributionStrategyMapper[utils.DerefPointer(req.DistributionStrategy)]; !ok {
-			return comerrors.ErrProductDistributionStrategyIsInvalid
+			return cerrors.ErrProductDistributionStrategyIsInvalid
 		}
 	}
 	return nil
@@ -50,7 +50,7 @@ type ProductUpdateRequest struct {
 func (req *ProductUpdateRequest) Validate() error {
 	if req.DistributionStrategy != nil {
 		if _, ok := constants.ValidProductDistributionStrategyMapper[utils.DerefPointer(req.DistributionStrategy)]; !ok {
-			return comerrors.ErrProductDistributionStrategyIsInvalid
+			return cerrors.ErrProductDistributionStrategyIsInvalid
 		}
 	}
 	return nil
@@ -89,7 +89,7 @@ type ProductRetrievalRequest struct {
 
 func (req *ProductRetrievalRequest) Validate() error {
 	if req.ProductID == nil {
-		return comerrors.ErrProductIDIsEmpty
+		return cerrors.ErrProductIDIsEmpty
 	}
 	return req.ProductCommonURI.Validate()
 }
@@ -108,7 +108,7 @@ type ProductDeletionRequest struct {
 
 func (req *ProductDeletionRequest) Validate() error {
 	if req.ProductID == nil {
-		return comerrors.ErrProductIDIsEmpty
+		return cerrors.ErrProductIDIsEmpty
 	}
 	return req.ProductCommonURI.Validate()
 }
@@ -132,7 +132,7 @@ func (req *ProductTokenRequest) Validate() error {
 	if req.Expiry != nil {
 		_, err := time.Parse(constants.DateFormatISO8601Hyphen, utils.DerefPointer(req.Expiry))
 		if err != nil {
-			return comerrors.ErrProductTokenExpirationFormatIsInvalid
+			return cerrors.ErrProductTokenExpirationFormatIsInvalid
 		}
 	}
 	if req.Permissions == nil {

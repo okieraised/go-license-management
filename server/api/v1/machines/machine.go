@@ -3,7 +3,7 @@ package machines
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/machine_attribute"
@@ -80,7 +80,7 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -90,7 +90,7 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -102,7 +102,7 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -116,13 +116,13 @@ func (r *MachineRouter) create(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
-			errors.Is(err, comerrors.ErrMachineLicenseIsInvalid),
-			errors.Is(err, comerrors.ErrMachineFingerprintAssociatedWithLicense),
-			errors.Is(err, comerrors.ErrLicenseIsSuspended),
-			errors.Is(err, comerrors.ErrLicenseIsBanned),
-			errors.Is(err, comerrors.ErrLicenseHasExpired),
-			errors.Is(err, comerrors.ErrLicenseMaxMachineExceeded):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, cerrors.ErrMachineLicenseIsInvalid),
+			errors.Is(err, cerrors.ErrMachineFingerprintAssociatedWithLicense),
+			errors.Is(err, cerrors.ErrLicenseIsSuspended),
+			errors.Is(err, cerrors.ErrLicenseIsBanned),
+			errors.Is(err, cerrors.ErrLicenseHasExpired),
+			errors.Is(err, cerrors.ErrLicenseMaxMachineExceeded):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -171,7 +171,7 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -181,7 +181,7 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -193,7 +193,7 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -207,13 +207,13 @@ func (r *MachineRouter) update(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
-			errors.Is(err, comerrors.ErrMachineLicenseIsInvalid),
-			errors.Is(err, comerrors.ErrMachineIDIsInvalid),
-			errors.Is(err, comerrors.ErrMachineFingerprintAssociatedWithLicense),
-			errors.Is(err, comerrors.ErrLicenseIsSuspended),
-			errors.Is(err, comerrors.ErrLicenseIsBanned),
-			errors.Is(err, comerrors.ErrLicenseHasExpired):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, cerrors.ErrMachineLicenseIsInvalid),
+			errors.Is(err, cerrors.ErrMachineIDIsInvalid),
+			errors.Is(err, cerrors.ErrMachineFingerprintAssociatedWithLicense),
+			errors.Is(err, cerrors.ErrLicenseIsSuspended),
+			errors.Is(err, cerrors.ErrLicenseIsBanned),
+			errors.Is(err, cerrors.ErrLicenseHasExpired):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -261,7 +261,7 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -273,7 +273,7 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -287,7 +287,7 @@ func (r *MachineRouter) retrieve(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrProductIDIsInvalid):
+		case errors.Is(err, cerrors.ErrProductIDIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -334,7 +334,7 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -346,7 +346,7 @@ func (r *MachineRouter) deactivate(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -405,7 +405,7 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -415,7 +415,7 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -427,7 +427,7 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -441,7 +441,7 @@ func (r *MachineRouter) list(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -490,7 +490,7 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -499,7 +499,7 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -511,7 +511,7 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -520,7 +520,7 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -534,7 +534,7 @@ func (r *MachineRouter) action(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrProductIDIsInvalid):
+		case errors.Is(err, cerrors.ErrProductIDIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)

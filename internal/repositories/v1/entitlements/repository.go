@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
@@ -23,7 +23,7 @@ func NewEntitlementRepository(ds *api.DataSource) *EntitlementRepository {
 
 func (repo *EntitlementRepository) SelectTenantByPK(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: tenantName}
@@ -38,7 +38,7 @@ func (repo *EntitlementRepository) SelectTenantByPK(ctx context.Context, tenantN
 
 func (repo *EntitlementRepository) CheckEntitlementExistByCode(ctx context.Context, code string) (bool, error) {
 	if repo.database == nil {
-		return false, comerrors.ErrInvalidDatabaseClient
+		return false, cerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlement := &entities.Entitlement{
@@ -54,7 +54,7 @@ func (repo *EntitlementRepository) CheckEntitlementExistByCode(ctx context.Conte
 
 func (repo *EntitlementRepository) InsertNewEntitlement(ctx context.Context, entitlement *entities.Entitlement) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(entitlement).Exec(ctx)
@@ -67,7 +67,7 @@ func (repo *EntitlementRepository) InsertNewEntitlement(ctx context.Context, ent
 
 func (repo *EntitlementRepository) SelectEntitlementByPK(ctx context.Context, entitlementID uuid.UUID) (*entities.Entitlement, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlement := &entities.Entitlement{ID: entitlementID}
@@ -80,7 +80,7 @@ func (repo *EntitlementRepository) SelectEntitlementByPK(ctx context.Context, en
 
 func (repo *EntitlementRepository) DeleteEntitlementByPK(ctx context.Context, entitlementID uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlement := &entities.Entitlement{ID: entitlementID}
@@ -94,7 +94,7 @@ func (repo *EntitlementRepository) DeleteEntitlementByPK(ctx context.Context, en
 func (repo *EntitlementRepository) SelectEntitlementsByTenant(ctx context.Context, tenantName string, param constants.QueryCommonParam) ([]entities.Entitlement, int, error) {
 	var total = 0
 	if repo.database == nil {
-		return nil, total, comerrors.ErrInvalidDatabaseClient
+		return nil, total, cerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlements := make([]entities.Entitlement, 0)
@@ -105,7 +105,7 @@ func (repo *EntitlementRepository) SelectEntitlementsByTenant(ctx context.Contex
 		Order("created_at DESC").
 		ScanAndCount(ctx, &entitlements)
 	if err != nil {
-		return entitlements, total, comerrors.ErrInvalidDatabaseClient
+		return entitlements, total, cerrors.ErrInvalidDatabaseClient
 	}
 	return entitlements, total, nil
 }

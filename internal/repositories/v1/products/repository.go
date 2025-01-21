@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
@@ -24,7 +24,7 @@ func NewProductRepository(ds *api.DataSource) *ProductRepository {
 
 func (repo *ProductRepository) SelectTenantByPK(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: tenantName}
@@ -39,7 +39,7 @@ func (repo *ProductRepository) SelectTenantByPK(ctx context.Context, tenantName 
 
 func (repo *ProductRepository) InsertNewProduct(ctx context.Context, product *entities.Product) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(product).Exec(ctx)
@@ -51,7 +51,7 @@ func (repo *ProductRepository) InsertNewProduct(ctx context.Context, product *en
 
 func (repo *ProductRepository) SelectProductByPK(ctx context.Context, productID uuid.UUID) (*entities.Product, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	product := &entities.Product{ID: productID}
@@ -66,7 +66,7 @@ func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantName st
 	var total = 0
 
 	if repo.database == nil {
-		return nil, total, comerrors.ErrInvalidDatabaseClient
+		return nil, total, cerrors.ErrInvalidDatabaseClient
 	}
 
 	products := make([]entities.Product, 0)
@@ -84,7 +84,7 @@ func (repo *ProductRepository) SelectProducts(ctx context.Context, tenantName st
 
 func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code string) (bool, error) {
 	if repo.database == nil {
-		return false, comerrors.ErrInvalidDatabaseClient
+		return false, cerrors.ErrInvalidDatabaseClient
 	}
 
 	product := &entities.Product{Code: code}
@@ -97,7 +97,7 @@ func (repo *ProductRepository) CheckProductExistByCode(ctx context.Context, code
 
 func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, productID uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	product := &entities.Product{ID: productID}
@@ -110,7 +110,7 @@ func (repo *ProductRepository) DeleteProductByPK(ctx context.Context, productID 
 
 func (repo *ProductRepository) UpdateProductByPK(ctx context.Context, product *entities.Product) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	product.UpdatedAt = time.Now()
@@ -123,7 +123,7 @@ func (repo *ProductRepository) UpdateProductByPK(ctx context.Context, product *e
 
 func (repo *ProductRepository) InsertNewProductToken(ctx context.Context, productToken *entities.ProductToken) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(productToken).Exec(ctx)

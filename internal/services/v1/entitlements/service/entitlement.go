@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
@@ -58,13 +58,13 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -75,16 +75,16 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
 	if exists {
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrEntitlementCodeAlreadyExist]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrEntitlementCodeAlreadyExist]
-		return resp, comerrors.ErrEntitlementCodeAlreadyExist
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrEntitlementCodeAlreadyExist]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrEntitlementCodeAlreadyExist]
+		return resp, cerrors.ErrEntitlementCodeAlreadyExist
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "insert-new-entitlement")
@@ -103,14 +103,14 @@ func (svc *EntitlementService) Create(ctx *gin.Context, input *models.Entitlemen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = models.EntitlementRetrievalOutput{
 		ID:         entitlementID,
 		TenantName: tenant.Name,
@@ -140,13 +140,13 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -156,9 +156,9 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -177,8 +177,8 @@ func (svc *EntitlementService) List(ctx *gin.Context, input *models.EntitlementL
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = count
 	resp.Data = respData
 
@@ -202,13 +202,13 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -220,13 +220,13 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrEntitlementIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrEntitlementIDIsInvalid]
-			return resp, comerrors.ErrEntitlementIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrEntitlementIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrEntitlementIDIsInvalid]
+			return resp, cerrors.ErrEntitlementIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -241,8 +241,8 @@ func (svc *EntitlementService) Retrieve(ctx *gin.Context, input *models.Entitlem
 		UpdatedAt:  entitlement.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -265,13 +265,13 @@ func (svc *EntitlementService) Delete(ctx *gin.Context, input *models.Entitlemen
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -282,14 +282,14 @@ func (svc *EntitlementService) Delete(ctx *gin.Context, input *models.Entitlemen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 
 	return resp, nil
 }

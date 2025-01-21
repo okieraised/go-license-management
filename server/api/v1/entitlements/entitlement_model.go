@@ -2,7 +2,7 @@ package entitlements
 
 import (
 	"context"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/entitlement_attribute"
 	"go-license-management/internal/services/v1/entitlements/models"
@@ -17,11 +17,11 @@ type EntitlementRegistrationRequest struct {
 
 func (req *EntitlementRegistrationRequest) Validate() error {
 	if req.Name == nil {
-		return comerrors.ErrEntitlementNameIsEmpty
+		return cerrors.ErrEntitlementNameIsEmpty
 	}
 
 	if req.Code == nil {
-		return comerrors.ErrEntitlementCodeIsEmpty
+		return cerrors.ErrEntitlementCodeIsEmpty
 	}
 
 	return nil
@@ -44,7 +44,7 @@ type EntitlementRetrievalRequest struct {
 
 func (req *EntitlementRetrievalRequest) Validate() error {
 	if req.EntitlementID == nil {
-		return comerrors.ErrEntitlementIDIsEmpty
+		return cerrors.ErrEntitlementIDIsEmpty
 	}
 	return req.EntitlementCommonURI.Validate()
 }
@@ -63,7 +63,7 @@ type EntitlementDeletionRequest struct {
 
 func (req *EntitlementDeletionRequest) Validate() error {
 	if req.EntitlementID == nil {
-		return comerrors.ErrEntitlementIDIsEmpty
+		return cerrors.ErrEntitlementIDIsEmpty
 	}
 	return req.EntitlementCommonURI.Validate()
 }

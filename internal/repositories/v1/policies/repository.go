@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
@@ -24,7 +24,7 @@ func NewPolicyRepository(ds *api.DataSource) *PolicyRepository {
 
 func (repo *PolicyRepository) SelectTenantByName(ctx context.Context, tenantName string) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: tenantName}
@@ -39,7 +39,7 @@ func (repo *PolicyRepository) SelectTenantByName(ctx context.Context, tenantName
 
 func (repo *PolicyRepository) SelectPolicyByPK(ctx context.Context, policyID uuid.UUID) (*entities.Policy, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	policy := &entities.Policy{ID: policyID}
@@ -57,7 +57,7 @@ func (repo *PolicyRepository) CheckPolicyEntitlementExistsByPolicyIDAndEntitleme
 	exists := false
 
 	if repo.database == nil {
-		return false, comerrors.ErrInvalidDatabaseClient
+		return false, cerrors.ErrInvalidDatabaseClient
 	}
 
 	exists, err = repo.database.NewSelect().
@@ -73,7 +73,7 @@ func (repo *PolicyRepository) CheckPolicyEntitlementExistsByPolicyIDAndEntitleme
 
 func (repo *PolicyRepository) SelectEntitlementByPK(ctx context.Context, entitlementID uuid.UUID) (*entities.Entitlement, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlement := &entities.Entitlement{ID: entitlementID}
@@ -88,7 +88,7 @@ func (repo *PolicyRepository) SelectEntitlementByPK(ctx context.Context, entitle
 
 func (repo *PolicyRepository) SelectEntitlementsByPK(ctx context.Context, entitlementID []uuid.UUID) ([]entities.Entitlement, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	entitlements := make([]entities.Entitlement, 0)
@@ -105,7 +105,7 @@ func (repo *PolicyRepository) SelectEntitlementsByPK(ctx context.Context, entitl
 
 func (repo *PolicyRepository) InsertNewPolicyEntitlement(ctx context.Context, policyEntitlement *entities.PolicyEntitlement) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(policyEntitlement).Exec(ctx)
@@ -118,7 +118,7 @@ func (repo *PolicyRepository) InsertNewPolicyEntitlement(ctx context.Context, po
 
 func (repo *PolicyRepository) InsertNewPolicyEntitlements(ctx context.Context, policyEntitlement []entities.PolicyEntitlement) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(&policyEntitlement).Exec(ctx)
@@ -131,7 +131,7 @@ func (repo *PolicyRepository) InsertNewPolicyEntitlements(ctx context.Context, p
 
 func (repo *PolicyRepository) DeletePolicyByPK(ctx context.Context, policyID uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	policy := &entities.Policy{ID: policyID}
@@ -146,7 +146,7 @@ func (repo *PolicyRepository) DeletePolicyByPK(ctx context.Context, policyID uui
 
 func (repo *PolicyRepository) DeletePolicyEntitlementByPK(ctx context.Context, policyEntitlementID uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	policyEntitlement := &entities.PolicyEntitlement{ID: policyEntitlementID}
@@ -163,7 +163,7 @@ func (repo *PolicyRepository) SelectPolicyEntitlements(ctx context.Context, poli
 	var total int
 
 	if repo.database == nil {
-		return nil, total, comerrors.ErrInvalidDatabaseClient
+		return nil, total, cerrors.ErrInvalidDatabaseClient
 	}
 
 	policyEntitlements := make([]entities.PolicyEntitlement, 0)
@@ -181,7 +181,7 @@ func (repo *PolicyRepository) SelectPolicyEntitlements(ctx context.Context, poli
 
 func (repo *PolicyRepository) DeletePolicyEntitlementsByPK(ctx context.Context, policyEntitlementID []uuid.UUID) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	policyEntitlements := make([]entities.PolicyEntitlement, 0)
@@ -199,7 +199,7 @@ func (repo *PolicyRepository) DeletePolicyEntitlementsByPK(ctx context.Context, 
 
 func (repo *PolicyRepository) CheckProductExistByID(ctx context.Context, productID uuid.UUID) (bool, error) {
 	if repo.database == nil {
-		return false, comerrors.ErrInvalidDatabaseClient
+		return false, cerrors.ErrInvalidDatabaseClient
 	}
 
 	product := &entities.Product{ID: productID}
@@ -214,7 +214,7 @@ func (repo *PolicyRepository) CheckProductExistByID(ctx context.Context, product
 
 func (repo *PolicyRepository) InsertNewPolicy(ctx context.Context, policy *entities.Policy) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(policy).Exec(ctx)
@@ -226,7 +226,7 @@ func (repo *PolicyRepository) InsertNewPolicy(ctx context.Context, policy *entit
 
 func (repo *PolicyRepository) UpdatePolicyByPK(ctx context.Context, policy *entities.Policy) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	policy.UpdatedAt = time.Now()
@@ -240,7 +240,7 @@ func (repo *PolicyRepository) UpdatePolicyByPK(ctx context.Context, policy *enti
 func (repo *PolicyRepository) SelectPolicies(ctx context.Context, tenantName string, queryParam constants.QueryCommonParam) ([]entities.Policy, int, error) {
 	var total = 0
 	if repo.database == nil {
-		return nil, total, comerrors.ErrInvalidDatabaseClient
+		return nil, total, cerrors.ErrInvalidDatabaseClient
 	}
 
 	policies := make([]entities.Policy, 0)

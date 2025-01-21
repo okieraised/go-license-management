@@ -3,7 +3,7 @@ package authentications
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
@@ -74,7 +74,7 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -84,7 +84,7 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -96,7 +96,7 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -107,7 +107,7 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 		if err != nil {
 			cSpan.End()
 			r.logger.GetLogger().Error(err.Error())
-			resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+			resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 			ctx.JSON(http.StatusBadRequest, resp)
 			return
 		}
@@ -122,9 +122,9 @@ func (r *AuthenticationRouter) login(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrGenericUnauthorized),
-			errors.Is(err, comerrors.ErrAccountIsBanned),
-			errors.Is(err, comerrors.ErrAccountIsInactive):
+		case errors.Is(err, cerrors.ErrGenericUnauthorized),
+			errors.Is(err, cerrors.ErrAccountIsBanned),
+			errors.Is(err, cerrors.ErrAccountIsInactive):
 			ctx.JSON(http.StatusUnauthorized, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)

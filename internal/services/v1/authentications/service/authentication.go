@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
@@ -57,13 +57,13 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
 			if errors.Is(err, sql.ErrNoRows) {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-				return resp, comerrors.ErrTenantNameIsInvalid
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+				return resp, cerrors.ErrTenantNameIsInvalid
 			} else {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		}
 		cSpan.End()
@@ -73,9 +73,9 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 		match := utils.CompareHashedPassword(master.PasswordDigest, utils.DerefPointer(input.Password))
 		if !match {
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericUnauthorized]
-			return resp, comerrors.ErrGenericUnauthorized
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericUnauthorized]
+			return resp, cerrors.ErrGenericUnauthorized
 		}
 		cSpan.End()
 
@@ -85,9 +85,9 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 		cSpan.End()
 
@@ -99,13 +99,13 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
 			if errors.Is(err, sql.ErrNoRows) {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-				return resp, comerrors.ErrTenantNameIsInvalid
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+				return resp, cerrors.ErrTenantNameIsInvalid
 			} else {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		}
 		cSpan.End()
@@ -115,9 +115,9 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 		cSpan.End()
 
@@ -126,23 +126,23 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 		match := utils.CompareHashedPassword(account.PasswordDigest, utils.DerefPointer(input.Password))
 		if !match {
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericUnauthorized]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericUnauthorized]
-			return resp, comerrors.ErrGenericUnauthorized
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericUnauthorized]
+			return resp, cerrors.ErrGenericUnauthorized
 		}
 		cSpan.End()
 
 		// If account is inactive of banned
 		if account.Status == constants.AccountStatusInactive {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountIsInactive]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountIsInactive]
-			return resp, comerrors.ErrAccountIsInactive
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrAccountIsInactive]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrAccountIsInactive]
+			return resp, cerrors.ErrAccountIsInactive
 		}
 
 		if account.Status == constants.AccountStatusBanned {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountIsBanned]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountIsBanned]
-			return resp, comerrors.ErrAccountIsBanned
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrAccountIsBanned]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrAccountIsBanned]
+			return resp, cerrors.ErrAccountIsBanned
 		}
 
 		// generate jwt
@@ -151,15 +151,15 @@ func (svc *AuthenticationService) Login(ctx *gin.Context, input *models.Authenti
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 		cSpan.End()
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = models.AuthenticationLoginOutput{
 		Access:   token,
 		ExpireAt: exp,

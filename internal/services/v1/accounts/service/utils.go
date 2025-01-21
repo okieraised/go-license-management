@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
@@ -52,11 +52,11 @@ func (svc *AccountService) actionResetPassword(ctx *gin.Context, token, newPass 
 	svc.logger.GetLogger().Info(fmt.Sprintf("reset account [%s] in tenant [%s]", account.Username, account.TenantName))
 
 	if token != account.PasswordResetToken {
-		return account, comerrors.ErrAccountResetTokenIsInvalid
+		return account, cerrors.ErrAccountResetTokenIsInvalid
 	}
 
 	if time.Now().After(account.PasswordResetSentAt.Add(24 * time.Hour)) {
-		return account, comerrors.ErrAccountResetTokenIsExpired
+		return account, cerrors.ErrAccountResetTokenIsExpired
 	}
 
 	newHash, err := utils.HashPassword(newPass)
@@ -76,7 +76,7 @@ func (svc *AccountService) actionUpdatePassword(ctx *gin.Context, currentPass, n
 	svc.logger.GetLogger().Info(fmt.Sprintf("updating account [%s] in tenant [%s]", account.Username, account.TenantName))
 
 	if !utils.CompareHashedPassword(account.PasswordDigest, currentPass) {
-		return account, comerrors.ErrAccountPasswordNotMatch
+		return account, cerrors.ErrAccountPasswordNotMatch
 	}
 
 	newHash, err := utils.HashPassword(newPass)

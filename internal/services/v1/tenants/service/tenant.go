@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
@@ -55,18 +55,18 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
 	// If tenant name already exists, return with error
 	if exists {
 		svc.logger.GetLogger().Info(fmt.Sprintf("tenant [%s] already exists", utils.DerefPointer(input.Name)))
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameAlreadyExist]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameAlreadyExist]
-		return resp, comerrors.ErrTenantNameAlreadyExist
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameAlreadyExist]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameAlreadyExist]
+		return resp, cerrors.ErrTenantNameAlreadyExist
 	}
 
 	// If not, generate additional required info
@@ -76,9 +76,9 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -97,9 +97,9 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -109,8 +109,8 @@ func (svc *TenantService) Create(ctx *gin.Context, input *models.TenantRegistrat
 		UpdatedAt: tenant.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = output
 
 	return resp, nil
@@ -131,9 +131,9 @@ func (svc *TenantService) List(ctx *gin.Context, input *models.TenantListInput) 
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -149,8 +149,8 @@ func (svc *TenantService) List(ctx *gin.Context, input *models.TenantListInput) 
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = count
 	resp.Data = respData
 
@@ -173,13 +173,13 @@ func (svc *TenantService) Retrieve(ctx *gin.Context, input *models.TenantRetriev
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		}
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -192,8 +192,8 @@ func (svc *TenantService) Retrieve(ctx *gin.Context, input *models.TenantRetriev
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -214,14 +214,14 @@ func (svc *TenantService) Delete(ctx *gin.Context, input *models.TenantDeletionI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 
 	return resp, nil
 }
@@ -242,13 +242,13 @@ func (svc *TenantService) Regenerate(ctx *gin.Context, input *models.TenantRegen
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		}
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -259,9 +259,9 @@ func (svc *TenantService) Regenerate(ctx *gin.Context, input *models.TenantRegen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -273,9 +273,9 @@ func (svc *TenantService) Regenerate(ctx *gin.Context, input *models.TenantRegen
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -288,8 +288,8 @@ func (svc *TenantService) Regenerate(ctx *gin.Context, input *models.TenantRegen
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil

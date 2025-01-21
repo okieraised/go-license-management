@@ -2,7 +2,7 @@ package authentications
 
 import (
 	"context"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/infrastructure/models/authentication_attribute"
 	"go-license-management/internal/services/v1/authentications/models"
 	"go.opentelemetry.io/otel/trace"
@@ -15,11 +15,11 @@ type AuthenticationLoginRequest struct {
 
 func (req *AuthenticationLoginRequest) Validate() error {
 	if req.Username == nil {
-		return comerrors.ErrAccountUsernameIsEmpty
+		return cerrors.ErrAccountUsernameIsEmpty
 	}
 
 	if req.Password == nil {
-		return comerrors.ErrAccountPasswordIsEmpty
+		return cerrors.ErrAccountPasswordIsEmpty
 	}
 
 	return nil

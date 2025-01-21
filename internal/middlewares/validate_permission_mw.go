@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/casbin_adapter"
 	"go-license-management/internal/infrastructure/logging"
@@ -22,8 +22,8 @@ func PermissionValidationMW(permission string) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(
 				http.StatusInternalServerError,
 				response.NewResponse(ctx).ToResponse(
-					comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
-					comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+					cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer],
+					cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer],
 					nil,
 					nil,
 					nil,
@@ -38,8 +38,8 @@ func PermissionValidationMW(permission string) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(
 				http.StatusInternalServerError,
 				response.NewResponse(ctx).ToResponse(
-					comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
-					comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+					cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer],
+					cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer],
 					nil,
 					nil,
 					nil,
@@ -61,8 +61,8 @@ func PermissionValidationMW(permission string) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(
 				http.StatusInternalServerError,
 				response.NewResponse(ctx).ToResponse(
-					comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer],
-					comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer],
+					cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer],
+					cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer],
 					nil,
 					nil,
 					nil,
@@ -82,7 +82,7 @@ func PermissionValidationMW(permission string) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(
 				http.StatusForbidden,
 				response.NewResponse(ctx).ToResponse(
-					comerrors.ErrCodeMapper[comerrors.ErrGenericPermission],
+					cerrors.ErrCodeMapper[cerrors.ErrGenericPermission],
 					fmt.Sprintf("user [%s] does not have permission to perform the requested action", ctx.GetString(constants.ContextValueSubject)),
 					nil,
 					nil,

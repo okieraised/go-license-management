@@ -3,7 +3,7 @@ package policies
 import (
 	"context"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/policy_attribute"
 	"go-license-management/internal/services/v1/policies/models"
@@ -21,17 +21,17 @@ func (req *PolicyRegistrationRequest) Validate() error {
 
 	// Policy name
 	if req.Name == nil {
-		return comerrors.ErrPolicyNameIsEmpty
+		return cerrors.ErrPolicyNameIsEmpty
 	}
 
 	// Product ID
 	if req.ProductID == nil {
-		return comerrors.ErrProductIDIsEmpty
+		return cerrors.ErrProductIDIsEmpty
 	}
 
 	_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
 	if err != nil {
-		return comerrors.ErrProductIDIsInvalid
+		return cerrors.ErrProductIDIsInvalid
 	}
 
 	// Strict policy - all categories must valid in order for the license to be considered valid. Default: false
@@ -49,7 +49,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.Scheme = utils.RefPointer(constants.PolicySchemeED25519)
 	} else {
 		if _, ok := constants.ValidPolicySchemeMapper[utils.DerefPointer(req.Scheme)]; !ok {
-			return comerrors.ErrPolicySchemeIsInvalid
+			return cerrors.ErrPolicySchemeIsInvalid
 		}
 	}
 
@@ -58,7 +58,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.ExpirationStrategy = utils.RefPointer(constants.PolicyExpirationStrategyRevokeAccess)
 	} else {
 		if _, ok := constants.ValidPolicyExpirationStrategyMapper[utils.DerefPointer(req.ExpirationStrategy)]; !ok {
-			return comerrors.ErrPolicyInvalidExpirationStrategy
+			return cerrors.ErrPolicyInvalidExpirationStrategy
 		}
 	}
 
@@ -67,7 +67,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.OverageStrategy = utils.RefPointer(constants.PolicyOverageStrategyNoOverage)
 	} else {
 		if _, ok := constants.ValidPolicyOverageStrategyMapper[utils.DerefPointer(req.OverageStrategy)]; !ok {
-			return comerrors.ErrPolicyInvalidOverageStrategy
+			return cerrors.ErrPolicyInvalidOverageStrategy
 		}
 	}
 
@@ -76,7 +76,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.RenewalBasis = utils.RefPointer(constants.PolicyRenewalBasisFromExpiry)
 	} else {
 		if _, ok := constants.ValidPolicyRenewalBasisMapper[utils.DerefPointer(req.RenewalBasis)]; !ok {
-			return comerrors.ErrPolicyInvalidRenewalBasis
+			return cerrors.ErrPolicyInvalidRenewalBasis
 		}
 	}
 
@@ -85,7 +85,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.HeartbeatBasis = utils.RefPointer(constants.PolicyHeartbeatBasisFromCreation)
 	} else {
 		if _, ok := constants.ValidPolicyHeartbeatBasisMapper[utils.DerefPointer(req.HeartbeatBasis)]; !ok {
-			return comerrors.ErrPolicyInvalidHeartbeatBasis
+			return cerrors.ErrPolicyInvalidHeartbeatBasis
 		}
 	}
 
@@ -94,7 +94,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.CheckInInterval = utils.RefPointer(constants.PolicyCheckinIntervalDaily)
 	} else {
 		if _, ok := constants.ValidPolicyCheckinIntervalMapper[utils.DerefPointer(req.CheckInInterval)]; !ok {
-			return comerrors.ErrPolicyInvalidCheckinInterval
+			return cerrors.ErrPolicyInvalidCheckinInterval
 		}
 	}
 
@@ -135,7 +135,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.Duration = utils.RefPointer(int64(0))
 	} else {
 		if utils.DerefPointer(req.Duration) < 0 {
-			return comerrors.ErrPolicyDurationIsLessThanZero
+			return cerrors.ErrPolicyDurationIsLessThanZero
 		}
 	}
 
@@ -144,7 +144,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.MaxMachines = utils.RefPointer(0)
 	} else {
 		if utils.DerefPointer(req.MaxMachines) < 0 {
-			return comerrors.ErrPolicyMaxMachinesIsLessThanZero
+			return cerrors.ErrPolicyMaxMachinesIsLessThanZero
 		}
 	}
 
@@ -153,7 +153,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.MaxUses = utils.RefPointer(0)
 	} else {
 		if utils.DerefPointer(req.MaxUses) < 0 {
-			return comerrors.ErrPolicyMaxUsesIsLessThanZero
+			return cerrors.ErrPolicyMaxUsesIsLessThanZero
 		}
 	}
 
@@ -162,7 +162,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.HeartbeatDuration = utils.RefPointer(0)
 	} else {
 		if utils.DerefPointer(req.HeartbeatDuration) < 0 {
-			return comerrors.ErrPolicyHeartbeatDurationIsLessThanZero
+			return cerrors.ErrPolicyHeartbeatDurationIsLessThanZero
 		}
 	}
 
@@ -171,7 +171,7 @@ func (req *PolicyRegistrationRequest) Validate() error {
 		req.MaxUsers = utils.RefPointer(0)
 	} else {
 		if utils.DerefPointer(req.MaxUsers) < 0 {
-			return comerrors.ErrPolicyMaxUsersIsLessThanZero
+			return cerrors.ErrPolicyMaxUsersIsLessThanZero
 		}
 	}
 
@@ -195,73 +195,73 @@ type PolicyUpdateRequest struct {
 func (req *PolicyUpdateRequest) Validate() error {
 	if req.Scheme != nil {
 		if _, ok := constants.ValidPolicySchemeMapper[utils.DerefPointer(req.Scheme)]; !ok {
-			return comerrors.ErrPolicySchemeIsInvalid
+			return cerrors.ErrPolicySchemeIsInvalid
 		}
 	}
 
 	if req.Duration != nil {
 		if utils.DerefPointer(req.Duration) < 0 {
-			return comerrors.ErrPolicyDurationIsLessThanZero
+			return cerrors.ErrPolicyDurationIsLessThanZero
 		}
 	}
 
 	if req.MaxMachines != nil {
 		if utils.DerefPointer(req.MaxMachines) < 0 {
-			return comerrors.ErrPolicyMaxMachinesIsLessThanZero
+			return cerrors.ErrPolicyMaxMachinesIsLessThanZero
 		}
 	}
 
 	if req.MaxUses != nil {
 		if utils.DerefPointer(req.MaxUses) < 0 {
-			return comerrors.ErrPolicyMaxUsesIsLessThanZero
+			return cerrors.ErrPolicyMaxUsesIsLessThanZero
 		}
 	}
 
 	if req.HeartbeatDuration != nil {
 		if utils.DerefPointer(req.HeartbeatDuration) < 0 {
-			return comerrors.ErrPolicyHeartbeatDurationIsLessThanZero
+			return cerrors.ErrPolicyHeartbeatDurationIsLessThanZero
 		}
 	}
 
 	if req.MaxUsers != nil {
 		if utils.DerefPointer(req.MaxUsers) < 0 {
-			return comerrors.ErrPolicyMaxUsersIsLessThanZero
+			return cerrors.ErrPolicyMaxUsersIsLessThanZero
 		}
 	}
 
 	if req.Scheme != nil {
 		if _, ok := constants.ValidPolicySchemeMapper[utils.DerefPointer(req.Scheme)]; !ok {
-			return comerrors.ErrPolicySchemeIsInvalid
+			return cerrors.ErrPolicySchemeIsInvalid
 		}
 	}
 
 	if req.ExpirationStrategy != nil {
 		if _, ok := constants.ValidPolicyExpirationStrategyMapper[utils.DerefPointer(req.ExpirationStrategy)]; !ok {
-			return comerrors.ErrPolicyInvalidExpirationStrategy
+			return cerrors.ErrPolicyInvalidExpirationStrategy
 		}
 	}
 
 	if req.OverageStrategy != nil {
 		if _, ok := constants.ValidPolicyOverageStrategyMapper[utils.DerefPointer(req.OverageStrategy)]; !ok {
-			return comerrors.ErrPolicyInvalidOverageStrategy
+			return cerrors.ErrPolicyInvalidOverageStrategy
 		}
 	}
 
 	if req.RenewalBasis != nil {
 		if _, ok := constants.ValidPolicyRenewalBasisMapper[utils.DerefPointer(req.RenewalBasis)]; !ok {
-			return comerrors.ErrPolicyInvalidRenewalBasis
+			return cerrors.ErrPolicyInvalidRenewalBasis
 		}
 	}
 
 	if req.HeartbeatBasis != nil {
 		if _, ok := constants.ValidPolicyHeartbeatBasisMapper[utils.DerefPointer(req.HeartbeatBasis)]; !ok {
-			return comerrors.ErrPolicyInvalidHeartbeatBasis
+			return cerrors.ErrPolicyInvalidHeartbeatBasis
 		}
 	}
 
 	if req.CheckInInterval != nil {
 		if _, ok := constants.ValidPolicyCheckinIntervalMapper[utils.DerefPointer(req.CheckInInterval)]; !ok {
-			return comerrors.ErrPolicyInvalidCheckinInterval
+			return cerrors.ErrPolicyInvalidCheckinInterval
 		}
 	}
 
@@ -283,7 +283,7 @@ type PolicyDeletionRequest struct {
 
 func (req *PolicyDeletionRequest) Validate() error {
 	if req.PolicyID == nil {
-		return comerrors.ErrPolicyIDIsEmpty
+		return cerrors.ErrPolicyIDIsEmpty
 	}
 	return req.PolicyCommonURI.Validate()
 }
@@ -302,7 +302,7 @@ type PolicyRetrievalRequest struct {
 
 func (req *PolicyRetrievalRequest) Validate() error {
 	if req.PolicyID == nil {
-		return comerrors.ErrPolicyIDIsEmpty
+		return cerrors.ErrPolicyIDIsEmpty
 	}
 	return req.PolicyCommonURI.Validate()
 }
@@ -339,11 +339,11 @@ type PolicyAttachmentRequest struct {
 
 func (req *PolicyAttachmentRequest) Validate() error {
 	if req.EntitlementID == nil {
-		return comerrors.ErrEntitlementIDIsEmpty
+		return cerrors.ErrEntitlementIDIsEmpty
 	}
 	for _, entitlement := range req.EntitlementID {
 		if _, err := uuid.Parse(entitlement); err != nil {
-			return comerrors.ErrEntitlementIDIsInvalid
+			return cerrors.ErrEntitlementIDIsInvalid
 		}
 	}
 	return nil
@@ -364,11 +364,11 @@ type PolicyDetachmentRequest struct {
 
 func (req *PolicyDetachmentRequest) Validate() error {
 	if req.ID == nil {
-		return comerrors.ErrEntitlementIDIsEmpty
+		return cerrors.ErrEntitlementIDIsEmpty
 	}
 	for _, entitlement := range req.ID {
 		if _, err := uuid.Parse(entitlement); err != nil {
-			return comerrors.ErrEntitlementIDIsInvalid
+			return cerrors.ErrEntitlementIDIsInvalid
 		}
 	}
 	return nil

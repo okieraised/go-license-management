@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/models/license_attribute"
@@ -195,7 +195,7 @@ func (svc *LicenseService) validateLicense(ctx *gin.Context, license *entities.L
 // suspendLicense updates the active license status to `suspended`
 func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
 	if license.Status == constants.LicenseStatusNotActivated {
-		return nil, comerrors.ErrLicenseNotActivated
+		return nil, cerrors.ErrLicenseNotActivated
 	}
 
 	license.Status = constants.LicenseStatusSuspended
@@ -214,7 +214,7 @@ func (svc *LicenseService) suspendLicense(ctx *gin.Context, license *entities.Li
 func (svc *LicenseService) reinstateLicense(ctx *gin.Context, license *entities.License) (*entities.License, error) {
 	if license.Status != constants.LicenseStatusSuspended && !license.Suspended {
 		svc.logger.GetLogger().Info(fmt.Sprintf("license [%s] has status [%s]", license.ID.String(), license.Status))
-		return nil, comerrors.ErrLicenseStatusInvalidToReinstate
+		return nil, cerrors.ErrLicenseStatusInvalidToReinstate
 	}
 
 	license.Status = constants.LicenseStatusActive
@@ -431,7 +431,7 @@ func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, increment int
 
 		switch license.Policy.OverageStrategy {
 		case constants.PolicyOverageStrategyNoOverage:
-			return nil, comerrors.ErrLicenseMaxUsesExceeded
+			return nil, cerrors.ErrLicenseMaxUsesExceeded
 		case constants.PolicyOverageStrategyAlwaysAllow:
 			// Do nothing since the policy allow overage
 		}
@@ -450,7 +450,7 @@ func (svc *LicenseService) incrementUsageLicense(ctx *gin.Context, increment int
 func (svc *LicenseService) decrementUsageLicense(ctx *gin.Context, decrement int, license *entities.License) (*entities.License, error) {
 	license.Uses = license.Uses - decrement
 	if license.Uses < 0 {
-		return nil, comerrors.ErrLicenseIncrementIsInvalid
+		return nil, cerrors.ErrLicenseIncrementIsInvalid
 	}
 	svc.logger.GetLogger().Info(fmt.Sprintf("decrementing license [%s] uses", license.ID.String()))
 	license, err := svc.repo.UpdateLicenseByPK(ctx, license)

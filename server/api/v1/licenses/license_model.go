@@ -3,7 +3,7 @@ package licenses
 import (
 	"context"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/license_attribute"
 	"go-license-management/internal/services/v1/licenses/models"
@@ -25,51 +25,51 @@ type LicenseRegistrationRequest struct {
 
 func (req *LicenseRegistrationRequest) Validate() error {
 	if req.ProductID == nil {
-		return comerrors.ErrLicenseProductIDIsEmpty
+		return cerrors.ErrLicenseProductIDIsEmpty
 	} else {
 		_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
 		if err != nil {
-			return comerrors.ErrProductIDIsInvalid
+			return cerrors.ErrProductIDIsInvalid
 		}
 	}
 
 	if req.PolicyID == nil {
-		return comerrors.ErrLicensePolicyIDIsEmpty
+		return cerrors.ErrLicensePolicyIDIsEmpty
 	} else {
 		_, err := uuid.Parse(utils.DerefPointer(req.PolicyID))
 		if err != nil {
-			return comerrors.ErrPolicyIDIsInvalid
+			return cerrors.ErrPolicyIDIsInvalid
 		}
 	}
 	if req.Name == nil {
-		return comerrors.ErrLicenseNameIsEmpty
+		return cerrors.ErrLicenseNameIsEmpty
 	}
 
 	if req.Expiry != nil {
 		exp, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
 		if err != nil {
-			return comerrors.ErrLicenseExpiryFormatIsInvalid
+			return cerrors.ErrLicenseExpiryFormatIsInvalid
 		}
 		if exp.Before(time.Now()) {
-			return comerrors.ErrLicenseExpireDateIsInvalid
+			return cerrors.ErrLicenseExpireDateIsInvalid
 		}
 	}
 
 	if req.MaxMachines != nil {
 		if utils.DerefPointer(req.MaxMachines) <= 0 {
-			return comerrors.ErrLicenseMaxMachinesIsInvalid
+			return cerrors.ErrLicenseMaxMachinesIsInvalid
 		}
 	}
 
 	if req.MaxUses != nil {
 		if utils.DerefPointer(req.MaxUses) <= 0 {
-			return comerrors.ErrLicenseMaxUsesIsInvalid
+			return cerrors.ErrLicenseMaxUsesIsInvalid
 		}
 	}
 
 	if req.MaxUsers != nil {
 		if utils.DerefPointer(req.MaxUsers) <= 0 {
-			return comerrors.ErrLicenseMaxUsersIsInvalid
+			return cerrors.ErrLicenseMaxUsersIsInvalid
 		}
 	}
 
@@ -108,42 +108,42 @@ func (req *LicenseUpdateRequest) Validate() error {
 	if req.ProductID != nil {
 		_, err := uuid.Parse(utils.DerefPointer(req.ProductID))
 		if err != nil {
-			return comerrors.ErrProductIDIsInvalid
+			return cerrors.ErrProductIDIsInvalid
 		}
 	}
 
 	if req.PolicyID != nil {
 		_, err := uuid.Parse(utils.DerefPointer(req.PolicyID))
 		if err != nil {
-			return comerrors.ErrPolicyIDIsInvalid
+			return cerrors.ErrPolicyIDIsInvalid
 		}
 	}
 
 	if req.Expiry != nil {
 		exp, err := time.Parse(time.RFC3339, utils.DerefPointer(req.Expiry))
 		if err != nil {
-			return comerrors.ErrLicenseExpiryFormatIsInvalid
+			return cerrors.ErrLicenseExpiryFormatIsInvalid
 		}
 		if exp.Before(time.Now()) {
-			return comerrors.ErrLicenseExpireDateIsInvalid
+			return cerrors.ErrLicenseExpireDateIsInvalid
 		}
 	}
 
 	if req.MaxMachines != nil {
 		if utils.DerefPointer(req.MaxMachines) <= 0 {
-			return comerrors.ErrLicenseMaxMachinesIsInvalid
+			return cerrors.ErrLicenseMaxMachinesIsInvalid
 		}
 	}
 
 	if req.MaxUses != nil {
 		if utils.DerefPointer(req.MaxUses) <= 0 {
-			return comerrors.ErrLicenseMaxUsesIsInvalid
+			return cerrors.ErrLicenseMaxUsesIsInvalid
 		}
 	}
 
 	if req.MaxUsers != nil {
 		if utils.DerefPointer(req.MaxUsers) <= 0 {
-			return comerrors.ErrLicenseMaxUsersIsInvalid
+			return cerrors.ErrLicenseMaxUsersIsInvalid
 		}
 	}
 
@@ -226,12 +226,12 @@ type LicenseActionsRequest struct {
 func (req *LicenseActionsRequest) Validate() error {
 
 	if req.LicenseKey == nil {
-		return comerrors.ErrLicenseKeyIsEmpty
+		return cerrors.ErrLicenseKeyIsEmpty
 	}
 
 	if req.Decrement != nil {
 		if utils.DerefPointer(req.Decrement) <= 0 {
-			return comerrors.ErrLicenseDecrementIsInvalid
+			return cerrors.ErrLicenseDecrementIsInvalid
 		}
 	} else {
 		req.Decrement = utils.RefPointer(1)

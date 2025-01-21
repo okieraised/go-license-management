@@ -2,7 +2,7 @@ package policy_attribute
 
 import (
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/utils"
 )
 
@@ -13,12 +13,12 @@ type PolicyCommonURI struct {
 
 func (req *PolicyCommonURI) Validate() error {
 	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
+		return cerrors.ErrTenantNameIsEmpty
 	}
 
 	if req.PolicyID != nil {
 		if _, err := uuid.Parse(utils.DerefPointer(req.PolicyID)); err != nil {
-			return comerrors.ErrPolicyIDIsInvalid
+			return cerrors.ErrPolicyIDIsInvalid
 		}
 	}
 

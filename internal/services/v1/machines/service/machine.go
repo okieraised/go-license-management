@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
@@ -57,13 +57,13 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -75,34 +75,34 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 		cSpan.End()
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineLicenseIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineLicenseIsInvalid]
-			return resp, comerrors.ErrMachineLicenseIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrMachineLicenseIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrMachineLicenseIsInvalid]
+			return resp, cerrors.ErrMachineLicenseIsInvalid
 		default:
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
 
 	// If license status is either suspended, banned, or expired, return error
 	if license.Suspended {
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsSuspended]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsSuspended]
-		return resp, comerrors.ErrLicenseIsSuspended
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseIsSuspended]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseIsSuspended]
+		return resp, cerrors.ErrLicenseIsSuspended
 	}
 
 	if license.Status == constants.LicenseStatusBanned {
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsBanned]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsBanned]
-		return resp, comerrors.ErrLicenseIsBanned
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseIsBanned]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseIsBanned]
+		return resp, cerrors.ErrLicenseIsBanned
 	}
 
 	if license.Status == constants.LicenseStatusExpired {
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseHasExpired]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseHasExpired]
-		return resp, comerrors.ErrLicenseHasExpired
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseHasExpired]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseHasExpired]
+		return resp, cerrors.ErrLicenseHasExpired
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-machine-by-fingerprint")
@@ -110,26 +110,26 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
 	if mExists {
 		svc.logger.GetLogger().Info(fmt.Sprintf("machine fingerprint [%s] is already associated with license [%s]", utils.DerefPointer(input.Fingerprint), utils.DerefPointer(input.LicenseKey)))
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineFingerprintAssociatedWithLicense]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineFingerprintAssociatedWithLicense]
-		return resp, comerrors.ErrMachineFingerprintAssociatedWithLicense
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrMachineFingerprintAssociatedWithLicense]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrMachineFingerprintAssociatedWithLicense]
+		return resp, cerrors.ErrMachineFingerprintAssociatedWithLicense
 	}
 
 	// Check max machine of the license
 	if license.MachinesCount != 0 {
 		if license.MachinesCount+1 > license.MaxMachines && license.Policy.OverageStrategy == constants.PolicyOverageStrategyNoOverage {
 			svc.logger.GetLogger().Error("license max machine exceeded")
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxMachineExceeded]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxMachineExceeded]
-			return resp, comerrors.ErrLicenseMaxMachineExceeded
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseMaxMachineExceeded]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseMaxMachineExceeded]
+			return resp, cerrors.ErrLicenseMaxMachineExceeded
 		}
 	}
 
@@ -171,9 +171,9 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -194,8 +194,8 @@ func (svc *MachineService) Create(ctx *gin.Context, input *models.MachineRegistr
 		UpdatedAt:       machine.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -217,13 +217,13 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -234,13 +234,13 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
-			return resp, comerrors.ErrMachineIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrMachineIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrMachineIDIsInvalid]
+			return resp, cerrors.ErrMachineIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -286,39 +286,39 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 				cSpan.End()
 				switch {
 				case errors.Is(err, sql.ErrNoRows):
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseKeyIsInvalid]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseKeyIsInvalid]
-					return resp, comerrors.ErrLicenseKeyIsInvalid
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseKeyIsInvalid]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseKeyIsInvalid]
+					return resp, cerrors.ErrLicenseKeyIsInvalid
 				default:
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-					return resp, comerrors.ErrGenericInternalServer
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+					return resp, cerrors.ErrGenericInternalServer
 				}
 			}
 			cSpan.End()
 			if license.Suspended {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsSuspended]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsSuspended]
-				return resp, comerrors.ErrLicenseIsSuspended
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseIsSuspended]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseIsSuspended]
+				return resp, cerrors.ErrLicenseIsSuspended
 			}
 
 			if license.Status == constants.LicenseStatusBanned {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseIsBanned]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseIsBanned]
-				return resp, comerrors.ErrLicenseIsBanned
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseIsBanned]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseIsBanned]
+				return resp, cerrors.ErrLicenseIsBanned
 			}
 
 			if license.Status == constants.LicenseStatusExpired {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseHasExpired]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseHasExpired]
-				return resp, comerrors.ErrLicenseHasExpired
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseHasExpired]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseHasExpired]
+				return resp, cerrors.ErrLicenseHasExpired
 			}
 			if license.MachinesCount != 0 {
 				if license.MachinesCount+1 > license.MaxMachines && license.Policy.OverageStrategy == constants.PolicyOverageStrategyNoOverage {
 					svc.logger.GetLogger().Error("license max machine exceeded")
-					resp.Code = comerrors.ErrCodeMapper[comerrors.ErrLicenseMaxMachineExceeded]
-					resp.Message = comerrors.ErrMessageMapper[comerrors.ErrLicenseMaxMachineExceeded]
-					return resp, comerrors.ErrLicenseMaxMachineExceeded
+					resp.Code = cerrors.ErrCodeMapper[cerrors.ErrLicenseMaxMachineExceeded]
+					resp.Message = cerrors.ErrMessageMapper[cerrors.ErrLicenseMaxMachineExceeded]
+					return resp, cerrors.ErrLicenseMaxMachineExceeded
 				}
 			}
 
@@ -332,9 +332,9 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -355,8 +355,8 @@ func (svc *MachineService) Update(ctx *gin.Context, input *models.MachineUpdateI
 		UpdatedAt:       machine.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -378,13 +378,13 @@ func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetri
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -396,13 +396,13 @@ func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetri
 		cSpan.End()
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
-			return resp, comerrors.ErrMachineIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrMachineIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrMachineIDIsInvalid]
+			return resp, cerrors.ErrMachineIDIsInvalid
 		default:
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -424,8 +424,8 @@ func (svc *MachineService) Retrieve(ctx *gin.Context, input *models.MachineRetri
 		UpdatedAt:       machine.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -447,13 +447,13 @@ func (svc *MachineService) Delete(ctx *gin.Context, input *models.MachineDeleteI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -463,14 +463,14 @@ func (svc *MachineService) Delete(ctx *gin.Context, input *models.MachineDeleteI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }
 
@@ -491,13 +491,13 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -508,13 +508,13 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrProductIDIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrProductIDIsInvalid]
-			return resp, comerrors.ErrProductIDIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrProductIDIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrProductIDIsInvalid]
+			return resp, cerrors.ErrProductIDIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -540,8 +540,8 @@ func (svc *MachineService) List(ctx *gin.Context, input *models.MachineListInput
 		})
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = total
 	resp.Data = machineOutput
 
@@ -564,13 +564,13 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -585,13 +585,13 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 			cSpan.End()
 			switch {
 			case errors.Is(err, sql.ErrNoRows):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
-				return resp, comerrors.ErrMachineIDIsInvalid
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrMachineIDIsInvalid]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrMachineIDIsInvalid]
+				return resp, cerrors.ErrMachineIDIsInvalid
 			default:
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 
 		}
@@ -604,13 +604,13 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 			cSpan.End()
 			switch {
 			case errors.Is(err, sql.ErrNoRows):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
-				return resp, comerrors.ErrMachineIDIsInvalid
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrMachineIDIsInvalid]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrMachineIDIsInvalid]
+				return resp, cerrors.ErrMachineIDIsInvalid
 			default:
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		}
 		resp.Data = respData
@@ -622,20 +622,20 @@ func (svc *MachineService) Actions(ctx *gin.Context, input *models.MachineAction
 			cSpan.End()
 			switch {
 			case errors.Is(err, sql.ErrNoRows):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrMachineIDIsInvalid]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrMachineIDIsInvalid]
-				return resp, comerrors.ErrMachineIDIsInvalid
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrMachineIDIsInvalid]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrMachineIDIsInvalid]
+				return resp, cerrors.ErrMachineIDIsInvalid
 			default:
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		}
 		resp.Data = respData
 		cSpan.End()
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }

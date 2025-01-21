@@ -2,7 +2,7 @@ package machines
 
 import (
 	"context"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/models/machine_attribute"
 	"go-license-management/internal/services/v1/machines/models"
@@ -16,14 +16,14 @@ type MachineRegistrationRequest struct {
 
 func (req *MachineRegistrationRequest) Validate() error {
 	if req.Fingerprint == nil {
-		return comerrors.ErrMachineFingerprintIsEmpty
+		return cerrors.ErrMachineFingerprintIsEmpty
 	}
 
 	if req.LicenseKey == nil {
-		return comerrors.ErrMachineLicenseIsEmpty
+		return cerrors.ErrMachineLicenseIsEmpty
 	} else {
 		if len(utils.DerefPointer(req.LicenseKey)) != 44 {
-			return comerrors.ErrMachineLicenseIsInvalid
+			return cerrors.ErrMachineLicenseIsInvalid
 		}
 	}
 	return nil
@@ -45,7 +45,7 @@ type MachineUpdateRequest struct {
 func (req *MachineUpdateRequest) Validate() error {
 	if req.LicenseKey != nil {
 		if len(utils.DerefPointer(req.LicenseKey)) != 44 {
-			return comerrors.ErrMachineLicenseIsInvalid
+			return cerrors.ErrMachineLicenseIsInvalid
 		}
 	}
 	return nil
@@ -67,7 +67,7 @@ type MachineRetrievalRequest struct {
 
 func (req *MachineRetrievalRequest) Validate() error {
 	if req.MachineID == nil {
-		return comerrors.ErrMachineIDIsEmpty
+		return cerrors.ErrMachineIDIsEmpty
 	}
 	return req.MachineCommonURI.Validate()
 }
@@ -105,7 +105,7 @@ type MachineDeletionRequest struct {
 
 func (req *MachineDeletionRequest) Validate() error {
 	if req.MachineID == nil {
-		return comerrors.ErrMachineIDIsEmpty
+		return cerrors.ErrMachineIDIsEmpty
 	}
 	return req.MachineCommonURI.Validate()
 }
@@ -136,7 +136,7 @@ type MachineActionsRequest struct {
 
 func (req *MachineActionsRequest) Validate() error {
 	if req.MachineAction == nil {
-		return comerrors.ErrMachineActionIsEmpty
+		return cerrors.ErrMachineActionIsEmpty
 	}
 
 	return req.MachineCommonURI.Validate()

@@ -3,7 +3,7 @@ package tenants
 import (
 	"context"
 	"github.com/uptrace/bun"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/utils"
@@ -25,7 +25,7 @@ func (repo *TenantRepository) SelectTenants(ctx context.Context, queryParam cons
 	var count = 0
 
 	if repo.database == nil {
-		return nil, count, comerrors.ErrInvalidDatabaseClient
+		return nil, count, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := make([]entities.Tenant, 0)
@@ -42,7 +42,7 @@ func (repo *TenantRepository) SelectTenants(ctx context.Context, queryParam cons
 
 func (repo *TenantRepository) SelectTenantByPK(ctx context.Context, name string) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return nil, comerrors.ErrInvalidDatabaseClient
+		return nil, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{
@@ -57,7 +57,7 @@ func (repo *TenantRepository) SelectTenantByPK(ctx context.Context, name string)
 
 func (repo *TenantRepository) CheckTenantExistByPK(ctx context.Context, name string) (bool, error) {
 	if repo.database == nil {
-		return false, comerrors.ErrInvalidDatabaseClient
+		return false, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: name}
@@ -71,7 +71,7 @@ func (repo *TenantRepository) CheckTenantExistByPK(ctx context.Context, name str
 
 func (repo *TenantRepository) InsertNewTenant(ctx context.Context, tenant *entities.Tenant) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	_, err := repo.database.NewInsert().Model(tenant).Exec(ctx)
@@ -83,7 +83,7 @@ func (repo *TenantRepository) InsertNewTenant(ctx context.Context, tenant *entit
 
 func (repo *TenantRepository) DeleteTenantByPK(ctx context.Context, name string) error {
 	if repo.database == nil {
-		return comerrors.ErrInvalidDatabaseClient
+		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant := &entities.Tenant{Name: name}
@@ -97,7 +97,7 @@ func (repo *TenantRepository) DeleteTenantByPK(ctx context.Context, name string)
 
 func (repo *TenantRepository) UpdateTenantByPK(ctx context.Context, tenant *entities.Tenant) (*entities.Tenant, error) {
 	if repo.database == nil {
-		return tenant, comerrors.ErrInvalidDatabaseClient
+		return tenant, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tenant.UpdatedAt = time.Now()

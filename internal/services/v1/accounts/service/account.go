@@ -6,7 +6,7 @@ import (
 	"fmt"
 	xormadapter "github.com/casbin/xorm-adapter/v3"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
 	"go-license-management/internal/infrastructure/logging"
@@ -66,13 +66,13 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -82,18 +82,18 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
 	// If username/tenant combo already exists, return with error
 	if exists {
 		svc.logger.GetLogger().Info(fmt.Sprintf("username [%s] already exists in tenant [%s]", utils.DerefPointer(input.Username), utils.DerefPointer(input.TenantName)))
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameAlreadyExist]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameAlreadyExist]
-		return resp, comerrors.ErrAccountUsernameAlreadyExist
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrAccountUsernameAlreadyExist]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrAccountUsernameAlreadyExist]
+		return resp, cerrors.ErrAccountUsernameAlreadyExist
 	}
 
 	_, cSpan = input.Tracer.Start(rootCtx, "query-account-by-name")
@@ -101,18 +101,18 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
 	// If email/tenant combo already exists, return with error
 	if exists {
 		svc.logger.GetLogger().Info(fmt.Sprintf("email [%s] has already been used in tenant [%s]", utils.DerefPointer(input.Username), utils.DerefPointer(input.TenantName)))
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountEmailAlreadyExist]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountEmailAlreadyExist]
-		return resp, comerrors.ErrAccountEmailAlreadyExist
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrAccountEmailAlreadyExist]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrAccountEmailAlreadyExist]
+		return resp, cerrors.ErrAccountEmailAlreadyExist
 	}
 
 	// Hashing password
@@ -121,9 +121,9 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -148,9 +148,9 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -160,14 +160,14 @@ func (svc *AccountService) Create(ctx *gin.Context, input *models.AccountRegistr
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = models.AccountRegistrationOutput{
 		Username:  account.Username,
 		RoleName:  account.RoleName,
@@ -200,13 +200,13 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -216,9 +216,9 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -239,8 +239,8 @@ func (svc *AccountService) List(ctx *gin.Context, input *models.AccountListInput
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Count = count
 	resp.Data = respData
 
@@ -264,13 +264,13 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -280,9 +280,9 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -298,8 +298,8 @@ func (svc *AccountService) Retrieve(ctx *gin.Context, input *models.AccountRetri
 		UpdatedAt: account.UpdatedAt,
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = respData
 
 	return resp, nil
@@ -322,13 +322,13 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -338,9 +338,9 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
@@ -350,14 +350,14 @@ func (svc *AccountService) Delete(ctx *gin.Context, input *models.AccountDeletio
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 
 	return resp, nil
 }
@@ -380,13 +380,13 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -399,13 +399,13 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 		cSpan.End()
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsInvalid]
-			return resp, comerrors.ErrAccountUsernameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrAccountUsernameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrAccountUsernameIsInvalid]
+			return resp, cerrors.ErrAccountUsernameIsInvalid
 		default:
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 
 	}
@@ -418,9 +418,9 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 		if err != nil {
 			svc.logger.GetLogger().Error(err.Error())
 			cSpan.End()
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 		cSpan.End()
 		account.PasswordDigest = hashed
@@ -452,9 +452,9 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 				[]string{utils.DerefPointer(input.TenantName), utils.DerefPointer(input.Username), utils.DerefPointer(input.Role)},
 			)
 			if err != nil {
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 			account.RoleName = utils.DerefPointer(input.Role)
 		} else {
@@ -467,14 +467,14 @@ func (svc *AccountService) Update(ctx *gin.Context, input *models.AccountUpdateI
 	if err != nil {
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
-		resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-		resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-		return resp, comerrors.ErrGenericInternalServer
+		resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+		resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+		return resp, cerrors.ErrGenericInternalServer
 	}
 	cSpan.End()
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	resp.Data = models.AccountUpdateOutput{
 		Username:  account.Username,
 		RoleName:  account.RoleName,
@@ -507,13 +507,13 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrTenantNameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrTenantNameIsInvalid]
-			return resp, comerrors.ErrTenantNameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrTenantNameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrTenantNameIsInvalid]
+			return resp, cerrors.ErrTenantNameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -524,13 +524,13 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 		svc.logger.GetLogger().Error(err.Error())
 		cSpan.End()
 		if errors.Is(err, sql.ErrNoRows) {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsInvalid]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsInvalid]
-			return resp, comerrors.ErrAccountUsernameIsInvalid
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrAccountUsernameIsInvalid]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrAccountUsernameIsInvalid]
+			return resp, cerrors.ErrAccountUsernameIsInvalid
 		} else {
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	}
 	cSpan.End()
@@ -543,27 +543,27 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	case constants.AccountActionUnban:
 		output, err = svc.actionUnban(ctx, account)
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	case constants.AccountActionGenerateResetToken:
 		output, err = svc.actionGenerateResetToken(ctx, account)
 		if err != nil {
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
-			resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-			resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-			return resp, comerrors.ErrGenericInternalServer
+			resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+			resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+			return resp, cerrors.ErrGenericInternalServer
 		}
 	case constants.AccountActionResetPassword:
 		output, err = svc.actionResetPassword(ctx, utils.DerefPointer(input.ResetToken), utils.DerefPointer(input.NewPassword), account)
@@ -571,15 +571,15 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
 			switch {
-			case errors.Is(err, comerrors.ErrAccountResetTokenIsInvalid),
-				errors.Is(err, comerrors.ErrAccountResetTokenIsExpired):
-				resp.Code = comerrors.ErrCodeMapper[err]
-				resp.Message = comerrors.ErrMessageMapper[err]
+			case errors.Is(err, cerrors.ErrAccountResetTokenIsInvalid),
+				errors.Is(err, cerrors.ErrAccountResetTokenIsExpired):
+				resp.Code = cerrors.ErrCodeMapper[err]
+				resp.Message = cerrors.ErrMessageMapper[err]
 				return resp, err
 			default:
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		}
 	case constants.AccountActionUpdatePassword:
@@ -588,14 +588,14 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 			cSpan.End()
 			svc.logger.GetLogger().Error(err.Error())
 			switch {
-			case errors.Is(err, comerrors.ErrAccountPasswordNotMatch):
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrAccountPasswordNotMatch]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrAccountPasswordNotMatch]
-				return resp, comerrors.ErrAccountPasswordNotMatch
+			case errors.Is(err, cerrors.ErrAccountPasswordNotMatch):
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrAccountPasswordNotMatch]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrAccountPasswordNotMatch]
+				return resp, cerrors.ErrAccountPasswordNotMatch
 			default:
-				resp.Code = comerrors.ErrCodeMapper[comerrors.ErrGenericInternalServer]
-				resp.Message = comerrors.ErrMessageMapper[comerrors.ErrGenericInternalServer]
-				return resp, comerrors.ErrGenericInternalServer
+				resp.Code = cerrors.ErrCodeMapper[cerrors.ErrGenericInternalServer]
+				resp.Message = cerrors.ErrMessageMapper[cerrors.ErrGenericInternalServer]
+				return resp, cerrors.ErrGenericInternalServer
 			}
 		}
 	default:
@@ -620,7 +620,7 @@ func (svc *AccountService) Action(ctx *gin.Context, input *models.AccountActionI
 		}
 	}
 
-	resp.Code = comerrors.ErrCodeMapper[nil]
-	resp.Message = comerrors.ErrMessageMapper[nil]
+	resp.Code = cerrors.ErrCodeMapper[nil]
+	resp.Message = cerrors.ErrMessageMapper[nil]
 	return resp, nil
 }

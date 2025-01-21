@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/models/account_attribute"
@@ -84,7 +84,7 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -94,7 +94,7 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -106,7 +106,7 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -115,7 +115,7 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -129,9 +129,9 @@ func (r *AccountRouter) create(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
-			errors.Is(err, comerrors.ErrAccountUsernameAlreadyExist),
-			errors.Is(err, comerrors.ErrAccountEmailAlreadyExist):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, cerrors.ErrAccountUsernameAlreadyExist),
+			errors.Is(err, cerrors.ErrAccountEmailAlreadyExist):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -179,7 +179,7 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -191,7 +191,7 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -199,7 +199,7 @@ func (r *AccountRouter) retrieve(ctx *gin.Context) {
 	if req.Username == nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrAccountUsernameIsEmpty], cerrors.ErrMessageMapper[cerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -257,7 +257,7 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -267,7 +267,7 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -279,7 +279,7 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -287,7 +287,7 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	if uriReq.Username == nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountUsernameIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrAccountUsernameIsEmpty], cerrors.ErrMessageMapper[cerrors.ErrAccountUsernameIsEmpty], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -297,7 +297,7 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -311,7 +311,7 @@ func (r *AccountRouter) update(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrAccountUsernameIsInvalid), errors.Is(err, comerrors.ErrTenantNameIsInvalid):
+		case errors.Is(err, cerrors.ErrAccountUsernameIsInvalid), errors.Is(err, cerrors.ErrTenantNameIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)
@@ -358,7 +358,7 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -370,7 +370,7 @@ func (r *AccountRouter) delete(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -427,7 +427,7 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -437,7 +437,7 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -449,7 +449,7 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -458,7 +458,7 @@ func (r *AccountRouter) list(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -516,13 +516,13 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
 
 	if uriReq.Action == nil {
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountActionIsEmpty], comerrors.ErrMessageMapper[comerrors.ErrAccountActionIsEmpty], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrAccountActionIsEmpty], cerrors.ErrMessageMapper[cerrors.ErrAccountActionIsEmpty], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -532,7 +532,7 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrGenericBadRequest], comerrors.ErrMessageMapper[comerrors.ErrGenericBadRequest], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrGenericBadRequest], cerrors.ErrMessageMapper[cerrors.ErrGenericBadRequest], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -544,7 +544,7 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
@@ -553,36 +553,36 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 	if err != nil {
 		cSpan.End()
 		r.logger.GetLogger().Error(err.Error())
-		resp.ToResponse(comerrors.ErrCodeMapper[err], comerrors.ErrMessageMapper[err], nil, nil, nil)
+		resp.ToResponse(cerrors.ErrCodeMapper[err], cerrors.ErrMessageMapper[err], nil, nil, nil)
 		ctx.JSON(http.StatusBadRequest, resp)
 		return
 	}
 
 	if utils.DerefPointer(uriReq.Action) == constants.AccountActionUpdatePassword {
 		if bodyReq.CurrentPassword == nil {
-			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountCurrentPasswordIsEmpty],
-				comerrors.ErrMessageMapper[comerrors.ErrAccountCurrentPasswordIsEmpty], nil, nil, nil)
+			resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrAccountCurrentPasswordIsEmpty],
+				cerrors.ErrMessageMapper[cerrors.ErrAccountCurrentPasswordIsEmpty], nil, nil, nil)
 			ctx.JSON(http.StatusBadRequest, resp)
 			return
 		}
 
 		if bodyReq.NewPassword == nil {
-			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountNewPasswordIsEmpty],
-				comerrors.ErrMessageMapper[comerrors.ErrAccountNewPasswordIsEmpty], nil, nil, nil)
+			resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrAccountNewPasswordIsEmpty],
+				cerrors.ErrMessageMapper[cerrors.ErrAccountNewPasswordIsEmpty], nil, nil, nil)
 			ctx.JSON(http.StatusBadRequest, resp)
 			return
 		}
 	} else if utils.DerefPointer(uriReq.Action) == constants.AccountActionResetPassword {
 		if bodyReq.NewPassword == nil {
-			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountNewPasswordIsEmpty],
-				comerrors.ErrMessageMapper[comerrors.ErrAccountNewPasswordIsEmpty], nil, nil, nil)
+			resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrAccountNewPasswordIsEmpty],
+				cerrors.ErrMessageMapper[cerrors.ErrAccountNewPasswordIsEmpty], nil, nil, nil)
 			ctx.JSON(http.StatusBadRequest, resp)
 			return
 		}
 
 		if bodyReq.ResetToken == nil {
-			resp.ToResponse(comerrors.ErrCodeMapper[comerrors.ErrAccountResetTokenIsEmpty],
-				comerrors.ErrMessageMapper[comerrors.ErrAccountResetTokenIsEmpty], nil, nil, nil)
+			resp.ToResponse(cerrors.ErrCodeMapper[cerrors.ErrAccountResetTokenIsEmpty],
+				cerrors.ErrMessageMapper[cerrors.ErrAccountResetTokenIsEmpty], nil, nil, nil)
 			ctx.JSON(http.StatusBadRequest, resp)
 			return
 		}
@@ -597,10 +597,10 @@ func (r *AccountRouter) actions(ctx *gin.Context) {
 		r.logger.GetLogger().Error(err.Error())
 		resp.ToResponse(result.Code, result.Message, result.Data, nil, nil)
 		switch {
-		case errors.Is(err, comerrors.ErrTenantNameIsInvalid),
-			errors.Is(err, comerrors.ErrAccountUsernameIsInvalid),
-			errors.Is(err, comerrors.ErrAccountPasswordNotMatch),
-			errors.Is(err, comerrors.ErrAccountResetTokenIsInvalid):
+		case errors.Is(err, cerrors.ErrTenantNameIsInvalid),
+			errors.Is(err, cerrors.ErrAccountUsernameIsInvalid),
+			errors.Is(err, cerrors.ErrAccountPasswordNotMatch),
+			errors.Is(err, cerrors.ErrAccountResetTokenIsInvalid):
 			ctx.JSON(http.StatusBadRequest, resp)
 		default:
 			ctx.JSON(http.StatusInternalServerError, resp)

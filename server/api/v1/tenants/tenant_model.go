@@ -2,7 +2,7 @@ package tenants
 
 import (
 	"context"
-	"go-license-management/internal/comerrors"
+	"go-license-management/internal/cerrors"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/services/v1/tenants/models"
 	"go.opentelemetry.io/otel/trace"
@@ -14,7 +14,7 @@ type TenantRegistrationRequest struct {
 
 func (req *TenantRegistrationRequest) Validate() error {
 	if req.Name == nil {
-		return comerrors.ErrTenantNameIsEmpty
+		return cerrors.ErrTenantNameIsEmpty
 	}
 
 	return nil
@@ -34,7 +34,7 @@ type TenantRetrievalRequest struct {
 
 func (req *TenantRetrievalRequest) Validate() error {
 	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
+		return cerrors.ErrTenantNameIsEmpty
 	}
 	return nil
 }
@@ -53,7 +53,7 @@ type TenantDeletionRequest struct {
 
 func (req *TenantDeletionRequest) Validate() error {
 	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
+		return cerrors.ErrTenantNameIsEmpty
 	}
 	return nil
 }
@@ -89,7 +89,7 @@ type TenantRegenerationRequest struct {
 
 func (req *TenantRegenerationRequest) Validate() error {
 	if req.TenantName == nil {
-		return comerrors.ErrTenantNameIsEmpty
+		return cerrors.ErrTenantNameIsEmpty
 	}
 	return nil
 }
