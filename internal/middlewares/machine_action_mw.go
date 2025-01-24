@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/casbin_adapter"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/permissions"
 	"go-license-management/internal/response"
 	"net/http"
 	"strings"
@@ -66,11 +67,11 @@ func MachineActionPermissionValidationMW() gin.HandlerFunc {
 
 		switch actions {
 		case constants.MachineActionCheckout:
-			permission = constants.MachineCheckOut
+			permission = permissions.MachineCheckOut
 		case constants.MachineActionPingHeartbeat:
-			permission = constants.MachineHeartbeatPing
+			permission = permissions.MachineHeartbeatPing
 		case constants.MachineActionResetHeartbeat:
-			permission = constants.MachineHeartbeatReset
+			permission = permissions.MachineHeartbeatReset
 		default:
 			ctx.AbortWithStatusJSON(
 				http.StatusBadRequest,

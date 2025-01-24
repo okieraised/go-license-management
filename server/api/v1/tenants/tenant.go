@@ -9,6 +9,7 @@ import (
 	"go-license-management/internal/infrastructure/logging"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/middlewares"
+	"go-license-management/internal/permissions"
 	"go-license-management/internal/response"
 	"go-license-management/internal/services/v1/tenants/service"
 	"go-license-management/internal/utils"
@@ -38,11 +39,11 @@ func (r *TenantRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/tenants")
-		routes.POST("", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantCreate), r.create)
-		routes.GET("", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.list)
-		routes.GET("/:tenant_name", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantRead), r.retrieve)
-		routes.POST("/:tenant_name/regenerate", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantUpdate), r.regenerate)
-		routes.DELETE("/:tenant_name", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(constants.TenantDelete), r.delete)
+		routes.POST("", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(permissions.TenantCreate), r.create)
+		routes.GET("", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(permissions.TenantRead), r.list)
+		routes.GET("/:tenant_name", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(permissions.TenantRead), r.retrieve)
+		routes.POST("/:tenant_name/regenerate", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(permissions.TenantUpdate), r.regenerate)
+		routes.DELETE("/:tenant_name", middlewares.JWTMasterValidationMW(), middlewares.PermissionValidationMW(permissions.TenantDelete), r.delete)
 	}
 }
 

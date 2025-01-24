@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/casbin_adapter"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/permissions"
 	"go-license-management/internal/response"
 	"net/http"
 	"strings"
@@ -66,13 +67,13 @@ func AccountActionPermissionValidationMW() gin.HandlerFunc {
 
 		switch actions {
 		case constants.AccountActionBan:
-			permission = constants.UserBan
+			permission = permissions.UserBan
 		case constants.AccountActionUnban:
-			permission = constants.UserUnban
+			permission = permissions.UserUnban
 		case constants.AccountActionUpdatePassword:
-			permission = constants.UserPasswordUpdate
+			permission = permissions.UserPasswordUpdate
 		case constants.AccountActionResetPassword, constants.AccountActionGenerateResetToken:
-			permission = constants.UserPasswordReset
+			permission = permissions.UserPasswordReset
 		default:
 			ctx.AbortWithStatusJSON(
 				http.StatusBadRequest,

@@ -10,6 +10,7 @@ import (
 	"go-license-management/internal/infrastructure/models/account_attribute"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/middlewares"
+	"go-license-management/internal/permissions"
 	"go-license-management/internal/response"
 	"go-license-management/internal/services/v1/accounts/service"
 	"go-license-management/internal/utils"
@@ -39,12 +40,12 @@ func (r *AccountRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/accounts")
-		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.create)
-		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserRead), r.list)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserRead), r.list)
 		routes = routes.Group("/:username")
-		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserRead), r.retrieve)
-		routes.PATCH("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserUpdate), r.update)
-		routes.DELETE("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserDelete), r.delete)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserRead), r.retrieve)
+		routes.PATCH("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserUpdate), r.update)
+		routes.DELETE("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserDelete), r.delete)
 		routes.POST("/actions/:action", middlewares.JWTValidationMW(), middlewares.AccountActionPermissionValidationMW(), r.actions)
 
 	}

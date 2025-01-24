@@ -9,6 +9,7 @@ import (
 	"go-license-management/internal/infrastructure/models/machine_attribute"
 	"go-license-management/internal/infrastructure/tracer"
 	"go-license-management/internal/middlewares"
+	"go-license-management/internal/permissions"
 	"go-license-management/internal/response"
 	"go-license-management/internal/services/v1/machines/service"
 	"go.opentelemetry.io/otel/attribute"
@@ -37,11 +38,11 @@ func (r *MachineRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/machines")
-		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineCreate), r.create)
-		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.list)
-		routes.GET("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.retrieve)
-		routes.PATCH("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineRead), r.update)
-		routes.DELETE("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.MachineDelete), r.deactivate)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.MachineCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.MachineRead), r.list)
+		routes.GET("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.MachineRead), r.retrieve)
+		routes.PATCH("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.MachineRead), r.update)
+		routes.DELETE("/:machine_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.MachineDelete), r.deactivate)
 		routes.POST("/:machine_id/actions/:machine_action", middlewares.JWTValidationMW(), middlewares.MachineActionPermissionValidationMW(), r.action)
 	}
 }

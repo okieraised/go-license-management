@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/iyashjayesh/monigo"
 	"github.com/spf13/viper"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
@@ -181,9 +182,23 @@ func main() {
 	}
 	appSvc := NewAppService(dataSources)
 
-	go func() {
+	dfs := func() {
 		server.StartServer(appSvc, serverQuit)
-	}()
+	}
+
+	//go dfs()
+
+	monigoInstance := &monigo.Monigo{
+		ServiceName:             "data-api", // Mandatory field
+		DashboardPort:           8080,       // Default is 8080
+		DataPointsSyncFrequency: "5s",       // Default is 5 Minutes
+		DataRetentionPeriod:     "4d",       // Default is 7 days. Supported values: "1h", "1d", "1w", "1m"
+		TimeZone:                "Local",    // Default is Local timezone. Supported values: "Local", "UTC", "Asia/Kolkata", "America/New_York" etc. (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+	}
+
+	go monigo.TraceFunction(dfs)
+
+	go monigoInstance.Start()
 
 	<-quit
 	serverQuit <- syscall.SIGKILL

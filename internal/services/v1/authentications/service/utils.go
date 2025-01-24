@@ -10,13 +10,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
+	"go-license-management/internal/permissions"
 	"time"
 )
 
 func (svc *AuthenticationService) generateSuperadminJWT(ctx *gin.Context, master *entities.Master) (string, int64, error) {
 
 	jwtPermissions := make([]string, 0)
-	for k, _ := range constants.SuperAdminPermissionMapper {
+	for k, _ := range permissions.SuperAdminPermissionMapper {
 		jwtPermissions = append(jwtPermissions, k)
 	}
 
@@ -62,15 +63,15 @@ func (svc *AuthenticationService) generateJWT(ctx *gin.Context, tenant *entities
 	jwtPermissions := make([]string, 0)
 	switch account.RoleName {
 	case constants.RoleUser:
-		for k, _ := range constants.UserPermissionMapper {
+		for k, _ := range permissions.UserPermissionMapper {
 			jwtPermissions = append(jwtPermissions, k)
 		}
 	case constants.RoleAdmin:
-		for k, _ := range constants.AdminPermissionMapper {
+		for k, _ := range permissions.AdminPermissionMapper {
 			jwtPermissions = append(jwtPermissions, k)
 		}
 	case constants.RoleSuperAdmin:
-		for k, _ := range constants.SuperAdminPermissionMapper {
+		for k, _ := range permissions.SuperAdminPermissionMapper {
 			jwtPermissions = append(jwtPermissions, k)
 		}
 	}

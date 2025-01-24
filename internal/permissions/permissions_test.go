@@ -1,4 +1,4 @@
-package constants
+package permissions
 
 import (
 	"github.com/casbin/casbin/v2"

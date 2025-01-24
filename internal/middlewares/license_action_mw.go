@@ -8,6 +8,7 @@ import (
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/casbin_adapter"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/permissions"
 	"go-license-management/internal/response"
 	"net/http"
 	"strings"
@@ -66,23 +67,23 @@ func LicenseActionPermissionValidationMW() gin.HandlerFunc {
 
 		switch actions {
 		case constants.LicenseActionCheckin:
-			permission = constants.LicenseCheckIn
+			permission = permissions.LicenseCheckIn
 		case constants.LicenseActionCheckout:
-			permission = constants.LicenseCheckOut
+			permission = permissions.LicenseCheckOut
 		case constants.LicenseActionValidate:
-			permission = constants.LicenseValidate
+			permission = permissions.LicenseValidate
 		case constants.LicenseActionIncrementUsage:
-			permission = constants.LicenseUsageIncrement
+			permission = permissions.LicenseUsageIncrement
 		case constants.LicenseActionDecrementUsage:
-			permission = constants.LicenseUsageDecrement
+			permission = permissions.LicenseUsageDecrement
 		case constants.LicenseActionRenew:
-			permission = constants.LicenseRenew
+			permission = permissions.LicenseRenew
 		case constants.LicenseActionReinstate:
-			permission = constants.LicenseReinstate
+			permission = permissions.LicenseReinstate
 		case constants.LicenseActionResetUsage:
-			permission = constants.LicenseUsageReset
+			permission = permissions.LicenseUsageReset
 		case constants.LicenseActionSuspend:
-			permission = constants.LicenseSuspend
+			permission = permissions.LicenseSuspend
 		default:
 			ctx.AbortWithStatusJSON(
 				http.StatusBadRequest,

@@ -7,8 +7,8 @@ import (
 	"github.com/casbin/casbin/v2/model"
 	xormadapter "github.com/casbin/xorm-adapter/v3"
 	_ "github.com/lib/pq"
-	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/logging"
+	"go-license-management/internal/permissions"
 )
 
 func init() {
@@ -53,9 +53,9 @@ func NewCasbinAdapter(userName, password, host, port string) (*xormadapter.Adapt
 
 func SeedingCasbinPermissions() error {
 	logging.GetInstance().GetLogger().Info("started populating casbin data")
-	superadminPolicies := constants.CreateSuperAdminPermission()
-	adminPolicies := constants.CreateAdminPermission()
-	userPolicies := constants.CreateUserPermission()
+	superadminPolicies := permissions.CreateSuperAdminPermission()
+	adminPolicies := permissions.CreateAdminPermission()
+	userPolicies := permissions.CreateUserPermission()
 
 	e, err := casbin.NewEnforcer(GetEnforcerModel(), GetAdapter())
 	if err != nil {

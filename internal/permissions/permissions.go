@@ -1,4 +1,4 @@
-package constants
+package permissions
 
 import (
 	"strings"

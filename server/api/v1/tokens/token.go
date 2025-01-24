@@ -2,8 +2,8 @@ package tokens
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-license-management/internal/constants"
 	"go-license-management/internal/middlewares"
+	"go-license-management/internal/permissions"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -20,11 +20,11 @@ func (r *TokenRouter) Routes(engine *gin.RouterGroup, path string) {
 	routes := engine.Group(path)
 	{
 		routes = routes.Group("/tokens")
-		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.create)
-		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.list)
-		routes.GET("/:token_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.retrieve)
-		routes.DELETE("/:token_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.revoke)
-		routes.PUT("/:token_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(constants.UserCreate), r.regenerate)
+		routes.POST("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserCreate), r.create)
+		routes.GET("", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserCreate), r.list)
+		routes.GET("/:token_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserCreate), r.retrieve)
+		routes.DELETE("/:token_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserCreate), r.revoke)
+		routes.PUT("/:token_id", middlewares.JWTValidationMW(), middlewares.PermissionValidationMW(permissions.UserCreate), r.regenerate)
 	}
 }
 
