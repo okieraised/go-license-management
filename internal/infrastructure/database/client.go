@@ -2,9 +2,15 @@ package database
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/mysqldialect"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"go-license-management/internal/config"
 	"go-license-management/internal/constants"
 	"go-license-management/internal/infrastructure/database/entities"
@@ -16,24 +22,180 @@ import (
 var client *bun.DB
 
 const (
-	defaultTimeout          = 10 * time.Second
-	defaultReadTimeout      = 10 * time.Second
-	defaultWriteTimeout     = 10 * time.Second
-	defaultMaxIdleConn  int = 100
-	defaultMaxOpenConn  int = 100
+	defaultTimeout             = 10 * time.Second
+	defaultReadTimeout         = 10 * time.Second
+	defaultWriteTimeout        = 10 * time.Second
+	defaultConnMaxIdleTime     = 30 * 60 * time.Second
+	defaultConnMaxLifetime     = 60 * 60 * time.Second
+	defaultMaxIdleConn     int = 100
+	defaultMaxOpenConn     int = 100
 )
 
 func GetInstance() *bun.DB {
 	return client
 }
 
-func NewDatabaseClient(driver, host, port, dbname, userName, password string) (*bun.DB, error) {
+type DBConfig struct {
+	driver       string
+	host         string
+	port         string
+	dbName       string
+	username     string
+	password     string
+	maxIdleConn  int
+	maxOpenConn  int
+	maxLifetime  time.Duration
+	maxIdleTime  time.Duration
+	readTimeout  time.Duration
+	writeTimeout time.Duration
+	timeout      time.Duration
+}
 
-	switch driver {
-	case "postgres":
+func WithDriver(driver string) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.driver = driver
+	}
+}
+
+func WithHost(host string) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.host = host
+	}
+}
+
+func WithPort(port string) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.port = port
+	}
+}
+
+func WithDBName(name string) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.dbName = name
+	}
+}
+
+func WithUsername(username string) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.username = username
+	}
+}
+
+func WithPassword(password string) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.password = password
+	}
+}
+
+func WithMaxIdleConn(maxIdleConn int) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.maxIdleConn = maxIdleConn
+	}
+}
+
+func WithMaxOpenConn(maxOpenConn int) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.maxOpenConn = maxOpenConn
+	}
+}
+
+func WithMaxLifetime(maxLifetime time.Duration) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.maxLifetime = maxLifetime
+	}
+}
+
+func WithMaxIdleTime(maxIdleTime time.Duration) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.maxIdleTime = maxIdleTime
+	}
+}
+
+func WithReadTimeout(readTimeout time.Duration) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.readTimeout = readTimeout
+	}
+}
+
+func WithWriteTimeout(writeTimeout time.Duration) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.writeTimeout = writeTimeout
+	}
+}
+
+func WithTimeout(timeout time.Duration) func(*DBConfig) {
+	return func(cfg *DBConfig) {
+		cfg.timeout = timeout
+	}
+}
+
+func NewDBConfig(opts ...func(*DBConfig)) *DBConfig {
+	cfg := new(DBConfig)
+	cfg.maxIdleConn = defaultMaxIdleConn
+	cfg.maxOpenConn = defaultMaxOpenConn
+	cfg.maxLifetime = defaultConnMaxLifetime
+	cfg.maxIdleTime = defaultConnMaxIdleTime
+	cfg.readTimeout = defaultReadTimeout
+	cfg.writeTimeout = defaultWriteTimeout
+	cfg.timeout = defaultTimeout
+
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	return cfg
+}
+
+func NewDatabaseClient(cfg *DBConfig) (*bun.DB, error) {
+
+	if cfg.host == "" || cfg.username == "" || cfg.password == "" || cfg.dbName == "" {
+		return nil, errors.New("one or more required connection parameters are empty")
+	}
+
+	switch cfg.driver {
+	case "postgresql":
+		pgconn := pgdriver.NewConnector(
+			pgdriver.WithNetwork("tcp"),
+			pgdriver.WithAddr(fmt.Sprintf("%s:%s", cfg.host, cfg.port)),
+			pgdriver.WithUser(cfg.username),
+			pgdriver.WithPassword(cfg.password),
+			pgdriver.WithDatabase(cfg.dbName),
+			pgdriver.WithTimeout(cfg.timeout),
+			pgdriver.WithReadTimeout(cfg.readTimeout),
+			pgdriver.WithWriteTimeout(cfg.writeTimeout),
+			pgdriver.WithInsecure(true),
+		)
+		postgresDB := sql.OpenDB(pgconn)
+		postgresDB.SetMaxIdleConns(cfg.maxIdleConn)
+		postgresDB.SetMaxOpenConns(cfg.maxOpenConn)
+		postgresDB.SetConnMaxIdleTime(cfg.maxIdleTime)
+		postgresDB.SetConnMaxLifetime(cfg.maxLifetime)
+		client = bun.NewDB(postgresDB, pgdialect.New())
+
 	case "mysql":
+		mysqlCfg := &mysql.Config{
+			User:                 cfg.username,
+			Passwd:               cfg.password,
+			Net:                  "tcp",
+			Addr:                 fmt.Sprintf("%s:%s", cfg.host, cfg.port),
+			DBName:               cfg.dbName,
+			AllowNativePasswords: true,
+			Timeout:              cfg.timeout,
+			ReadTimeout:          cfg.readTimeout,
+			WriteTimeout:         cfg.writeTimeout,
+		}
+
+		mysqlDB, err := sql.Open("mysql", mysqlCfg.FormatDSN())
+		if err != nil {
+			return nil, err
+		}
+		mysqlDB.SetMaxOpenConns(cfg.maxOpenConn)
+		mysqlDB.SetMaxIdleConns(cfg.maxIdleConn)
+		mysqlDB.SetConnMaxIdleTime(cfg.maxIdleTime)
+		mysqlDB.SetConnMaxLifetime(cfg.maxLifetime)
+		client = bun.NewDB(mysqlDB, mysqldialect.New())
 	default:
-		return nil, fmt.Errorf("unsupported database driver: %s", driver)
+		return nil, fmt.Errorf("unsupported database driver: %s", cfg.driver)
 	}
 
 	return client, nil
@@ -55,7 +217,7 @@ func SeedingDatabase() error {
 		return err
 	}
 
-	superadminPassword := "superadmin"
+	superadminPassword := constants.DefaultSuperAdminPassword
 
 	if viper.GetString(config.SuperAdminPassword) != "" {
 		superadminPassword = viper.GetString(config.SuperAdminPassword)

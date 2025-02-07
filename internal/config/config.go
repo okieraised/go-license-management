@@ -20,6 +20,15 @@ const (
 )
 
 const (
+	DatabaseDriver   = "database.driver"
+	DatabaseHost     = "database.host"
+	DatabasePort     = "database.port"
+	DatabaseUser     = "database.user"
+	DatabasePassword = "database.password"
+	DatabaseName     = "database.name"
+)
+
+const (
 	PostgresHost     = "postgres.host"
 	PostgresPort     = "postgres.port"
 	PostgresUsername = "postgres.username"
