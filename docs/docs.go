@@ -1644,6 +1644,11 @@ const docTemplate = `{
                         "in": "path"
                     },
                     {
+                        "type": "boolean",
+                        "name": "to_file",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "name": "ttl",
                         "in": "query"
@@ -2839,10 +2844,6 @@ const docTemplate = `{
                 "product_id"
             ],
             "properties": {
-                "authentication_strategy": {
-                    "description": "AuthenticationStrategy: The strategy used for authenticating as a license, for client-side integrations.",
-                    "type": "string"
-                },
                 "check_in_interval": {
                     "description": "CheckInInterval: The time duration between each checkin",
                     "type": "string"
@@ -2855,12 +2856,8 @@ const docTemplate = `{
                     "description": "Encrypted: Whether to encrypt the license file",
                     "type": "boolean"
                 },
-                "expiration_basis": {
-                    "description": "ExpirationBasis: Control when a license's initial expiry is set.",
-                    "type": "string"
-                },
                 "expiration_strategy": {
-                    "description": "ExpirationStrategy: The strategy for expired licenses during a license validation and when accessing releases.",
+                    "description": "ExpirationStrategy: The strategy for expired licenses during a license validation.",
                     "type": "string"
                 },
                 "floating": {
@@ -2897,10 +2894,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "overage_strategy": {
-                    "description": "OverageStrategy: The strategy used for allowing machine, core and process overages.",
-                    "type": "string"
-                },
-                "policyID": {
+                    "description": "OverageStrategy: The strategy used for allowing machine overages.",
                     "type": "string"
                 },
                 "product_id": {
@@ -2935,9 +2929,6 @@ const docTemplate = `{
                     "description": "Strict: All categories must valid in order for the license to be considered valid. Default: false",
                     "type": "boolean"
                 },
-                "tenantName": {
-                    "type": "string"
-                },
                 "use_pool": {
                     "description": "UsePool: Whether to pull license keys from a finite pool of pre-determined keys",
                     "type": "boolean"
@@ -2950,10 +2941,6 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "authentication_strategy": {
-                    "description": "AuthenticationStrategy: The strategy used for authenticating as a license, for client-side integrations.",
-                    "type": "string"
-                },
                 "check_in_interval": {
                     "description": "CheckInInterval: The time duration between each checkin",
                     "type": "string"
@@ -2966,12 +2953,8 @@ const docTemplate = `{
                     "description": "Encrypted: Whether to encrypt the license file",
                     "type": "boolean"
                 },
-                "expiration_basis": {
-                    "description": "ExpirationBasis: Control when a license's initial expiry is set.",
-                    "type": "string"
-                },
                 "expiration_strategy": {
-                    "description": "ExpirationStrategy: The strategy for expired licenses during a license validation and when accessing releases.",
+                    "description": "ExpirationStrategy: The strategy for expired licenses during a license validation.",
                     "type": "string"
                 },
                 "floating": {
@@ -3008,7 +2991,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "overage_strategy": {
-                    "description": "OverageStrategy: The strategy used for allowing machine, core and process overages.",
+                    "description": "OverageStrategy: The strategy used for allowing machine overages.",
                     "type": "string"
                 },
                 "protected": {
