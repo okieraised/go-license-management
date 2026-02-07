@@ -170,9 +170,13 @@ func NewAppService(ds *api.DataSource) *api.AppService {
 // @in header
 // @name Authorization
 func main() {
-	quit := make(chan os.Signal)
-	serverQuit := make(chan os.Signal)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGKILL)
+	// Use buffered channels to prevent blocking on signal send
+	quit := make(chan os.Signal, 1)
+	serverQuit := make(chan os.Signal, 1)
+
+	// SIGKILL cannot be caught or ignored on Unix-like systems, so it's excluded
+	// Only catch signals that can actually be handled
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	dataSources, err := newDataSource()
 	if err != nil {
@@ -184,7 +188,9 @@ func main() {
 	go server.StartServer(appSvc, serverQuit)
 
 	<-quit
-	serverQuit <- syscall.SIGKILL
+	// Send SIGTERM to trigger graceful shutdown instead of SIGKILL
+	// SIGTERM allows the server to clean up resources properly
+	serverQuit <- syscall.SIGTERM
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
