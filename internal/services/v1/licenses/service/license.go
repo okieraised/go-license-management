@@ -133,15 +133,16 @@ func (svc *LicenseService) Create(ctx *gin.Context, input *models.LicenseRegistr
 	}
 	cSpan.End()
 
+	md5sum, sha1sum, sha256sum := computeChecksums(license.Key)
 	respData := models.LicenseInfoOutput{
 		LicenseID:      license.ID.String(),
 		ProductID:      product.ID.String(),
 		PolicyID:       policy.ID.String(),
 		Name:           license.Name,
 		LicenseKey:     license.Key,
-		MD5Checksum:    fmt.Sprintf("%x", md5.Sum([]byte(license.Key))),
-		Sha1Checksum:   fmt.Sprintf("%x", sha1.Sum([]byte(license.Key))),
-		Sha256Checksum: fmt.Sprintf("%x", sha256.Sum256([]byte(license.Key))),
+		MD5Checksum:    md5sum,
+		Sha1Checksum:   sha1sum,
+		Sha256Checksum: sha256sum,
 		Status:         license.Status,
 		Metadata:       license.Metadata,
 		Expiry:         license.Expiry,
