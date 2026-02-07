@@ -101,16 +101,20 @@ func (repo *MachineRepository) DeleteMachineByPK(ctx context.Context, machineID 
 	return nil
 }
 
-func (repo *MachineRepository) DeleteMachineByPKAndUpdateLicense(ctx context.Context, machineID uuid.UUID) error {
+func (repo *MachineRepository) DeleteMachineByPKAndUpdateLicense(ctx context.Context, machineID uuid.UUID) (err error) {
 	if repo.database == nil {
 		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
 	defer func() {
-		cErr := tx.Commit()
-		if cErr != nil && err == nil {
-			err = cErr
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			err = tx.Commit()
 		}
 	}()
 
@@ -118,14 +122,12 @@ func (repo *MachineRepository) DeleteMachineByPKAndUpdateLicense(ctx context.Con
 
 	err = tx.NewSelect().Model(machine).WherePK().Scan(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 
 	license := &entities.License{ID: machine.LicenseID}
 	err = tx.NewSelect().Model(license).WherePK().Scan(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 	license.UpdatedAt = time.Now()
@@ -135,13 +137,11 @@ func (repo *MachineRepository) DeleteMachineByPKAndUpdateLicense(ctx context.Con
 	}
 	_, err = tx.NewUpdate().Model(license).WherePK().Exec(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 
 	_, err = tx.NewDelete().Model(machine).WherePK().Exec(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 
@@ -224,23 +224,26 @@ func (repo *MachineRepository) CheckMachineExistByFingerprintAndLicense(ctx cont
 	return exists, nil
 }
 
-func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Context, machine *entities.Machine) error {
+func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Context, machine *entities.Machine) (err error) {
 	if repo.database == nil {
 		return cerrors.ErrInvalidDatabaseClient
 	}
 
 	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
 	defer func() {
-		cErr := tx.Commit()
-		if cErr != nil && err == nil {
-			err = cErr
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			err = tx.Commit()
 		}
 	}()
 
 	license := &entities.License{ID: machine.LicenseID}
 	err = tx.NewSelect().Model(license).WherePK().Scan(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 
@@ -252,13 +255,11 @@ func (repo *MachineRepository) InsertNewMachineAndUpdateLicense(ctx context.Cont
 
 	_, err = tx.NewUpdate().Model(license).WherePK().Exec(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 
 	_, err = tx.NewInsert().Model(machine).Exec(ctx)
 	if err != nil {
-		_ = tx.Rollback()
 		return err
 	}
 
@@ -278,16 +279,20 @@ func (repo *MachineRepository) UpdateMachineByPK(ctx context.Context, machine *e
 	return machine, nil
 }
 
-func (repo *MachineRepository) UpdateMachineByPKAndLicense(ctx context.Context, machine *entities.Machine, currentLicense, newLicense *entities.License) (*entities.Machine, error) {
+func (repo *MachineRepository) UpdateMachineByPKAndLicense(ctx context.Context, machine *entities.Machine, currentLicense, newLicense *entities.License) (_ *entities.Machine, err error) {
 	if repo.database == nil {
 		return machine, cerrors.ErrInvalidDatabaseClient
 	}
 
 	tx, err := repo.database.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return machine, err
+	}
 	defer func() {
-		cErr := tx.Commit()
-		if cErr != nil && err == nil {
-			err = cErr
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			err = tx.Commit()
 		}
 	}()
 
@@ -300,7 +305,6 @@ func (repo *MachineRepository) UpdateMachineByPKAndLicense(ctx context.Context, 
 		}
 		_, err = tx.NewUpdate().Model(currentLicense).WherePK().Exec(ctx)
 		if err != nil {
-			_ = tx.Rollback()
 			return machine, err
 		}
 
@@ -311,7 +315,6 @@ func (repo *MachineRepository) UpdateMachineByPKAndLicense(ctx context.Context, 
 		newLicense.MachinesCount += 1
 		_, err = tx.NewUpdate().Model(newLicense).WherePK().Exec(ctx)
 		if err != nil {
-			_ = tx.Rollback()
 			return machine, err
 		}
 	}
