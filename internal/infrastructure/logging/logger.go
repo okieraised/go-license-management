@@ -62,13 +62,13 @@ func (l *Logger) GetSugarLogger() *zap.SugaredLogger {
 }
 
 func (l *Logger) WithCustomFields(fields ...zap.Field) *zap.Logger {
-	l.logger = childLogger
-	l.logger = l.logger.With(fields...)
-	return l.logger
+	// Create a new derived logger without modifying the shared logger field
+	// This prevents race conditions when multiple goroutines call this method
+	return childLogger.With(fields...)
 }
 
 func (l *Logger) WithCustomStringFields(k string, v string) *zap.Logger {
-	l.logger = childLogger
-	l.logger = l.logger.With(zap.String(k, v))
-	return l.logger
+	// Create a new derived logger without modifying the shared logger field
+	// This prevents race conditions when multiple goroutines call this method
+	return childLogger.With(zap.String(k, v))
 }

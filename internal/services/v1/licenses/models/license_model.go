@@ -43,13 +43,20 @@ type LicenseRetrievalInput struct {
 }
 
 type LicenseInfoOutput struct {
-	LicenseID      string                 `json:"license_id"`
-	ProductID      string                 `json:"product_id"`
-	PolicyID       string                 `json:"policy_id"`
-	Name           string                 `json:"name"`
-	LicenseKey     string                 `json:"license_key"`
-	MD5Checksum    string                 `json:"md5_checksum"`
-	Sha1Checksum   string                 `json:"sha1_checksum"`
+	LicenseID  string `json:"license_id"`
+	ProductID  string `json:"product_id"`
+	PolicyID   string `json:"policy_id"`
+	Name       string `json:"name"`
+	LicenseKey string `json:"license_key"`
+	// DEPRECATED: MD5 is cryptographically broken (collision attacks since 2004)
+	// This field is maintained for backward compatibility only
+	// Use Sha256Checksum for any security-critical operations
+	MD5Checksum string `json:"md5_checksum"`
+	// DEPRECATED: SHA1 is cryptographically broken (practical collision attacks since 2017)
+	// This field is maintained for backward compatibility only
+	// Use Sha256Checksum for any security-critical operations
+	Sha1Checksum string `json:"sha1_checksum"`
+	// RECOMMENDED: Use SHA256 for cryptographic operations
 	Sha256Checksum string                 `json:"sha256_checksum"`
 	Status         string                 `json:"status"`
 	Metadata       map[string]interface{} `json:"metadata"`

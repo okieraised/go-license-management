@@ -473,3 +473,22 @@ func (svc *LicenseService) resetUsageLicense(ctx *gin.Context, license *entities
 
 	return license, nil
 }
+
+// computeChecksums calculates checksums for a license key
+// DEPRECATED: MD5 and SHA1 are cryptographically broken and should not be used
+// for security purposes. They are kept for backward compatibility only.
+// Use SHA256 for any security-critical operations.
+func computeChecksums(licenseKey string) (md5sum, sha1sum, sha256sum string) {
+	// MD5 - DEPRECATED: Broken since 2004, vulnerable to collision attacks
+	// Kept only for backward compatibility with existing API clients
+	md5sum = fmt.Sprintf("%x", md5.Sum([]byte(licenseKey)))
+
+	// SHA1 - DEPRECATED: Broken since 2017, practical collision attacks exist
+	// Kept only for backward compatibility with existing API clients
+	sha1sum = fmt.Sprintf("%x", sha1.Sum([]byte(licenseKey)))
+
+	// SHA256 - RECOMMENDED: Use this for any security-critical operations
+	sha256sum = fmt.Sprintf("%x", sha256.Sum256([]byte(licenseKey)))
+
+	return md5sum, sha1sum, sha256sum
+}

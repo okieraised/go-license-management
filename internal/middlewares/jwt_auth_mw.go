@@ -331,7 +331,23 @@ func JWTValidationMW() gin.HandlerFunc {
 				return
 			}
 
-			status := statusCtx.(string)
+			// Safe type assertion with check to prevent panic on malformed tokens
+			status, ok := statusCtx.(string)
+			if !ok {
+				logging.GetInstance().GetLogger().Error("status claim is not a string")
+				ctx.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					response.NewResponse(ctx).ToResponse(
+						cerrors.ErrCodeMapper[cerrors.ErrGenericUnauthorized],
+						"status claim must be a string",
+						nil,
+						nil,
+						nil,
+					),
+				)
+				return
+			}
+
 			if status == constants.AccountStatusBanned {
 				ctx.AbortWithStatusJSON(
 					http.StatusForbidden,
